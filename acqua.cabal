@@ -16,3 +16,16 @@ executable acqua
   build-depends: base ==4.6.*, array, pretty-show
   build-tools: alex, happy
   other-modules: L1.Tokens, L1.Grammar
+
+--library
+--  build-depends: base ==4.*, array, pretty-show
+--  hs-source-dirs: src
+--  other-modules: L1.Tokens, L1.Grammar
+--  exposed-modules: L1.Language
+
+test-suite parser-spec
+  type: exitcode-stdio-1.0
+  hs-source-dirs: spec, src
+  other-modules: L1.Tokens, L1.Grammar
+  main-is: parser_spec.hs
+  build-depends: base == 4.6.*, hspec, array
