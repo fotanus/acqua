@@ -1,0 +1,16 @@
+name:                acqua
+version:             0.1.0.0
+synopsis:            Acqua abstract machine
+homepage:            https://bitbucket.org/fotanus/acqua
+license:             AllRightsReserved
+-- license-file:        LICENSE
+author:              Felipe Tanus
+maintainer:          fotanus@inf.ufrgs.br
+category:            Language
+build-type:          Simple
+cabal-version:       >=1.8
+
+executable acqua
+  main-is: Main.hs
+  hs-source-dirs: src
+  build-depends:       base ==4.6.*
