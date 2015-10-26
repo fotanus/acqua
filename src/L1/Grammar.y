@@ -19,16 +19,11 @@ import L1.Language
     if     { Token _ TokenIf }
     then   { Token _ TokenThen }
     else   { Token _ TokenElse }
-    int    { Token _ TokenInt }
     num    { Token _ (TokenNum $$) }
     var    { Token _ (TokenSym $$) }
     '!='   { Token _ TokenNEQ }
-    '&&'   { Token _ TokenAnd }
-    '||'   { Token _ TokenOr }
     'and'  { Token _ TokenAnd }
     'or'   { Token _ TokenOr }
-    '\\'   { Token _ TokenLambda }
-    '.'    { Token _ TokenDot }
     '='    { Token _ TokenEQ }
     '=='   { Token _ TokenEQ }
     '+'    { Token _ TokenAdd }
@@ -36,77 +31,59 @@ import L1.Language
     '*'    { Token _ TokenMult }
     '('    { Token _ TokenLParen }
     ')'    { Token _ TokenRParen }
-    ':'    { Token _ TokenColon }
-    '->'   { Token _ TokenArrow }
     '=>'   { Token _ TokenDoubleArrow }
     '>='   { Token _ TokenGE }
     '<='   { Token _ TokenLE }
     '>'    { Token _ TokenGT }
     '<'    { Token _ TokenLT }
 
-%left ':' '=>' '.'
-%left '->'
+%left '=>'
 %left if then else
-%left '||' '&&' '<' '>' '!=' '==' '<=' '>=' '=' 'and' 'or'
+%left '<' '>' '!=' '==' '<=' '>=' '=' 'and' 'or'
 %left '+' '-'
 %left '*'
+%left NEGATIVE
 %left '(' ')'
-%left fn in '\\'
 %left let letrec
-%left NEGATIVE_NUMBER
+%left APP
+%left NOT_APP
 
 %%
 
-ExpBase : LetExp          { $1 }
-        | Exp             { $1 }
-        | '(' ExpBase ')' { $2 }
+Exp :
+    -- Let and letrec
+    let var '=' Exp in Exp end           { Let $2 $4 $6 }
+    | letrec var '=' Exp in Exp end      { Letrec $2 $4 $6 }
 
-LetExp : let var '=' Exp in ExpBase end                     { Let $2 $4 $6 }
-       | let var '=' Exp in ExpBase                         { Let $2 $4 $6 }
-       | let var ':' Type '=' Exp in ExpBase end            { Let $2 $6 $8 }
-       | letrec var ':' Type '=' '(' Fn ')' in ExpBase end  { Letrec $2 $7 $10 }
-       | letrec var '=' '(' Fn ')' in ExpBase end           { Letrec $2 $5 $8 }
-       | letrec var '=' Fn in ExpBase end                   { Letrec $2 $4 $6 }
-       | letrec var '=' Fn in ExpBase                       { Letrec $2 $4 $6 }
-       | '(' LetExp ')' { $2 }
+    -- Constructions
+    | if BoolExp then Exp else Exp       { If $2 $4 $6 }
+
+    -- Applications
+    | var Exp %prec APP                  { App (Ident $1) $2 }
+    | '(' fn var '=>' Exp ')' Exp        { App (Fn $3 $5) $7 }
+
+    -- Math
+    | Exp '+' Exp                        { Op $1 Add $3 }
+    | Exp '-' Exp                        { Op $1 Sub $3 }
+    | Exp '*' Exp                        { Op $1 Mult $3 }
+
+    -- Literals
+    | var %prec NOT_APP                  { Ident $1 }
+    | fn var '=>' Exp                    { Fn $2 $4 }
+    | num                                { Num $1 }
+    | '-' num %prec NEGATIVE             { Num (-$2) }
+    | '(' Exp ')'                        { $2 }
 
 
-Exp : num                                       { Num $1 }
-    | '-' num %prec NEGATIVE_NUMBER             { Num (-$2) }
-    | Exp OpCode Exp                            { Op $1 $2 $3 }
-    | '(' Exp ')'                               { $2 }
-    | '(' OpCode Exp Exp ')'                    { Op $3 $2 $4 }
-    | Fn                                        { $1 }
-    | var                                       { Ident $1 }
-    | if ExpBase then ExpBase else ExpBase      { If $2 $4 $6 }
-    | Exp num                                   { App $1 (Num $2) }
-    | Exp '(' Exp ')'                           { App $1 ($3) }
-    | Exp '(' OpCode Exp Exp ')'                { App $1 (Op $4 $3 $5) }
-    | Exp Fn                                    { App $1 $2 }
-    | Exp var                                   { App $1 (Ident $2) }
-    | Exp if ExpBase then ExpBase else ExpBase  { App $1 (If $3 $5 $7) }
-
-Fn : fn var ':' Type '=>' Exp   { Fn $2 $6 }
-   | fn var '=>' Exp            { Fn $2 $4 }
-   | '\\' var '.' ExpBase       { Fn $2 $4 }
-
-Type : int             { }
-     | Type '->' Type  { }
-
-OpCode  : '+'   { Add }
-        | '-'   { Sub }
-        | '*'   { Mult }
-        | '='   { Equal }
-        | '=='  { Equal }
-        | '!='  { NotEqual }
-        | '>='  { GreaterEqual }
-        | '<='  { LesserEqual }
-        | '>'   { Greater }
-        | '<'   { Lesser }
-        | '||'  { Or }
-        | 'or'  { Or }
-        | '&&'  { And }
-        | 'and' { And }
+BoolExp : Exp '==' Exp          { Op $1 Equal $3 }
+        | Exp '!=' Exp          { Op $1 NotEqual $3 }
+        | Exp '>=' Exp          { Op $1 GreaterEqual $3 }
+        | Exp '<=' Exp          { Op $1 LesserEqual $3 }
+        | Exp '>' Exp           { Op $1 Greater $3 }
+        | Exp '<' Exp           { Op $1 Lesser $3 }
+        | BoolExp 'or' BoolExp  { Op $1 Or $3 }
+        | BoolExp 'and' BoolExp { Op $1 And $3 }
+        | '(' BoolExp ')'       { $2 }
 
 {
 lexwrap :: (Token -> Alex a) -> Alex a

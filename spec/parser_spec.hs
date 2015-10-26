@@ -11,7 +11,7 @@ spec = do
   it "error" $ do
     parse "let x = 3 x"
     `shouldBe`
-    Left "<unknown>:1:12: parse error at token 'TokenEOF'"
+    Left "<unknown>:1:11: parse error at token 'TokenSym \"x\"'"
 
   it "let" $ do
     parse "let x = 3 in x end"
@@ -44,14 +44,39 @@ spec = do
     Right (If (Op (Ident "x") Lesser (Num 4)) (Num 5) (Ident "x"))
 
   it "let rec" $ do
-    parse "letrec zero = fn x => x - 1 in 4 end"
+    parse "letrec zero = fn x => 1 in 4 end"
     `shouldBe`
-    Right (Letrec "zero" (Fn "x" (Op (Ident "x") Sub (Num 1))) (Num 4))
+    Right (Letrec "zero" (Fn "x" (Num 1)) (Num 4))
 
-  it "app" $ do
+  it "var minus number" $ do
+    parse "x - 4"
+    `shouldBe`
+    Right (Op (Ident "x") Sub (Num 4))
+
+  it "fn subtracting number" $ do
+    parse "fn x => 1 - 4"
+    `shouldBe`
+    Right (Fn "x" (Op (Num 1) Sub (Num 4)))
+
+  it "application" $ do
     parse "(fn x => x) 1"
     `shouldBe`
     Right (App (Fn "x" (Ident "x")) (Num 1))
+
+  it "var application" $ do
+    parse "x 1"
+    `shouldBe`
+    Right (App (Ident "x") (Num 1))
+
+  it "currying" $ do
+    parse "fn x => fn y => fn z => 1"
+    `shouldBe`
+    Right (Fn "x" (Fn "y" (Fn "z" (Num 1))))
+
+  it "high order function" $ do
+    parse "fn x => fn y => x y"
+    `shouldBe`
+    Right (Fn "x" (Fn "y" (App (Ident "x") (Ident "y"))))
 
 
 
