@@ -78,5 +78,23 @@ spec = do
     `shouldBe`
     Right (Fn "x" (Fn "y" (App (Ident "x") (Ident "y"))))
 
+  it "nested if on then" $ do
+    parse "if x > 10 then if y > 11 then 1 else 2 else 3"
+    `shouldBe`
+    Right (If
+            (Op (Ident "x") Greater (Num 10))
+            (If (Op (Ident "y") Greater (Num 11)) (Num 1) (Num 2))
+            (Num 3)
+          )
+
+  it "nested if on else" $ do
+    parse "if x > 10 then 3 else if y > 11 then 1 else 2"
+    `shouldBe`
+    Right (If
+            (Op (Ident "x") Greater (Num 10))
+            (Num 3)
+            (If (Op (Ident "y") Greater (Num 11)) (Num 1) (Num 2))
+          )
+
 
 
