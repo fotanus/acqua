@@ -10,10 +10,10 @@ category:            Language
 build-type:          Simple
 cabal-version:       >=1.8
 
-executable acqua
-  main-is: Main.hs
+executable l1c
+  main-is: L1c.hs
   hs-source-dirs: src
-  build-depends: base ==4.6.*, array, pretty-show
+  build-depends: base ==4.*, array, pretty-show
   build-tools: alex, happy
   other-modules: L1.Tokens, L1.Grammar
 
