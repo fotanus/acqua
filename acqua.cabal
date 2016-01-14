@@ -16,6 +16,7 @@ executable l1c
   build-depends: base ==4.*, array, pretty-show
   build-tools: alex, happy
   other-modules: L1.Tokens, L1.Grammar
+  ghc-options: -Wall
 
 --library
 --  build-depends: base ==4.*, array, pretty-show

@@ -2,14 +2,18 @@ module Main where
 
 import Text.Show.Pretty
 
-import L1.Language
 import L1.Grammar
+import AcquaIR.Compile
 
+main :: IO ()
 main = do
   s <- getContents
-  let ast = parse s
-  case ast of
-    Right ast ->
+  let eitherAst = parse s
+  case eitherAst of
+    Right ast -> do
+      putStrLn "===Ast==="
       putStrLn (ppShow ast)
-    Left error ->
-      putStrLn error
+      putStrLn "===IR==="
+      putStrLn (ppShow (compile ast))
+    Left errorMsg ->
+      putStrLn errorMsg
