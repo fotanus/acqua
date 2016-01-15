@@ -14,15 +14,19 @@ data States = States {
   thenLabelNum :: Int,
   backLabelNum :: Int,
   dummyLabelNum :: Int,
+  fnLabelNum :: Int,
   identNum :: Int
   }
+
+defaultStates :: States
+defaultStates = (States 0 0 0 0 0)
 
 resp :: IR.Name
 resp = "resp"
 
 compile :: L1.Term -> [Statement]
 compile t =
-  let (c, bb) = evalState (_compile t) (States 0 0 0 0)
+  let (c, bb) = evalState (_compile t) defaultStates
   in [SL "main"] ++ c ++ [ST (Return resp)] ++ bb
 
 
@@ -30,7 +34,8 @@ _compile :: L1.Term -> State States ([Statement], [Statement])
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
 _compile (Ident n) = return ([SC (AssignV resp n)],[])
 _compile (Fn _ t1) = do
-  fn <- return "_fn_1"
+  fnLabel <- nextFnLabel
+  fn <- return fnLabel
   (c1,bb1) <- _compile t1
   bbs <- return $ [SL fn] ++ c1 ++ [ST (Return resp)]
   cs <- return $ [SC (AssignL resp fn)]
@@ -83,14 +88,16 @@ _compile (Letrec n t1 t2) = do
   return (cs, bb1 ++ bb2)
 
 
+-- TODO: Clean up next state functions
 nextThenLabel :: State States Label
 nextThenLabel = do
   s <- get
   thenN <- return (thenLabelNum s)
   backN <- return (backLabelNum s)
   dummyN <- return (dummyLabelNum s)
+  fnN <- return (fnLabelNum s)
   identN <- return (identNum s)
-  put (States (thenN+1) backN dummyN identN)
+  put (States (thenN+1) backN dummyN fnN identN)
   return $ "then" ++ (show thenN)
 
 nextBackLabel :: State States Label
@@ -99,8 +106,9 @@ nextBackLabel = do
   thenN <- return (thenLabelNum s)
   backN <- return (backLabelNum s)
   dummyN <- return (dummyLabelNum s)
+  fnN <- return (fnLabelNum s)
   identN <- return (identNum s)
-  put (States thenN (backN+1) dummyN identN)
+  put (States thenN (backN+1) dummyN fnN identN)
   return $ "back" ++ (show backN)
 
 nextDummyLabel :: State States Label
@@ -109,9 +117,21 @@ nextDummyLabel = do
   thenN <- return (thenLabelNum s)
   backN <- return (backLabelNum s)
   dummyN <- return (dummyLabelNum s)
+  fnN <- return (fnLabelNum s)
   identN <- return (identNum s)
-  put (States thenN backN (dummyN+1) identN)
+  put (States thenN backN (dummyN+1) fnN identN)
   return $ "dummy" ++ (show dummyN)
+
+nextFnLabel :: State States Label
+nextFnLabel = do
+  s <- get
+  thenN <- return (thenLabelNum s)
+  backN <- return (backLabelNum s)
+  dummyN <- return (dummyLabelNum s)
+  fnN <- return (fnLabelNum s)
+  identN <- return (identNum s)
+  put (States thenN backN dummyN (fnN+1) identN)
+  return $ "_fn_" ++ (show fnN)
 
 nextIdentName :: State States IR.Name
 nextIdentName = do
@@ -119,8 +139,9 @@ nextIdentName = do
   thenN <- return (thenLabelNum s)
   backN <- return (backLabelNum s)
   dummyN <- return (dummyLabelNum s)
+  fnN <- return (fnLabelNum s)
   identN <- return (identNum s)
-  put (States thenN backN dummyN (identN+1))
+  put (States thenN backN dummyN fnN (identN+1))
   return $ "var" ++ (show identN)
 
 
