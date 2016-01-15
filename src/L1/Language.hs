@@ -3,8 +3,7 @@ module L1.Language where
 type Name = String
 
 data OpCode
-  = Not
-  | And
+  = And
   | Or
   | Add
   | Sub

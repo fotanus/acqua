@@ -13,7 +13,7 @@ cabal-version:       >=1.8
 executable l1c
   main-is: L1c.hs
   hs-source-dirs: src
-  build-depends: base ==4.*, array, pretty-show
+  build-depends: base ==4.*, array, pretty-show, mtl
   build-tools: alex, happy
   other-modules: L1.Tokens, L1.Grammar
   ghc-options: -Wall

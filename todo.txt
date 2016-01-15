@@ -3,5 +3,3 @@
 * Estou abrindo Fn no letrec
 * Faltam EnvAdds na criação da função
 * Todos os tamanhos no código são 0
-* Variáveis/labels repetidas
-* Suporte a mais operações
