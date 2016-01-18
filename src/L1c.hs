@@ -3,6 +3,7 @@ module Main where
 import Text.Show.Pretty
 
 import L1.Grammar
+import AcquaIR.Language
 import AcquaIR.Compile
 
 main :: IO ()
@@ -14,6 +15,6 @@ main = do
       putStrLn "===Ast==="
       putStrLn (ppShow ast)
       putStrLn "===IR==="
-      putStrLn (printStatements (compile ast))
+      putStrLn (printProgram (compile ast))
     Left errorMsg ->
       putStrLn errorMsg

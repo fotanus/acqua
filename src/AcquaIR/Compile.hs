@@ -24,10 +24,12 @@ defaultStates = (States 0 0 0 0 0)
 resp :: IR.Name
 resp = "resp"
 
-compile :: L1.Term -> [Statement]
+compile :: L1.Term -> IR.Program
 compile t =
-  let (c, bb) = evalState (_compile t) defaultStates
-  in [SL "main"] ++ c ++ [ST (Return resp)] ++ bb
+  statementsToProgram statements
+  where
+    (c, bb) = evalState (_compile t) defaultStates
+    statements = [SL "main"] ++ c ++ [ST (Return resp)] ++ bb
 
 
 _compile :: L1.Term -> State States ([Statement], [Statement])
@@ -158,15 +160,6 @@ setOp L1.GreaterEqual = IR.GreaterEqual
 setOp L1.Lesser = IR.Lesser
 setOp L1.LesserEqual = IR.LesserEqual
 
-startRed :: String
-startRed = "\x1b[31m"
-
-startGreen :: String
-startGreen = "\x1b[32m"
-
-noColor :: String
-noColor = "\x1b[0m"
-
 printStatements :: [Statement] -> String
 printStatements [] = ""
 printStatements (x:xs) = printStatement(x) ++ printStatements(xs)
@@ -181,9 +174,36 @@ printStatement (SC (AssignI name n)) = ident ++ name ++ " = " ++ (show n) ++ "\n
 printStatement (SC (AssignL name l)) = ident ++ name ++ " = " ++ l ++ "\n"
 printStatement (SC (AssignV name1 name2)) = ident ++ name1 ++ " = " ++ name2 ++ "\n"
 printStatement (SC (Wait)) = ident ++ "Wait" ++ "\n"
-printStatement (ST (Goto l)) = ident ++ startRed ++ "goto " ++ l ++ noColor ++ "\n"
-printStatement (ST (Return name)) = ident ++ startRed ++ "return " ++ name ++ noColor ++ "\n"
-printStatement (ST (IR.If name l)) = ident ++ startRed ++ "if " ++ name ++ " goto " ++ l ++ noColor ++ "\n"
+printStatement (ST (Goto l)) = ident ++ "goto " ++ l ++ "\n"
+printStatement (ST (Return name)) = ident ++ "return " ++ name ++ "\n"
+printStatement (ST (IR.If name l)) = ident ++ "if " ++ name ++ " goto " ++ l ++ "\n"
 
-printStatement (SL name) = startGreen ++ name ++ noColor ++ ":\n"
+printStatement (SL name) = name ++ ":\n"
 
+
+
+-- Statements to program
+
+statementsToProgram :: [Statement] -> IR.Program
+statementsToProgram st = map toBasicBlock (splitBasicBlocks st)
+
+toBasicBlock :: [Statement] -> BasicBlock
+toBasicBlock [] = error "Wrong argument to toBasicBlock"
+toBasicBlock (x:xs) = IR.BB l s cs t
+  where
+    SL l = x
+    ST t = last xs
+    cs = map (\(SC c) -> c) (init xs)
+    s = 0
+
+
+
+splitBasicBlocks :: [Statement] -> [[Statement]]
+splitBasicBlocks xs = split xs
+  where split [] = []
+        split xs' = case break isTerminator xs' of
+          (chunk,[])         -> chunk : []
+          (chunk,(x:rest))   -> (chunk ++ [x]) : split rest
+        isTerminator :: Statement -> Bool
+        isTerminator (ST _) = True
+        isTerminator _ = False

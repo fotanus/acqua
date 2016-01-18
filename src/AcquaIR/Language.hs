@@ -47,10 +47,30 @@ data OpCode
   deriving (Eq,Ord,Show,Read)
 
 printProgram :: Program -> String
-printProgram p = foldr (++) "" (map printCommand (concat (map commands p)))
+printProgram p = foldr (++) "" (map printBasicBlock p)
 
 ident :: String
 ident = "    "
+
+startRed :: String
+startRed = "\x1b[31m"
+
+startGreen :: String
+startGreen = "\x1b[32m"
+
+noColor :: String
+noColor = "\x1b[0m"
+
+
+printBasicBlock :: BasicBlock -> String
+printBasicBlock (BB l _ cs t) = (printLabel l) ++ (printCommands cs) ++ (printTerminator t)
+
+
+printLabel :: Label -> String
+printLabel l = l ++ ":\n"
+
+printCommands :: [Command] -> String
+printCommands cs = foldr (++) "" (map printCommand cs)
 
 printCommand :: Command -> String
 printCommand (EnvNew i n) = ident ++ i ++ " = EnvNew " ++ (show n) ++ "\n"
