@@ -6,12 +6,14 @@ import Simulator.ProcessingUnit
 type Queue = [Job]
 
 data Job = Job {
-  l :: Label,
-  envId :: EnvId,
-  pId :: PId,
-  env :: EnvId,
-  var :: Name
-}
+  label :: Label,
+  environmentId :: EnvId,
+  puId :: PId,
+  environment :: EnvId,
+  variable :: Name
+} deriving(Eq)
 
-newQueue :: Queue
-newQueue = []
+newQueue :: ProcessingUnit -> Queue
+newQueue pu =
+  let PU pId _ _ envId _ _ _ _ _ = pu
+  in [(Job "main" envId pId envId "result")]

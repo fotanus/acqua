@@ -7,6 +7,7 @@ import AcquaIR.Language
 data Value
  = LabelValue Label
  | NumberValue Int
+ deriving (Show,Eq)
 
 type Environment = Map Name Value
 

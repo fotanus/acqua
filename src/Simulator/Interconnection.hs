@@ -8,11 +8,11 @@ import Simulator.Environment
 type Interconnection = [Message]
 
 data Message = Message {
-  pId :: PId,
-  env :: EnvId,
-  var :: Name,
-  v :: Value
-}
+  puId :: PId,
+  environment :: EnvId,
+  variable :: Name,
+  value :: Value
+  }
 
 newInterconnection :: Interconnection
 newInterconnection = []

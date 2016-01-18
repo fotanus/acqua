@@ -10,19 +10,19 @@ type PId = Int
 data ReturnAddr = ReturnAddr {
   addr_pId :: PId,
   addr_envId :: EnvId,
-  x :: Name
-}
+  variable :: Name
+} deriving (Show,Eq)
 
 data ExecutionContext = ExecutionContext {
   ec_c :: [Command],
   ec_t :: Terminator
-}
+} deriving (Show,Eq)
 
 data ProcessingUnit = PU {
-  pId :: PId,
+  puId :: PId,
 
-  c :: [Command],
-  t :: Terminator,
+  commands :: [Command],
+  terminator :: Terminator,
 
   currentEnv :: EnvId,
   runEnvs :: Map.Map EnvId Environment,
@@ -31,7 +31,7 @@ data ProcessingUnit = PU {
   returnAddrs :: Map.Map EnvId ReturnAddr,
   callCount :: Map.Map EnvId Int,
   sleepingExecution :: Map.Map EnvId ExecutionContext
-}
+} deriving (Show,Eq)
 
 specialPU :: ProcessingUnit
 specialPU = PU 0 [] Empty
