@@ -29,6 +29,7 @@ data Terminator
   = Goto Label
   | Return Name
   | If Name Label
+  | Empty
   deriving (Eq,Ord,Show,Read)
 
 
@@ -87,6 +88,7 @@ printTerminator :: Terminator -> String
 printTerminator (Goto l) = ident ++ "goto " ++ l ++ "\n"
 printTerminator (Return name) = ident ++ "return " ++ name ++ "\n"
 printTerminator (If name l) = ident ++ "if " ++ name ++ " goto " ++ l ++ "\n"
+printTerminator Empty = ident ++ "empty\n" 
 
 printOpCode :: OpCode -> String
 printOpCode And = "&&"

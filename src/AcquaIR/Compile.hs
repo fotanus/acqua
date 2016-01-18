@@ -177,6 +177,7 @@ printStatement (SC (Wait)) = ident ++ "Wait" ++ "\n"
 printStatement (ST (Goto l)) = ident ++ "goto " ++ l ++ "\n"
 printStatement (ST (Return name)) = ident ++ "return " ++ name ++ "\n"
 printStatement (ST (IR.If name l)) = ident ++ "if " ++ name ++ " goto " ++ l ++ "\n"
+printStatement (ST Empty) = ident ++ "empty\n"
 
 printStatement (SL name) = name ++ ":\n"
 

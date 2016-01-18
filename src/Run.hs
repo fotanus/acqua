@@ -10,6 +10,6 @@ main = do
   let eitherAst = parse s
   case eitherAst of
     Right ast -> do
-      putStrLn $ run (compile ast)
+      putStrLn $ run (compile ast) 10
     Left errorMsg ->
       putStrLn errorMsg

@@ -21,7 +21,7 @@ executable acqua-IR
 executable acqua-run
   main-is: Run.hs
   hs-source-dirs: src
-  build-depends: base ==4.*, array, pretty-show, mtl
+  build-depends: base ==4.*, array, pretty-show, mtl, containers
   build-tools: alex, happy
   other-modules: L1.Tokens, L1.Grammar
   ghc-options: -Wall
