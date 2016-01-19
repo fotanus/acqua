@@ -19,7 +19,7 @@ assignJob acqua =
   in
     case (getAvailable pus, firstOf q) of
       (Just pu, Just job) ->
-        trace "assign" $ Acqua bb q' pus' i ff
+        trace "assignJob" $ Acqua bb q' pus' i ff
         where
           pus' = updatePU pus p'
           PU pId _ _ _ rEnv cEnv ra cc se = pu
@@ -32,7 +32,7 @@ assignJob acqua =
           cc' = Map.insert newEnvId 0 cc
           q' = List.delete job q
           p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se
-      (_,_)-> traceShowId acqua
+      (_,_)-> acqua
 
 firstOf :: [Job] -> Maybe Job
 firstOf [] = Nothing
