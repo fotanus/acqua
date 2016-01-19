@@ -30,6 +30,6 @@ resume (Acqua bb q pus i f) =
                               else pu
             where
               PU pId _ _ _ rEnv cEnv ra cc se _ = pu
-              Just (ExecutionContext c' t') = Map.lookup k se
+              Just (ExecutionContext c' t') = traceShow (k,se) $ Map.lookup k se
               pu' = PU pId c' t' k rEnv cEnv ra cc se True
           (_, _) -> pu

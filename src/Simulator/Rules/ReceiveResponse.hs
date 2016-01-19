@@ -26,5 +26,5 @@ receiveResponse acqua  =
           rEnv' = Map.insert envId cenv' rEnv
           Just nCalls = Map.lookup envId cc
           cc' = Map.insert envId (nCalls-1) cc
-          pu' = traceShowId $ PU pId c t ce rEnv' cEnv ra cc' se True
+          pu' = PU pId c t ce rEnv' cEnv ra cc' se True
           pus' = updatePU pus pu'
