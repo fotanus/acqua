@@ -30,11 +30,10 @@ resp = "resp"
 
 compile :: L1.Term -> IR.Program
 compile t =
-  statementsToProgram statements
+  addWaits (statementsToProgram statements)
   where
     (c, bb) = evalState (_compile t) defaultStates
     statements = [SL "main"] ++ c ++ [ST (Return resp)] ++ bb
-
 
 _compile :: L1.Term -> State States ([Statement], [Statement])
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
@@ -57,7 +56,7 @@ _compile (App t1 t2) = do
   t1c <- return $ c1 ++ [SC (AssignV "fn" resp)]
   t2c <- return $ c2 ++ [SC (AssignV paramName resp)] 
   -- env new and add
-  cs <- return $ t1c ++ t2c ++ [SC (EnvNew "env_id" 0), SC (Call resp "fn" "env_id"), SC Wait]
+  cs <- return $ t1c ++ t2c ++ [SC (EnvNew "env_id" 0), SC (Call resp "fn" "env_id")]
   return (cs, bb1 ++ bb2)
 
 _compile (L1.Op t1 op t2) = do
@@ -269,3 +268,34 @@ splitBasicBlocks xs = split xs
         isTerminator :: Statement -> Bool
         isTerminator (ST _) = True
         isTerminator _ = False
+
+
+
+addWaits :: IR.Program -> IR.Program
+addWaits [] = []
+addWaits (bb:bbs) =
+  bb':(addWaits bbs)
+  where
+    BB l n' c t = bb
+    bb' = BB l n' (addWaits' c [])  t
+    addWaits' [] _  = []
+    addWaits' (c':cs') vars = case c' of
+                           Call _ _ _ -> case cs' of
+                                           [] -> c':[Wait]
+                                           (c'':cs'') -> case c'' of 
+                                                           AssignV n _ -> c':c'':(addWaits' cs'' (n:vars))
+                                                           _ -> c':c'':(addWaits' cs'' (vars))
+                           AssignI n _ -> if elem n vars
+                                            then Wait:c':(addWaits' cs' [])
+                                            else c':(addWaits' cs' vars)
+                           AssignL n _ -> if elem n vars
+                                            then Wait:c':(addWaits' cs' [])
+                                            else c':(addWaits' cs' vars)
+                           AssignV n1 n2 -> if elem n1 vars || elem n2 vars
+                                            then Wait:c':(addWaits' cs' [])
+                                            else c':(addWaits' cs' vars)
+                           IR.Op n1 _ n2 -> if elem n1 vars || elem n2 vars
+                                            then Wait:c':(addWaits' cs' [])
+                                            else c':(addWaits' cs' vars)
+                           _ -> c':(addWaits' cs' vars)
+
