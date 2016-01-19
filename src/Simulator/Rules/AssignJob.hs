@@ -53,10 +53,3 @@ getAvailable (pu:pus') =
     then Just pu
     else getAvailable pus'
 
-getBB :: Label -> Program -> BasicBlock
-getBB l [] = error $ "Basic block not found: " ++ l
-getBB l (bb:bbs) = 
-  if (IR.label bb) == l
-    then bb
-    else getBB l bbs
-
