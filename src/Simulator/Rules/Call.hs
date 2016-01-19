@@ -12,8 +12,8 @@ import Simulator.Environment
 import Simulator.Rules
 
 call :: Rule
-call (Acqua bb q pus i f) =
-    Acqua bb q' pus' i f
+call (Acqua bb q pus i f s) =
+    Acqua bb q' pus' i f s
   where
     (q', pus') = stepCall q pus
 

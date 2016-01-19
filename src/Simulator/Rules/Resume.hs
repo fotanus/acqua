@@ -11,8 +11,8 @@ import Simulator.Rules
 
 
 resume :: Rule
-resume (Acqua bb q pus i f) =
-    Acqua bb q (map stepResume pus) i f
+resume (Acqua bb q pus i f s) =
+    Acqua bb q (map stepResume pus) i f s
   where
     stepResume pu =
       let

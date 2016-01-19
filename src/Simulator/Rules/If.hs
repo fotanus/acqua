@@ -6,13 +6,12 @@ import Debug.Trace
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Interconnection
 import Simulator.Environment
 
 import Simulator.Rules
 
 ifRule :: Rule
-ifRule (Acqua bb q pus i f) = Acqua bb q (map executeIf pus) i f
+ifRule (Acqua bb q pus i f s) = Acqua bb q (map executeIf pus) i f s
   where
     executeIf pu =
       case (PU.commands pu,PU.terminator pu) of
@@ -23,8 +22,8 @@ ifRule (Acqua bb q pus i f) = Acqua bb q (map executeIf pus) i f
 
            PU pId _ _ ce rEnv cEnv ra cc se _ = pu
            Just cenv = Map.lookup ce rEnv
-           Just (NumberValue value) = Map.lookup x cenv
-           BB _ _ c' t'  = if value > 0
+           Just (NumberValue val) = Map.lookup x cenv
+           BB _ _ c' t'  = if val > 0
                            then getBB l bb
                            else getBB (dummy l) bb
 

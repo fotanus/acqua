@@ -11,8 +11,8 @@ import Simulator.Environment
 import Simulator.Rules
 
 assignV:: Rule
-assignV (Acqua bb q pus i f) =
-    Acqua bb q (map stepAssignV pus) i f
+assignV (Acqua bb q pus i f s) =
+    Acqua bb q (map stepAssignV pus) i f s
   where
     stepAssignV pu =
       case PU.commands pu of
@@ -31,8 +31,8 @@ assignV (Acqua bb q pus i f) =
         _ -> pu
 
 assignL:: Rule
-assignL (Acqua bb q pus i f) =
-    Acqua bb q (map stepAssignL pus) i f
+assignL (Acqua bb q pus i f s) =
+    Acqua bb q (map stepAssignL pus) i f s
   where
     stepAssignL pu =
       case PU.commands pu of
@@ -48,8 +48,8 @@ assignL (Acqua bb q pus i f) =
         _ -> pu
 
 assignI:: Rule
-assignI (Acqua bb q pus i f) =
-    Acqua bb q (map stepAssignI pus) i f
+assignI (Acqua bb q pus i f s) =
+    Acqua bb q (map stepAssignI pus) i f s
   where
     stepAssignI pu =
       case PU.commands pu of

@@ -6,17 +6,16 @@ import Debug.Trace
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Environment
 
 import Simulator.Rules
 
 envNew :: Rule
-envNew (Acqua bb q pus i f) =
-    Acqua bb q (map stepNewEnv pus) i f
+envNew (Acqua bb q pus i f s) =
+    Acqua bb q (map stepNewEnv pus) i f s
   where
     stepNewEnv pu =
       case PU.commands pu of
-        ((EnvNew envId n):cs) -> if PU.tainted pu == False
+        ((EnvNew envId _):cs) -> if PU.tainted pu == False
                                    then trace ((show (PU.puId pu)) ++  ": newEnv") pu'
                                    else pu
           where

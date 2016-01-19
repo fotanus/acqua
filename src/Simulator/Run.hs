@@ -16,7 +16,7 @@ step :: Acqua -> String
 step acqua = _step (applyRules rules acqua) acqua
 
 _step :: Acqua -> Acqua -> String
-_step (Acqua _ _ _ _ True) _ = "Finished!"
+_step (Acqua _ _ _ _ True _) _ = "Finished!"
 _step acqua acqua'=
   if acqua == acqua'
     then error ("Cannot give a step!\n" ++ (ppShow acqua))

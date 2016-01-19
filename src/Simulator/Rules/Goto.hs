@@ -1,18 +1,15 @@
 module Simulator.Rules.Goto where
 
-import qualified Data.Map as Map
 import Debug.Trace
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Interconnection
-import Simulator.Environment
 
 import Simulator.Rules
 
 goto :: Rule
-goto (Acqua bb q pus i f) = Acqua bb q (map executeGoto pus) i f
+goto (Acqua bb q pus i f s) = Acqua bb q (map executeGoto pus) i f s
   where
     executeGoto pu =
       case (PU.commands pu,PU.terminator pu) of

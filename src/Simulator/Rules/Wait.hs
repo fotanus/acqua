@@ -10,8 +10,8 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Rules
 
 wait :: Rule
-wait (Acqua bb q pus i f) =
-    Acqua bb q (map stepWait pus) i f
+wait (Acqua bb q pus i f s) =
+    Acqua bb q (map stepWait pus) i f s
   where
     stepWait pu =
       case PU.commands pu of

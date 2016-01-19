@@ -11,8 +11,8 @@ import Simulator.Environment
 import Simulator.Rules
 
 op :: Rule
-op (Acqua bb q pus i f) =
-    Acqua bb q (map stepOp pus) i f
+op (Acqua bb q pus i f s) =
+    Acqua bb q (map stepOp pus) i f s
   where
     stepOp pu =
       case PU.commands pu of

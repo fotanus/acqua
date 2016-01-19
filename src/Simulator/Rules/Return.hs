@@ -11,8 +11,8 @@ import Simulator.Interconnection
 import Simulator.Rules
 
 returnTerminator :: Rule
-returnTerminator (Acqua bb q pus i f) =
-    Acqua bb q pus' i' f
+returnTerminator (Acqua bb q pus i f s) =
+    Acqua bb q pus' i' f s
   where
     (i', pus') = stepReturn i pus
 

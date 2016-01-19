@@ -15,11 +15,11 @@ import Simulator.Rules
 assignJob :: Rule
 assignJob acqua = 
   let
-    Acqua bb q pus i ff = acqua
+    Acqua bb q pus i ff s = acqua
   in
     case (getAvailable pus, firstOf q) of
       (Just pu, Just job) ->
-        trace ((show (PU.puId pu)) ++ ": assignJob") $ Acqua bb q' pus' i ff
+        trace ((show (PU.puId pu)) ++ ": assignJob") $ Acqua bb q' pus' i ff s'
         where
           pus' = updatePU pus p'
           PU pId _ _ _ rEnv cEnv ra cc se _ = pu
@@ -27,12 +27,20 @@ assignJob acqua =
           BB _ n c t = getBB l bb
           Just ce = copyEnv pus pId' envId n
           rEnv' = Map.insert newEnvId ce rEnv 
-          newEnvId = 
+          (newEnvId,s') = getNextEnvId s
           ra' = Map.insert newEnvId (ReturnAddr pId' envId'' x) ra
           cc' = Map.insert newEnvId 0 cc
           q' = List.delete job q
           p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se True
       (_,_)-> acqua
+
+
+getNextEnvId :: Map.Map String StateValue -> (EnvId, Map.Map String StateValue)
+getNextEnvId s = (nextEnvId,s')
+  where
+    Just (IntVal count) = Map.lookup "envId" s
+    s' = Map.insert "envId" (IntVal (count+1)) s
+    nextEnvId = "env_" ++ (show count)
 
 firstOf :: [Job] -> Maybe Job
 firstOf [] = Nothing
