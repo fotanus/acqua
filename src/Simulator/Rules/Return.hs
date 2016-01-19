@@ -20,7 +20,12 @@ stepReturn :: Interconnection -> [ProcessingUnit] -> (Interconnection, [Processi
 stepReturn i [] = (i,[])
 stepReturn i (pu:pus) =
   case (PU.commands pu,PU.terminator pu) of
-    ([], Return x) -> trace "return" (i'', pu':pus')
+    ([], Return x) -> if PU.tainted pu == False
+                        then trace  ((show (PU.puId pu)) ++ ": return") (i'', pu':pus')
+                        else let
+                          (i', pus') = stepReturn i pus
+                        in
+                          (i', pu:pus')
       where
         (i'', pus') = stepReturn i' pus
         -- interconnection
@@ -31,9 +36,9 @@ stepReturn i (pu:pus) =
         i' = m : i
 
         -- pu
-        PU pId _ _ ce rEnv cEnv ra cc se = pu
+        PU pId _ _ ce rEnv cEnv ra cc se _ = pu
         cc' = Map.insert ce 0 cc
-        pu' = PU pId [] Empty ce rEnv cEnv ra cc' se
+        pu' = PU pId [] Empty ce rEnv cEnv ra cc' se True
 
     _ -> (i', pu:pus')
       where (i', pus') = stepReturn i pus

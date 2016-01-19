@@ -16,11 +16,13 @@ envNew (Acqua bb q pus i f) =
   where
     stepNewEnv pu =
       case PU.commands pu of
-        ((EnvNew envId n):cs) -> trace "newEnv" pu'
+        ((EnvNew envId n):cs) -> if PU.tainted pu == False
+                                   then trace ((show (PU.puId pu)) ++  ": newEnv") pu'
+                                   else pu
           where
-            PU pId _ t ce rEnv cEnv ra cc se = pu
+            PU pId _ t ce rEnv cEnv ra cc se _ = pu
             cenv = emptyEnv
             cEnv' = Map.insert envId cenv cEnv
-            pu' = PU pId cs t ce rEnv cEnv' ra cc se
+            pu' = PU pId cs t ce rEnv cEnv' ra cc se True
         _ -> pu
 

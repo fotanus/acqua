@@ -11,6 +11,7 @@ import Simulator.Rules.Return
 import Simulator.Rules.ReceiveResponse
 import Simulator.Rules.Resume
 import Simulator.Rules.Wait
+import Simulator.Rules.Op
 
 rules :: [Rule]
-rules = [assignJob, assignV, assignL, assignI, envNew, call, returnTerminator, receiveResponse, resume, wait]
+rules = [assignJob, assignV, assignL, assignI, envNew, call, returnTerminator, receiveResponse, resume, wait, op]

@@ -15,5 +15,5 @@ data Job = Job {
 
 newQueue :: ProcessingUnit -> Queue
 newQueue pu =
-  let PU pId _ _ envId _ _ _ _ _ = pu
+  let PU pId _ _ envId _ _ _ _ _ _ = pu
   in [(Job "main" envId pId envId "result")]

@@ -1,6 +1,7 @@
 module Simulator.Run where
 
 import Debug.Trace
+import Text.Show.Pretty
 
 import AcquaIR.Language
 import Simulator.Acqua
@@ -18,5 +19,5 @@ _step :: Acqua -> Acqua -> String
 _step (Acqua _ _ _ _ True) _ = "Finished!"
 _step acqua acqua'=
   if acqua == acqua'
-    then error "Cannot give a step! "
-    else trace "----" $ _step (applyRules rules acqua) acqua
+    then error ("Cannot give a step!\n" ++ (ppShow acqua))
+    else trace "----" $ _step (applyRules rules (untaintAll acqua)) acqua

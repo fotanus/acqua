@@ -15,3 +15,9 @@ newAcqua p n = Acqua p queue processingUnits newInterconnection False
     processingUnits = newProcessingUnits n
     specialProcessingUnit = head processingUnits
     queue = newQueue specialProcessingUnit
+
+untaintAll :: Acqua -> Acqua
+untaintAll (Acqua bb q pus i ff)
+  = Acqua bb q pus' i ff
+  where
+    pus' = map (\p -> untaint p) pus

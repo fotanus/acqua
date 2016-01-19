@@ -19,10 +19,10 @@ assignJob acqua =
   in
     case (getAvailable pus, firstOf q) of
       (Just pu, Just job) ->
-        trace "assignJob" $ Acqua bb q' pus' i ff
+        trace ((show (PU.puId pu)) ++ ": assignJob") $ Acqua bb q' pus' i ff
         where
           pus' = updatePU pus p'
-          PU pId _ _ _ rEnv cEnv ra cc se = pu
+          PU pId _ _ _ rEnv cEnv ra cc se _ = pu
           Job l envId pId' envId'' x = job
           BB _ n c t = getBB l bb
           Just ce = copyEnv pus pId' envId n
@@ -31,7 +31,7 @@ assignJob acqua =
           ra' = Map.insert newEnvId (ReturnAddr pId' envId'' x) ra
           cc' = Map.insert newEnvId 0 cc
           q' = List.delete job q
-          p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se
+          p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se True
       (_,_)-> acqua
 
 firstOf :: [Job] -> Maybe Job
@@ -49,7 +49,7 @@ copyEnv (pu:pus) pId' envId n =
 getAvailable :: [ProcessingUnit] -> Maybe ProcessingUnit
 getAvailable [] = Nothing
 getAvailable (pu:pus') =
-  if (PU.terminator pu) == Empty
+  if (PU.terminator pu) == Empty && (PU.tainted pu) == False && (PU.puId pu) > 0
     then Just pu
     else getAvailable pus'
 

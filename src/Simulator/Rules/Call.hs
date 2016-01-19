@@ -21,7 +21,13 @@ stepCall :: Queue -> [ProcessingUnit] -> (Queue, [ProcessingUnit])
 stepCall q [] = (q,[])
 stepCall q (pu:pus) =
   case PU.commands pu of
-    ((Call x1 x2 envId):cs) -> trace "call" (q'', pu':pus')
+    ((Call x1 x2 envId):cs) -> if PU.tainted pu == False
+                                 then trace ((show (PU.puId pu)) ++  ": call") (q'', pu':pus')
+                                 else let
+                                   (q', pus') = stepCall q pus
+                                 in
+                                   (q', pu:pus')
+
       where
         (q'', pus') = stepCall q' pus
         -- queue
@@ -32,10 +38,10 @@ stepCall q (pu:pus) =
         q' = q ++ [j]
 
         -- pu
-        PU pId _ t ce rEnv cEnv ra cc se = pu
+        PU pId _ t ce rEnv cEnv ra cc se _ = pu
         Just nCalls = Map.lookup ce cc
         cc' = Map.insert ce (nCalls+1) cc
-        pu' = PU pId cs t ce rEnv cEnv ra cc' se
+        pu' = PU pId cs t ce rEnv cEnv ra cc' se True
 
     _ -> (q', pu:pus')
       where (q', pus') = stepCall q pus
