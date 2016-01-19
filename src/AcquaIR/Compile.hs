@@ -49,7 +49,7 @@ _compile (App t1 t2) = do
   t1c <- return $ c1 ++ [SC (AssignV "fn" resp)]
   t2c <- return $ c2 ++ [SC (AssignV "param" resp)]
   -- env new and add
-  cs <- return $ t1c ++ t2c ++ [SC (EnvNew "env_id" 0), SC (Call resp "fn" "env_id")]
+  cs <- return $ t1c ++ t2c ++ [SC (EnvNew "env_id" 0), SC (Call resp "fn" "env_id"), SC Wait]
   return (cs, bb1 ++ bb2)
 
 _compile (L1.Op t1 op t2) = do

@@ -60,9 +60,3 @@ getBB l (bb:bbs) =
     then bb
     else getBB l bbs
 
-updatePU :: [ProcessingUnit] -> ProcessingUnit -> [ProcessingUnit]
-updatePU [] p' = error $ "Trying to update an unexisting PU: " ++ (show p')
-updatePU (x:xs) p' =
-  if (PU.puId x) == (PU.puId p')
-    then p' : xs
-    else x : updatePU xs p'

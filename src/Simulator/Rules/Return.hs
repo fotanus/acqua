@@ -7,7 +7,6 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
-import Simulator.Environment
 
 import Simulator.Rules
 
