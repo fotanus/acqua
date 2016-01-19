@@ -17,12 +17,12 @@ op (Acqua bb q pus i f) =
     stepOp pu =
       case PU.commands pu of
         ((Op x1 opc x2):cs) -> if PU.tainted pu == False
-                              then trace ((show (PU.puId pu)) ++ ": OP") pu'
+                              then trace ((show (PU.puId pu)) ++ ": OP") pu'''
                               else pu
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
             Just cenv = Map.lookup ce rEnv
-            Just (NumberValue v1) = traceShow cenv $ Map.lookup x1 cenv
+            Just (NumberValue v1) = Map.lookup x1 cenv
             Just (NumberValue v2) = Map.lookup x2 cenv
             val = case opc of
               And -> v1 + v2
@@ -38,6 +38,6 @@ op (Acqua bb q pus i f) =
               LesserEqual -> v2 + 1 - v1
             cenv' = Map.insert "resp" (NumberValue val) cenv
             rEnv' = Map.insert ce cenv' rEnv
-            pu' = PU pId cs t ce rEnv' cEnv ra cc se True
+            pu''' = PU pId cs t ce rEnv' cEnv ra cc se True
         _ -> pu
 

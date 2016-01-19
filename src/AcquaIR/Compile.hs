@@ -1,5 +1,7 @@
 module AcquaIR.Compile where
 
+import Debug.Trace
+
 import L1.Language as L1
 import AcquaIR.Language as IR
 import Control.Monad.State
@@ -15,11 +17,13 @@ data States = States {
   backLabelNum :: Int,
   dummyLabelNum :: Int,
   fnLabelNum :: Int,
-  identNum :: Int
+  identNum :: Int,
+  fnVarNames :: [(String,String)],
+  fnLabelNames :: [(String,String)]
   }
 
 defaultStates :: States
-defaultStates = (States 0 0 0 0 0)
+defaultStates = (States 0 0 0 0 0 [] [])
 
 resp :: IR.Name
 resp = "resp"
@@ -34,20 +38,24 @@ compile t =
 
 _compile :: L1.Term -> State States ([Statement], [Statement])
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
-_compile (Ident n) = return ([SC (AssignL resp n)],[])
+_compile (Ident n) = return ([SC (AssignV resp n)],[])
 _compile (Fn _ t1) = do
-  fnLabel <- nextFnLabel
-  fn <- return fnLabel
+  fn <- nextFnLabel
   (c1,bb1) <- _compile t1
   bbs <- return $ [SL fn] ++ c1 ++ [ST (Return resp)]
-  cs <- return $ [SC (AssignL resp fn)]
+  cs <- return $ []
   return (cs, bbs ++ bb1)
 
 _compile (App t1 t2) = do
   (c1,bb1) <- _compile t1
   (c2,bb2) <- _compile t2
+  paramName <- case t1 of
+                  (Ident fn) -> (getFnVarName fn)
+                  (Fn n _ ) -> return n
+                  _ -> error "App not applying identifier or function!"
+
   t1c <- return $ c1 ++ [SC (AssignV "fn" resp)]
-  t2c <- return $ c2 ++ [SC (AssignV "param" resp)]
+  t2c <- return $ c2 ++ [SC (AssignV paramName resp)] 
   -- env new and add
   cs <- return $ t1c ++ t2c ++ [SC (EnvNew "env_id" 0), SC (Call resp "fn" "env_id"), SC Wait]
   return (cs, bb1 ++ bb2)
@@ -83,9 +91,11 @@ _compile (Let n t1 t2) = do
   return (cs, bb1 ++ bb2)
 
 _compile (Letrec n t1 t2) = do
+  (Fn varName _) <- return t1
+  _ <- setFnVarName n varName
   (c1,bb1) <- _compile t1
+  (SL fn_name) <- return $ head bb1
   (c2,bb2) <- _compile t2
-  (SL fn_name) <- return $  head bb1
   cs <- return $  [SC (AssignL n fn_name)] ++ c1 ++ c2
   return (cs, bb1 ++ bb2)
 
@@ -99,7 +109,9 @@ nextThenLabel = do
   dummyN <- return (dummyLabelNum s)
   fnN <- return (fnLabelNum s)
   identN <- return (identNum s)
-  put (States (thenN+1) backN dummyN fnN identN)
+  fnNames <- return (fnVarNames s)
+  fnLabels <- return (fnLabelNames s)
+  put (States (thenN+1) backN dummyN fnN identN fnNames fnLabels)
   return $ "then" ++ (show thenN)
 
 nextBackLabel :: State States Label
@@ -110,7 +122,9 @@ nextBackLabel = do
   dummyN <- return (dummyLabelNum s)
   fnN <- return (fnLabelNum s)
   identN <- return (identNum s)
-  put (States thenN (backN+1) dummyN fnN identN)
+  fnNames <- return (fnVarNames s)
+  fnLabels <- return (fnLabelNames s)
+  put (States thenN (backN+1) dummyN fnN identN fnNames fnLabels)
   return $ "back" ++ (show backN)
 
 nextDummyLabel :: State States Label
@@ -121,7 +135,9 @@ nextDummyLabel = do
   dummyN <- return (dummyLabelNum s)
   fnN <- return (fnLabelNum s)
   identN <- return (identNum s)
-  put (States thenN backN (dummyN+1) fnN identN)
+  fnNames <- return (fnVarNames s)
+  fnLabels <- return (fnLabelNames s)
+  put (States thenN backN (dummyN+1) fnN identN fnNames fnLabels)
   return $ "dummy" ++ (show dummyN)
 
 nextFnLabel :: State States Label
@@ -132,7 +148,9 @@ nextFnLabel = do
   dummyN <- return (dummyLabelNum s)
   fnN <- return (fnLabelNum s)
   identN <- return (identNum s)
-  put (States thenN backN dummyN (fnN+1) identN)
+  fnNames <- return (fnVarNames s)
+  fnLabels <- return (fnLabelNames s)
+  put (States thenN backN dummyN (fnN+1) identN fnNames fnLabels)
   return $ "_fn_" ++ (show fnN)
 
 nextIdentName :: State States IR.Name
@@ -143,8 +161,51 @@ nextIdentName = do
   dummyN <- return (dummyLabelNum s)
   fnN <- return (fnLabelNum s)
   identN <- return (identNum s)
-  put (States thenN backN dummyN fnN (identN+1))
+  fnNames <- return (fnVarNames s)
+  fnLabels <- return (fnLabelNames s)
+  put (States thenN backN dummyN fnN (identN+1) fnNames fnLabels)
   return $ "var" ++ (show identN)
+
+setFnVarName :: String -> String -> State States IR.Name
+setFnVarName a b = do
+  s <- get
+  thenN <- return (thenLabelNum s)
+  backN <- return (backLabelNum s)
+  dummyN <- return (dummyLabelNum s)
+  fnN <- return (fnLabelNum s)
+  identN <- return (identNum s)
+  fnNames' <- (return ((a,b) : (fnVarNames s)))
+  fnLabels <- return (fnLabelNames s)
+  put (States thenN backN dummyN fnN identN fnNames' fnLabels)
+  return $ "var" ++ (show identN)
+
+getFnVarName :: String -> State States String
+getFnVarName a = do
+  s <- get
+  return $ case lookup a (fnVarNames s) of
+           Just ret -> ret
+           Nothing -> traceStack (show (a, fnVarNames s)) $ error "Can't find symbol!"
+
+setFnLabelName :: String -> String -> State States IR.Name
+setFnLabelName a b = do
+  s <- get
+  thenN <- return (thenLabelNum s)
+  backN <- return (backLabelNum s)
+  dummyN <- return (dummyLabelNum s)
+  fnN <- return (fnLabelNum s)
+  identN <- return (identNum s)
+  fnNames <- return (fnVarNames s)
+  fnLabels' <- (return ((a,b) : (fnLabelNames s)))
+  put (States thenN backN dummyN fnN identN fnNames fnLabels')
+  return $ "var" ++ (show identN)
+
+getFnLabelName :: String -> State States String
+getFnLabelName a = do
+  s <- get
+  return $ case lookup a (fnLabelNames s) of
+           Just ret -> ret
+           Nothing -> traceShow (a, fnLabelNames s) $ error "Can't find symbol!"
+
 
 
 setOp :: L1.OpCode -> IR.OpCode

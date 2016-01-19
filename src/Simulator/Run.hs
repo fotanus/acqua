@@ -20,4 +20,4 @@ _step (Acqua _ _ _ _ True) _ = "Finished!"
 _step acqua acqua'=
   if acqua == acqua'
     then error ("Cannot give a step!\n" ++ (ppShow acqua))
-    else trace "----" $ _step (applyRules rules (untaintAll acqua)) acqua
+    else trace ("----") $ _step (applyRules rules (untaintAll acqua)) acqua

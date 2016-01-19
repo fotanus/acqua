@@ -80,7 +80,7 @@ printCommand (EnvAddL i name l) = ident ++ "EnvAdd " ++ i ++ " " ++ name ++ " " 
 printCommand (Call name1 name2 i) = ident ++ name1 ++ " = Call " ++ name2 ++ " " ++ i ++ "\n"
 printCommand (Op name1 op name2) = ident ++ "resp = " ++ name1 ++ " " ++ (printOpCode op) ++ " " ++ name2 ++ "\n"
 printCommand (AssignI name n) = ident ++ name ++ " = " ++ (show n) ++ "\n"
-printCommand (AssignL name l) = ident ++ name ++ " = " ++ l ++ "\n"
+printCommand (AssignL name l) = ident ++ name ++ " = \"" ++ l ++ "\"\n"
 printCommand (AssignV name1 name2) = ident ++ name1 ++ " = " ++ name2 ++ "\n"
 printCommand (Wait) = ident ++ "Wait" ++ "\n"
 

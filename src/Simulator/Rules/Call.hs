@@ -24,16 +24,18 @@ stepCall q (pu:pus) =
     ((Call x1 x2 envId):cs) -> if PU.tainted pu == False
                                  then trace ((show (PU.puId pu)) ++  ": call") (q'', pu':pus')
                                  else let
-                                   (q', pus') = stepCall q pus
-                                 in
-                                   (q', pu:pus')
+                                        (q', pus') = stepCall q pus
+                                      in
+                                        (q', pu:pus')
 
       where
         (q'', pus') = stepCall q' pus
         -- queue
         Just cenv = Map.lookup ce rEnv
         Just (LabelValue l) = Map.lookup x2 cenv
-        Just (LabelValue l') = Map.lookup l cenv
+        l' = case Map.lookup l cenv of
+                     Just (LabelValue l') -> l'
+                     Nothing -> l
         j = Job l' envId pId ce x1
         q' = q ++ [j]
 

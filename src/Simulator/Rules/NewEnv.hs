@@ -21,7 +21,7 @@ envNew (Acqua bb q pus i f) =
                                    else pu
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
-            cenv = emptyEnv
+            Just cenv = Map.lookup ce rEnv
             cEnv' = Map.insert envId cenv cEnv
             pu' = PU pId cs t ce rEnv cEnv' ra cc se True
         _ -> pu
