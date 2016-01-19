@@ -12,14 +12,14 @@ import Simulator.Environment
 import Simulator.Rules
 
 call :: Rule
-call (Acqua bb q pus i f) = 
+call (Acqua bb q pus i f) =
     Acqua bb q' pus' i f
   where
     (q', pus') = stepCall q pus
 
 stepCall :: Queue -> [ProcessingUnit] -> (Queue, [ProcessingUnit])
 stepCall q [] = (q,[])
-stepCall q (pu:pus) = 
+stepCall q (pu:pus) =
   case PU.commands pu of
     ((Call x1 x2 envId):cs) -> trace "call" (q'', pu':pus')
       where
@@ -27,8 +27,10 @@ stepCall q (pu:pus) =
         -- queue
         Just cenv = Map.lookup ce rEnv
         Just (LabelValue l) = Map.lookup x2 cenv
-        j = Job l envId pId ce x1
+        Just (LabelValue l') = Map.lookup l cenv
+        j = Job l' envId pId ce x1
         q' = q ++ [j]
+
         -- pu
         PU pId _ t ce rEnv cEnv ra cc se = pu
         Just nCalls = Map.lookup ce cc

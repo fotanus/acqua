@@ -34,7 +34,7 @@ compile t =
 
 _compile :: L1.Term -> State States ([Statement], [Statement])
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
-_compile (Ident n) = return ([SC (AssignV resp n)],[])
+_compile (Ident n) = return ([SC (AssignL resp n)],[])
 _compile (Fn _ t1) = do
   fnLabel <- nextFnLabel
   fn <- return fnLabel
@@ -86,7 +86,7 @@ _compile (Letrec n t1 t2) = do
   (c1,bb1) <- _compile t1
   (c2,bb2) <- _compile t2
   (SL fn_name) <- return $  head bb1
-  cs <- return $  [SC (AssignV n fn_name)] ++ c1 ++ c2
+  cs <- return $  [SC (AssignL n fn_name)] ++ c1 ++ c2
   return (cs, bb1 ++ bb2)
 
 

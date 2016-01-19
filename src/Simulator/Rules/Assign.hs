@@ -20,7 +20,10 @@ assignV (Acqua bb q pus i f) =
           where
             PU pId _ t ce rEnv cEnv ra cc se = pu
             Just cenv = Map.lookup ce rEnv
-            cenv' = Map.insert x (LabelValue v) cenv
+            Just val = Map.lookup v cenv
+            cenv' = case val of
+                    LabelValue v' -> Map.insert x (LabelValue v') cenv
+                    NumberValue v' -> Map.insert x (NumberValue v') cenv
             rEnv' = Map.insert ce cenv' rEnv
             pu' = PU pId cs t ce rEnv' cEnv ra cc se
         _ -> pu
