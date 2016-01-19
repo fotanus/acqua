@@ -26,7 +26,7 @@ resume (Acqua bb q pus i f s) =
       in
         case (t,(zeroedCallCount callCounts)) of
           (Empty,Just k) -> if PU.tainted pu == False
-                              then trace  ((show (PU.puId pu)) ++ ": resume") $ pu'
+                              then trace  ((show (PU.puId pu)) ++ ": resuming")  $ pu'
                               else pu
             where
               PU pId _ _ _ rEnv cEnv ra cc se _ = pu

@@ -16,7 +16,7 @@ wait (Acqua bb q pus i f s) =
     stepWait pu =
       case PU.commands pu of
         (Wait:cs) -> if PU.tainted pu == False
-                       then trace ((show (PU.puId pu)) ++ ": Wait") pu'
+                       then trace ((show (PU.puId pu)) ++ ": Wait" ) pu'
                        else pu
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu

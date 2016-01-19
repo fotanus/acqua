@@ -21,7 +21,7 @@ stepReturn i [] = (i,[])
 stepReturn i (pu:pus) =
   case (PU.commands pu,PU.terminator pu) of
     ([], Return x) -> if PU.tainted pu == False
-                        then trace  ((show (PU.puId pu)) ++ ": return") (i'', pu':pus')
+                        then trace  ((show (PU.puId pu)) ++ ": returning ") (i'', pu':pus')
                         else let
                           (i', pus') = stepReturn i pus
                         in
@@ -37,7 +37,7 @@ stepReturn i (pu:pus) =
 
         -- pu
         PU pId _ _ ce rEnv cEnv ra cc se _ = pu
-        cc' = Map.insert ce 0 cc
+        cc' = Map.insert ce 100 cc
         pu' = PU pId [] Empty ce rEnv cEnv ra cc' se True
 
     _ -> (i', pu:pus')

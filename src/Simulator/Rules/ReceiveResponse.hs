@@ -16,7 +16,7 @@ receiveResponse acqua  =
     Acqua bb q pus i f s = acqua
   in case i of
       [] -> acqua
-      (m:ms) -> trace ((show (PU.puId pu)) ++  ": receive response ") $ Acqua bb q pus' ms f s
+      (m:ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ Acqua bb q pus' ms f' s
         where
           Message pId envId x v = m
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
@@ -28,3 +28,6 @@ receiveResponse acqua  =
           cc' = Map.insert envId (nCalls-1) cc
           pu' = PU pId c t ce rEnv' cEnv ra cc' se True
           pus' = updatePU pus pu'
+          f' = if pId == 0
+                 then True
+                 else False

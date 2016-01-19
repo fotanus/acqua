@@ -38,7 +38,7 @@ data ProcessingUnit = PU {
 specialPU :: ProcessingUnit
 specialPU = PU 0 [] Empty
                  "0" (Map.fromList [("0",emptyEnv)]) (Map.fromList [("0",emptyEnv)])
-                 (Map.fromList []) (Map.fromList [("0",1)]) (Map.fromList []) False
+                 (Map.fromList []) (Map.fromList [("0",1)]) (Map.fromList [("0", ExecutionContext [] Empty)]) False
 
 newPU :: Int -> ProcessingUnit
 newPU n = PU n [] Empty
