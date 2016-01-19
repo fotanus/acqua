@@ -17,5 +17,5 @@ _step :: Acqua -> Acqua -> String
 _step (Acqua _ _ _ _ True) _ = "Finished!"
 _step acqua acqua'=
   if acqua == acqua'
-    then error "Cannot give a step!"
+    then error "Cannot give a step! "
     else _step (applyRules rules acqua) acqua

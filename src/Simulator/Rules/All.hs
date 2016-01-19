@@ -1,7 +1,7 @@
 module Simulator.Rules.All where
 
 import Simulator.Rules
-import Simulator.Rules.Assign
+import Simulator.Rules.AssignJob
 
 rules :: [Rule]
-rules = [assign]
+rules = [assignJob]

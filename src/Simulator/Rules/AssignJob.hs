@@ -1,4 +1,4 @@
-module Simulator.Rules.Assign where
+module Simulator.Rules.AssignJob where
 
 import Data.List as List
 import qualified Data.Map as Map
@@ -12,8 +12,8 @@ import Simulator.Environment
 
 import Simulator.Rules
 
-assign :: Rule
-assign acqua = 
+assignJob :: Rule
+assignJob acqua = 
   let
     Acqua bb q pus i ff = acqua
   in
@@ -32,7 +32,7 @@ assign acqua =
           cc' = Map.insert newEnvId 0 cc
           q' = List.delete job q
           p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se
-      (_,_)-> acqua
+      (_,_)-> traceShowId acqua
 
 firstOf :: [Job] -> Maybe Job
 firstOf [] = Nothing
