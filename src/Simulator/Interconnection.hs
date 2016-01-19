@@ -12,7 +12,7 @@ data Message = Message {
   environment :: EnvId,
   variable :: Name,
   value :: Value
-  }
+  } deriving (Show, Eq)
 
 newInterconnection :: Interconnection
 newInterconnection = []

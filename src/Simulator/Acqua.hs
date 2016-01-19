@@ -7,6 +7,7 @@ import Simulator.Queue
 
 type FinishFlag = Bool
 data Acqua = Acqua Program Queue [ProcessingUnit] Interconnection FinishFlag
+  deriving (Show,Eq)
 
 newAcqua :: Program -> Int -> Acqua
 newAcqua p n = Acqua p queue processingUnits newInterconnection False

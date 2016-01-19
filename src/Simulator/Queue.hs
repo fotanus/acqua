@@ -11,7 +11,7 @@ data Job = Job {
   puId :: PId,
   environment :: EnvId,
   variable :: Name
-} deriving(Eq)
+} deriving(Show, Eq)
 
 newQueue :: ProcessingUnit -> Queue
 newQueue pu =
