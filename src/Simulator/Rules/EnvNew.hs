@@ -1,4 +1,4 @@
-module Simulator.Rules.NewEnv where
+module Simulator.Rules.EnvNew where
 
 import qualified Data.Map as Map
 import Debug.Trace
@@ -19,7 +19,7 @@ stepNewEnv :: [ProcessingUnit] -> AcquaState -> ([ProcessingUnit], AcquaState)
 stepNewEnv [] s = ([],s)
 stepNewEnv (pu:pus) s =
   case (PU.commands pu,PU.tainted pu) of
-    ((EnvNew envId _):cs, False) -> trace ((show (PU.puId pu)) ++  ": newEnv " ++ envId ++ " as " ++ newEnvId) $ (pu1:pus2,s2)
+    ((EnvNew envId _):cs, False) -> trace ((show (PU.puId pu)) ++  ": EnvNew" ++ envId ++ " as " ++ newEnvId) $ (pu1:pus2,s2)
       where
         (pus2,s2) = (stepNewEnv pus s1)
         PU pId _ t ce rEnv cEnv ra cc se _ = pu

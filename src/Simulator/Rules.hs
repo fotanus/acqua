@@ -3,7 +3,7 @@ module Simulator.Rules where
 import Simulator.Rules.Base
 import Simulator.Rules.AssignJob
 import Simulator.Rules.Call
-import Simulator.Rules.NewEnv
+import Simulator.Rules.EnvNew
 import Simulator.Rules.EnvAdd
 import Simulator.Rules.Assign
 import Simulator.Rules.Return
