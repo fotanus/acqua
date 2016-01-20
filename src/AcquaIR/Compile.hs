@@ -30,7 +30,7 @@ resp = "resp"
 
 compile :: L1.Term -> IR.Program
 compile t =
-  addWaits (statementsToProgram statements)
+  addWaits (eliminateCallNextVar (statementsToProgram statements))
   where
     (c, bb) = evalState (_compile t) defaultStates
     statements = [SL "main"] ++ c ++ [ST (Return resp)] ++ bb
@@ -270,6 +270,21 @@ splitBasicBlocks xs = split xs
         isTerminator _ = False
 
 
+eliminateCallNextVar :: IR.Program -> IR.Program
+eliminateCallNextVar [] = []
+eliminateCallNextVar (bb:bbs) =
+  bb':(eliminateCallNextVar bbs)
+  where
+    BB l n cs t = bb
+    bb' = BB l n (eliminateCallNextVar' cs) t
+    eliminateCallNextVar' [] = []
+    eliminateCallNextVar' (c:cs) = case (c,cs) of
+                                        ((Call ret l env),(AssignV x1 x2):cs') ->
+                                              (Call x1 l env):(eliminateCallNextVar' cs')
+                                        (_,_) -> c:(eliminateCallNextVar' cs)
+    eliminateCallNextVar' (c:cs) = c : (eliminateCallNextVar' cs)
+
+
 
 addWaits :: IR.Program -> IR.Program
 addWaits [] = []
@@ -278,13 +293,9 @@ addWaits (bb:bbs) =
   where
     BB l n' c t = bb
     bb' = BB l n' (addWaits' c [])  t
-    addWaits' [] _  = []
+    addWaits' [] vars  = if null vars then [] else [Wait]
     addWaits' (c':cs') vars = case c' of
-                           Call _ _ _ -> case cs' of
-                                           [] -> c':[Wait]
-                                           (c'':cs'') -> case c'' of 
-                                                           AssignV n _ -> c':c'':(addWaits' cs'' (n:vars))
-                                                           _ -> c':c'':(addWaits' cs'' (vars))
+                           Call ret _ _ -> c':(addWaits' cs' (ret:vars))
                            AssignI n _ -> if elem n vars
                                             then Wait:c':(addWaits' cs' [])
                                             else c':(addWaits' cs' vars)
