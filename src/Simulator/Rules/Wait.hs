@@ -15,10 +15,8 @@ wait (Acqua bb q pus i f s) =
     Acqua bb q (map stepWait pus) i f s
   where
     stepWait pu =
-      case PU.commands pu of
-        (Wait:cs) -> if PU.tainted pu == False
-                       then trace ((show (PU.puId pu)) ++ ": Wait\n" ++ (ppShow (copyEnvs pu))) pu'
-                       else pu
+      case (PU.commands pu, PU.tainted pu) of
+        (Wait:cs, False) -> trace ((show (PU.puId pu)) ++ ": Wait\n" ++ (ppShow (copyEnvs pu))) pu'
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
             se' = Map.insert ce (ExecutionContext cs t) se

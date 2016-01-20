@@ -15,10 +15,8 @@ envAdd (Acqua bb q pus i f s) =
     Acqua bb q (map stepEnvAdd pus) i f s
   where
     stepEnvAdd pu =
-      case PU.commands pu of
-        ((EnvAddL envId x1 x2):cs) -> if PU.tainted pu == False
-                                   then trace ((show (PU.puId pu)) ++  ": EnvAdd") pu'
-                                   else pu
+      case (PU.commands pu, PU.tainted pu) of
+        ((EnvAddL envId x1 x2):cs, False) -> trace ((show (PU.puId pu)) ++  ": EnvAdd") pu'
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
             Just cenv = Map.lookup ce rEnv

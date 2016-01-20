@@ -18,10 +18,8 @@ envNew (Acqua bb q pus i f s) =
 
     stepNewEnv [] s = ([],s)
     stepNewEnv (pu:pus) s =
-      case PU.commands pu of
-        ((EnvNew envId _):cs) -> if PU.tainted pu == False
-                                   then trace ((show (PU.puId pu)) ++  ": newEnv") $ (pu1:pus2,s2)
-                                   else (pu:pus3, s3)
+      case (PU.commands pu,PU.tainted pu) of
+        ((EnvNew envId _):cs, False) -> trace ((show (PU.puId pu)) ++  ": newEnv") $ (pu1:pus2,s2)
           where
             (pus3,s3) = (stepNewEnv pus s)
             (pus2,s2) = (stepNewEnv pus s1)

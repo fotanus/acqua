@@ -15,10 +15,8 @@ assignV (Acqua bb q pus i f s) =
     Acqua bb q (map stepAssignV pus) i f s
   where
     stepAssignV pu =
-      case PU.commands pu of
-        ((AssignV x v):cs) -> if PU.tainted pu == False
-                              then trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) pu'
-                              else pu
+      case (PU.commands pu,PU.tainted pu) of
+        (((AssignV x v):cs),False) -> trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) pu'
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
             Just cenv = Map.lookup ce rEnv

@@ -15,10 +15,8 @@ op (Acqua bb q pus i f s) =
     Acqua bb q (map stepOp pus) i f s
   where
     stepOp pu =
-      case PU.commands pu of
-        ((Op x1 opc x2):cs) -> if PU.tainted pu == False
-                              then trace ((show (PU.puId pu)) ++ ": OP") pu'''
-                              else pu
+      case (PU.commands pu, PU.tainted pu) of
+        ((Op x1 opc x2):cs, False) -> trace ((show (PU.puId pu)) ++ ": OP") pu'''
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
             Just cenv = Map.lookup ce rEnv

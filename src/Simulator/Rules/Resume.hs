@@ -24,12 +24,10 @@ resume (Acqua bb q pus i f s) =
                           else zeroedCallCount xs
           [] -> Nothing
       in
-        case (t,(zeroedCallCount callCounts)) of
-          (Empty,Just k) -> if PU.tainted pu == False
-                              then trace  ((show (PU.puId pu)) ++ ": resuming")  $ pu'
-                              else pu
+        case (t,(zeroedCallCount callCounts), PU.tainted pu) of
+          (Empty,Just k, False) ->trace  ((show (PU.puId pu)) ++ ": resuming")  $ pu'
             where
               PU pId _ _ _ rEnv cEnv ra cc se _ = pu
               Just (ExecutionContext c' t') = traceShow (k,se) $ Map.lookup k se
               pu' = PU pId c' t' k rEnv cEnv ra cc se True
-          (_, _) -> pu
+          _ -> pu
