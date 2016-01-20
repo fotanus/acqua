@@ -28,8 +28,10 @@ stepCall q (pu:pus) s =
         Just cenv = Map.lookup ce rEnv
         Just (LabelValue l) = Map.lookup x2 cenv
         l' = case Map.lookup l cenv of
-                     Just (LabelValue l') -> l'
+                     Just (LabelValue l'') -> l''
                      Nothing -> l
+                     _ -> error "Calling a value that is not a label"
+
         (Just (NewEnvIds envMap)) = Map.lookup "newEnvIds" s
         (Just copyEnvId) = Map.lookup (pId,envId) envMap
         j = Job l' copyEnvId pId ce x1

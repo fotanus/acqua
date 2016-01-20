@@ -13,7 +13,7 @@ import Simulator.Rules.Base
 receiveResponse :: Rule
 receiveResponse acqua  =
   let
-    Acqua bb q pus i f s = acqua
+    Acqua bb q pus i _ s = acqua
   in case i of
       [] -> acqua
       (m:ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ Acqua bb q pus' ms f' s

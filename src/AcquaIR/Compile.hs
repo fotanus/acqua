@@ -276,13 +276,14 @@ eliminateCallNextVar (bb:bbs) =
   bb':(eliminateCallNextVar bbs)
   where
     BB l n cs t = bb
-    bb' = BB l n (eliminateCallNextVar' cs) t
-    eliminateCallNextVar' [] = []
-    eliminateCallNextVar' (c:cs) = case (c,cs) of
-                                        ((Call ret l env),(AssignV x1 x2):cs') ->
-                                              (Call x1 l env):(eliminateCallNextVar' cs')
-                                        (_,_) -> c:(eliminateCallNextVar' cs)
-    eliminateCallNextVar' (c:cs) = c : (eliminateCallNextVar' cs)
+    bb' = BB l n (eliminateBBCallNextVar cs) t
+
+eliminateBBCallNextVar :: [Command] -> [Command]
+eliminateBBCallNextVar [] = []
+eliminateBBCallNextVar (c:cs) = case (c,cs) of
+                                      ((Call _ l env),(AssignV x1 _):cs') ->
+                                            (Call x1 l env):(eliminateBBCallNextVar cs')
+                                      (_,_) -> c:(eliminateBBCallNextVar cs)
 
 
 

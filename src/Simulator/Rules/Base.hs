@@ -1,7 +1,5 @@
 module Simulator.Rules.Base where
 
-import Debug.Trace
-
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
