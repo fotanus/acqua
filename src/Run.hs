@@ -1,4 +1,5 @@
 module Main where
+import System.Environment
 import Debug.Trace
 import Text.Show.Pretty
 
@@ -16,7 +17,9 @@ main = do
   case eitherAst of
     Right ast -> do
       -- putStrLn $ run (compile ast) 1
-      putStrLn $ run p 2
+      args <- getArgs
+      n_pus <- return $ read (head args)
+      putStrLn $ run p n_pus
     Left errorMsg ->
       putStrLn errorMsg
   where

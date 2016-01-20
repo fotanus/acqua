@@ -19,12 +19,12 @@ envNew (Acqua bb q pus i f s) =
     stepNewEnv [] s = ([],s)
     stepNewEnv (pu:pus) s =
       case (PU.commands pu,PU.tainted pu) of
-        ((EnvNew envId _):cs, False) -> trace ((show (PU.puId pu)) ++  ": newEnv") $ (pu1:pus2,s2)
+        ((EnvNew envId _):cs, False) -> trace ((show (PU.puId pu)) ++  ": newEnv " ++ envId ++ " as " ++ newEnvId) $ (pu1:pus2,s2)
           where
             (pus3,s3) = (stepNewEnv pus s)
             (pus2,s2) = (stepNewEnv pus s1)
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
-            (newEnvId,s1) = getNextEnvId s envId
+            (newEnvId,s1) = getNextEnvId s envId pId
             -- cEnv1 = Map.insert envId emptyEnv cEnv
             Just cenv = Map.lookup ce rEnv
             cEnv1 = Map.insert newEnvId cenv cEnv
@@ -33,12 +33,12 @@ envNew (Acqua bb q pus i f s) =
           where
             (pus3,s3) = (stepNewEnv pus s)
 
-getNextEnvId :: Map.Map String StateValue -> String -> (EnvId, Map.Map String StateValue)
-getNextEnvId s envId = (nextEnvId,s1')
+getNextEnvId :: Map.Map String StateValue -> String -> Int -> (EnvId, Map.Map String StateValue)
+getNextEnvId s envId pId = (nextEnvId,s1')
   where
     Just (IntVal count) = Map.lookup "envId" s
     s1 = Map.insert "envId" (IntVal (count+1)) s
     Just (NewEnvIds env_map) = Map.lookup "newEnvIds" s
-    env_map' = Map.insert envId nextEnvId env_map 
+    env_map' = Map.insert (pId,envId) nextEnvId env_map 
     s1' = Map.insert "newEnvIds" (NewEnvIds env_map') s1
     nextEnvId = "newEnvIdsenv_" ++ (show count)

@@ -9,7 +9,7 @@ import Simulator.Queue
 
 type FinishFlag = Bool
 data StateValue = IntVal Int
-                | NewEnvIds (Map.Map String String)
+                | NewEnvIds (Map.Map (Int,String) String)
                 deriving (Eq,Show)
 
 data Acqua = Acqua Program Queue [ProcessingUnit] Interconnection FinishFlag (Map.Map String StateValue)

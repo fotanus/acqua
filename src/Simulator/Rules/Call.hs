@@ -18,7 +18,7 @@ call (Acqua bb q pus i f s) =
     (q', pus') = stepCall q pus s
 
 stepCall :: Queue -> [ProcessingUnit] -> Map.Map String StateValue -> (Queue, [ProcessingUnit])
-stepCall q [] s = (q,[])
+stepCall q [] _ = (q,[])
 stepCall q (pu:pus) s =
   case (PU.commands pu,PU.tainted pu) of
     ((Call x1 x2 envId):cs,False) -> trace ((show (PU.puId pu)) ++  ": call" ) (q'', pu':pus')
@@ -31,7 +31,7 @@ stepCall q (pu:pus) s =
                      Just (LabelValue l') -> l'
                      Nothing -> l
         (Just (NewEnvIds envMap)) = Map.lookup "newEnvIds" s
-        (Just copyEnvId) = Map.lookup envId envMap
+        (Just copyEnvId) = Map.lookup (pId,envId) envMap
         j = Job l' copyEnvId pId ce x1
         q' = q ++ [j]
 
