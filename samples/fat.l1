@@ -1,7 +1,7 @@
 letrec fat =
   fn x => if x > 1
-          then x * fat(x-1)
+          then x * (fat (x-1))
           else 1
 in
-  fat 5
+  fat 6
 end

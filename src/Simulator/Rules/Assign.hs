@@ -17,7 +17,7 @@ assignV (Acqua bb q pus i f s) =
     stepAssignV pu =
       case PU.commands pu of
         ((AssignV x v):cs) -> if PU.tainted pu == False
-                              then trace ((show (PU.puId pu)) ++ ": AssignV") pu'
+                              then trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
@@ -37,7 +37,7 @@ assignL (Acqua bb q pus i f s) =
     stepAssignL pu =
       case PU.commands pu of
         ((AssignL x v):cs) -> if PU.tainted pu == False
-                              then trace ((show (PU.puId pu)) ++ ": AssignL") pu'
+                              then trace ((show (PU.puId pu)) ++ ": AssignL" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
@@ -54,7 +54,7 @@ assignI (Acqua bb q pus i f s) =
     stepAssignI pu =
       case PU.commands pu of
         ((AssignI x v):cs) -> if PU.tainted pu == False
-                              then trace ((show (PU.puId pu)) ++ ": AssignI") pu'
+                              then trace ((show (PU.puId pu)) ++ ": AssignI" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu

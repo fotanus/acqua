@@ -5,6 +5,7 @@ import Text.Show.Pretty
 
 import AcquaIR.Language
 import Simulator.Acqua
+import Simulator.ProcessingUnit as PU
 
 import Simulator.Rules
 import Simulator.Rules.All
@@ -16,7 +17,7 @@ step :: Acqua -> String
 step acqua = _step (applyRules rules acqua) acqua
 
 _step :: Acqua -> Acqua -> String
-_step (Acqua _ _ _ _ True _) _ = "Finished!"
+_step (Acqua _ _ pus _ True _) _ = traceShow (map PU.puId pus) $ "Finished!\n" ++ (ppShow (head pus))
 _step acqua acqua'=
   if acqua == acqua'
     then error ("Cannot give a step!\n" ++ (ppShow acqua))

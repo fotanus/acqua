@@ -1,5 +1,6 @@
 module Simulator.Rules.AssignJob where
 
+import Text.Show.Pretty
 import Data.List as List
 import qualified Data.Map as Map
 import Debug.Trace
@@ -13,13 +14,13 @@ import Simulator.Environment
 import Simulator.Rules
 
 assignJob :: Rule
-assignJob acqua = 
+assignJob acqua =
   let
     Acqua bb q pus i ff s = acqua
   in
     case (getAvailable pus, firstOf q) of
       (Just pu, Just job) ->
-        trace ((show (PU.puId pu)) ++ ": assignJob") $ Acqua bb q' pus' i ff s'
+        trace ((show (PU.puId pu)) ++ ": assignJob " ++ (ppShow job)) $ Acqua bb q' pus' i ff s'
         where
           pus' = updatePU pus p'
           PU pId _ _ _ rEnv cEnv ra cc se _ = pu

@@ -19,13 +19,8 @@ returnTerminator (Acqua bb q pus i f s) =
 stepReturn :: Interconnection -> [ProcessingUnit] -> (Interconnection, [ProcessingUnit])
 stepReturn i [] = (i,[])
 stepReturn i (pu:pus) =
-  case (PU.commands pu,PU.terminator pu) of
-    ([], Return x) -> if PU.tainted pu == False
-                        then trace  ((show (PU.puId pu)) ++ ": returning ") (i'', pu':pus')
-                        else let
-                          (i', pus') = stepReturn i pus
-                        in
-                          (i', pu:pus')
+  case (PU.commands pu,PU.terminator pu,PU.tainted pu) of
+    ([], Return x,False) -> trace  ((show (PU.puId pu)) ++ ": returning ") (i'', pu':pus')
       where
         (i'', pus') = stepReturn i' pus
         -- interconnection

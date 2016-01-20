@@ -16,7 +16,7 @@ ifRule (Acqua bb q pus i f s) = Acqua bb q (map executeIf pus) i f s
     executeIf pu =
       case (PU.commands pu,PU.terminator pu) of
         ([], If x l) -> if PU.tainted pu == False
-                            then trace ((show (PU.puId pu)) ++ ": if") pu'
+                            then trace (": if") pu'
                             else pu
          where
 

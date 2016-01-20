@@ -15,7 +15,7 @@ data BasicBlock = BB {
 
 data Command
   = EnvAddI EnvId Name Int
-  | EnvAddL EnvId Name Label
+  | EnvAddL EnvId Name Name
   | EnvNew EnvId Int
   | Call Name Name EnvId
   | Op Name OpCode Name

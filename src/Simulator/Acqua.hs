@@ -8,12 +8,15 @@ import Simulator.Interconnection
 import Simulator.Queue
 
 type FinishFlag = Bool
-data StateValue = IntVal Int deriving (Eq,Show)
+data StateValue = IntVal Int
+                | NewEnvIds (Map.Map String String)
+                deriving (Eq,Show)
+
 data Acqua = Acqua Program Queue [ProcessingUnit] Interconnection FinishFlag (Map.Map String StateValue)
   deriving (Show,Eq)
 
 newAcqua :: Program -> Int -> Acqua
-newAcqua p n = Acqua p queue processingUnits newInterconnection False (Map.fromList [("envId",IntVal 0)])
+newAcqua p n = Acqua p queue processingUnits newInterconnection False (Map.fromList [("newEnvIds", (NewEnvIds (Map.fromList []))), ("envId",IntVal 0)])
   where
     processingUnits = newProcessingUnits n
     specialProcessingUnit = head processingUnits

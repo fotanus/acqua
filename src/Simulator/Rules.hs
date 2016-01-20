@@ -1,5 +1,7 @@
 module Simulator.Rules where
 
+
+import Debug.Trace
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
@@ -19,7 +21,7 @@ updatePU (x:xs) p' =
 
 getBB :: Label -> Program -> BasicBlock
 getBB l [] = error $ "Basic block not found: " ++ l
-getBB l (bb:bbs) = 
+getBB l (bb:bbs) =
   if (IR.label bb) == l
     then bb
     else getBB l bbs
