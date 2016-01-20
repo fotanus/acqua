@@ -9,7 +9,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Queue
 import Simulator.Environment
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 call :: Rule
 call (Acqua bb q pus i f s) =

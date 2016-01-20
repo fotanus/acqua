@@ -8,7 +8,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 envAdd :: Rule
 envAdd (Acqua bb q pus i f s) =

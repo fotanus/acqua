@@ -1,9 +1,13 @@
 module Main where
+import Debug.Trace
+import Text.Show.Pretty
 
 import L1.Grammar
 import AcquaIR.Language
 import AcquaIR.Compile
-import Simulator.Run
+import Simulator.Acqua
+import Simulator.Rules
+import Simulator.Rules.Base
 
 main :: IO ()
 main = do
@@ -15,7 +19,25 @@ main = do
       putStrLn $ run p 2
     Left errorMsg ->
       putStrLn errorMsg
-  where p = [ BB
+  where
+    run :: Program -> Int -> String
+    run program pus_n = step (newAcqua program pus_n)
+
+    applyRules :: [Rule] -> Acqua -> Acqua
+    applyRules [] a = a
+    applyRules (f:fs) a = applyRules fs (f a)
+
+    step :: Acqua -> String
+    step acqua = _step (applyRules rules acqua) acqua
+
+    _step :: Acqua -> Acqua -> String
+    _step (Acqua _ _ pus _ True _) _ = "Finished!\n" ++ (ppShow (head pus))
+    _step acqua acqua'=
+      if acqua == acqua'
+        then error ("Cannot give a step!\n" ++ (ppShow acqua))
+        else trace ("----") $ _step (applyRules rules (untaintAll acqua)) acqua
+
+    p = [ BB
               { label = "main"
               , size = 0
               , commands =

@@ -8,7 +8,7 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 wait :: Rule
 wait (Acqua bb q pus i f s) =

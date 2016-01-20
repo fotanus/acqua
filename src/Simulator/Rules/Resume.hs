@@ -7,7 +7,7 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 
 resume :: Rule

@@ -11,7 +11,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Queue
 import Simulator.Environment
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 assignJob :: Rule
 assignJob acqua =

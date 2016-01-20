@@ -8,7 +8,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 returnTerminator :: Rule
 returnTerminator (Acqua bb q pus i f s) =

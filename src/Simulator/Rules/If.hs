@@ -8,7 +8,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 ifRule :: Rule
 ifRule (Acqua bb q pus i f s) = Acqua bb q (map executeIf pus) i f s

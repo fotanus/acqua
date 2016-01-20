@@ -8,7 +8,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 receiveResponse :: Rule
 receiveResponse acqua  =

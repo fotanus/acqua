@@ -8,7 +8,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 assignV:: Rule
 assignV (Acqua bb q pus i f s) =

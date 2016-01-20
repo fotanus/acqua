@@ -6,7 +6,7 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 
-import Simulator.Rules
+import Simulator.Rules.Base
 
 goto :: Rule
 goto (Acqua bb q pus i f s) = Acqua bb q (map executeGoto pus) i f s
