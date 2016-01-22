@@ -15,6 +15,9 @@ data StateValue = IntVal Int
 
 type AcquaState = Map.Map String StateValue
 
+data Acqua = Acqua Program Queue [ProcessingUnit] Interconnection FinishFlag AcquaState
+  deriving (Show,Eq)
+
 statesDefault :: AcquaState
 statesDefault = Map.fromList [
     ("newEnvIds", (NewEnvIds (Map.fromList []))),
@@ -29,8 +32,6 @@ countRule s rule = Map.insert rule (RulesUsed newRulesUsed) s
     Just count = Map.lookup rule rulesUsed
     newRulesUsed = Map.insert rule (count + 1) rulesUsed
 
-data Acqua = Acqua Program Queue [ProcessingUnit] Interconnection FinishFlag AcquaState
-  deriving (Show,Eq)
 
 newAcqua :: Program -> Int -> Acqua
 newAcqua p n = Acqua p queue processingUnits newInterconnection False statesDefault
