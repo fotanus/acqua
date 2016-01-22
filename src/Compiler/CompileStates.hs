@@ -1,4 +1,4 @@
-module AcquaIR.CompileStates where
+module Compiler.CompileStates where
 
 import Debug.Trace
 import AcquaIR.Language as IR

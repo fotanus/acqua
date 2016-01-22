@@ -1,4 +1,4 @@
-module AcquaIR.Transformations.AddWaits where
+module Compiler.Transformations.AddWaits where
 
 import AcquaIR.Language as IR
 

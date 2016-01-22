@@ -3,7 +3,7 @@ module Main where
 import Text.Show.Pretty
 import L1.Grammar
 import AcquaIR.Language
-import AcquaIR.Compile
+import Compiler.Compile
 
 main :: IO ()
 main = do

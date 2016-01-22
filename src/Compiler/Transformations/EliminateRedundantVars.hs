@@ -1,4 +1,4 @@
-module AcquaIR.Transformations.EliminateRedundantVars where
+module Compiler.Transformations.EliminateRedundantVars where
 
 import AcquaIR.Language as IR
 

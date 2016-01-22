@@ -1,15 +1,14 @@
-module AcquaIR.Compile where
+module Compiler.Compile where
 
 import Control.Monad.State
 
 import L1.Language as L1
 import AcquaIR.Language as IR
 
-import AcquaIR.CompileStates
-import AcquaIR.CompileStatement
-
-import AcquaIR.Transformations.AddWaits
-import AcquaIR.Transformations.EliminateRedundantVars
+import Compiler.CompileStates
+import Compiler.CompileStatement
+import Compiler.Transformations.AddWaits
+import Compiler.Transformations.EliminateRedundantVars
 
 
 resp :: IR.Name

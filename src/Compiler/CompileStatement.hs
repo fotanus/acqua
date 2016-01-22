@@ -1,4 +1,4 @@
-module AcquaIR.CompileStatement where
+module Compiler.CompileStatement where
 
 import AcquaIR.Language as IR
 
