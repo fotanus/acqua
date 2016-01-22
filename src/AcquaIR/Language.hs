@@ -32,7 +32,6 @@ data Terminator
   | Empty
   deriving (Eq,Ord,Show,Read)
 
-
 data OpCode
   = And
   | Or
@@ -62,10 +61,8 @@ startGreen = "\x1b[32m"
 noColor :: String
 noColor = "\x1b[0m"
 
-
 printBasicBlock :: BasicBlock -> String
 printBasicBlock (BB l _ cs t) = (printLabel l) ++ (printCommands cs) ++ (printTerminator t)
-
 
 printLabel :: Label -> String
 printLabel l = l ++ ":\n"

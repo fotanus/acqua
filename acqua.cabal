@@ -10,7 +10,7 @@ category:            Language
 build-type:          Simple
 cabal-version:       >=1.8
 
-executable acqua-IR
+executable acqua-ir
   main-is: IR.hs
   hs-source-dirs: src
   build-depends: base ==4.*, array, pretty-show, mtl
