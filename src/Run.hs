@@ -5,6 +5,7 @@ import Text.Show.Pretty
 
 import L1.Grammar
 import AcquaIR.Language
+import AcquaIR.Compile
 import Simulator.Acqua
 import Simulator.Rules
 import Simulator.Rules.Base
@@ -15,10 +16,10 @@ main = do
   let eitherAst = parse s
   case eitherAst of
     Right ast -> do
-      -- putStrLn $ run (compile ast) 1
       args <- getArgs
       n_pus <- return $ read (head args)
-      putStrLn $ run p n_pus
+      putStrLn $ run (compile ast) n_pus
+      -- putStrLn $ run p n_pus
     Left errorMsg ->
       putStrLn errorMsg
   where
@@ -46,7 +47,7 @@ main = do
                   [ AssignL "fibo" "_fn_0"
                   , AssignV "resp" "fibo"
                   , AssignV "fn" "resp"
-                  , AssignI "resp" 7
+                  , AssignI "resp" 6
                   , EnvNew "env_id3" 0
                   , EnvAddL "env_id3" "x" "resp"
                   , EnvAddL "env_id3" "fibo" "fibo"
