@@ -1,5 +1,0 @@
-# Issues
-* Parametro na aplicação: `param = resp` deve ser trocado pelo nome de uma variável
-* Estou abrindo Fn no letrec
-* Faltam EnvAdds na criação da função
-* Todos os tamanhos no código são 0
