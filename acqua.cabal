@@ -11,7 +11,7 @@ build-type:          Simple
 cabal-version:       >=1.8
 
 executable l1-ast
-  main-is: AST.hs
+  main-is: l1-ast.hs
   hs-source-dirs: src
   build-depends: base ==4.*, array, pretty-show, mtl
   build-tools: alex, happy
@@ -19,7 +19,7 @@ executable l1-ast
   ghc-options: -Wall
 
 executable acqua-ir
-  main-is: IR.hs
+  main-is: acqua-ir.hs
   hs-source-dirs: src
   build-depends: base ==4.*, array, pretty-show, mtl
   build-tools: alex, happy
@@ -27,7 +27,7 @@ executable acqua-ir
   ghc-options: -Wall
 
 executable acqua-run
-  main-is: Run.hs
+  main-is: acqua-run.hs
   hs-source-dirs: src
   build-depends: base ==4.*, array, pretty-show, mtl, containers
   build-tools: alex, happy
