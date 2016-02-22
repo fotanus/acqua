@@ -28,7 +28,7 @@ _compile (Fn _ t1) = do
   fn <- nextFnLabel
   (c1,bb1) <- _compile t1
   bbs <- return $ [SL fn] ++ c1 ++ [ST (Return resp)]
-  cs <- return $ []
+  cs <- return $ [] -- nothing here?
   return (cs, bbs ++ bb1)
 
 _compile (App t1 t2) = do
@@ -40,8 +40,8 @@ _compile (App t1 t2) = do
                   _ -> error "App not applying identifier or function!"
 
   t1c <- return $ c1 ++ [SC (AssignV "fn" resp)]
-  t2c <- return $ c2 ++ []
-  envs <- return $ [SC (EnvNew "env_id" 0), SC (EnvAddL "env_id" paramName resp), SC (EnvAddL "env_id" "fn" "fn")]
+  t2c <- return $ c2 ++ [] -- using compile states
+  envs <- return $ [SC (EnvNew "env_id" 0), SC (EnvAddL "env_id" paramName resp), SC (EnvAddL "env_id" "fn" "fn")] -- add free variables
   cs <- return $ t1c ++ t2c ++ envs ++ [SC (Call resp "fn" "env_id")]
   return (cs, bb1 ++ bb2)
 
@@ -77,9 +77,9 @@ _compile (Let n t1 t2) = do
 
 _compile (Letrec n t1 t2) = do
   (Fn varName _) <- return t1
-  _ <- setFnVarName n varName
-  (c1,bb1) <- _compile t1
-  (SL fn_name) <- return $ head bb1
+  _ <- setFnVarName n varName -- monad
+  (c1,bb1) <- _compile t1 -- c1 is empty because t1 is fn?
+  (SL fn_name) <- return $ head bb1 -- gets name of the function
   (c2,bb2) <- _compile t2
   cs <- return $  [SC (AssignL n fn_name)] ++ c1 ++ c2
   return (cs, bb1 ++ bb2)
