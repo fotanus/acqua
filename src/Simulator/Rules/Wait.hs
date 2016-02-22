@@ -2,7 +2,7 @@ module Simulator.Rules.Wait where
 
 import qualified Data.Map as Map
 import Text.Show.Pretty
-import Debug.Trace
+import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua

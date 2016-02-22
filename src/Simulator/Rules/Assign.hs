@@ -1,7 +1,7 @@
 module Simulator.Rules.Assign where
 
 import qualified Data.Map as Map
-import Debug.Trace
+import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
@@ -52,7 +52,7 @@ assignI (Acqua bb q pus i f s) =
     stepAssignI pu =
       case PU.commands pu of
         ((AssignI x v):cs) -> if PU.tainted pu == False
-                              then trace ((show (PU.puId pu)) ++ ": AssignI" ++ (show x) ++ " " ++ (show v)) pu'
+                                then trace ((show (PU.puId pu)) ++ ": AssignI" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu

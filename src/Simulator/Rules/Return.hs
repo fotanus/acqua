@@ -1,7 +1,7 @@
 module Simulator.Rules.Return where
 
 import qualified Data.Map as Map
-import Debug.Trace
+import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
@@ -20,7 +20,7 @@ stepReturn :: Interconnection -> [ProcessingUnit] -> (Interconnection, [Processi
 stepReturn i [] = (i,[])
 stepReturn i (pu:pus) =
   case (PU.commands pu,PU.terminator pu,PU.tainted pu) of
-    ([], Return x,False) -> trace  ((show (PU.puId pu)) ++ ": returning ") (i'', pu':pus')
+    ([], Return x,False) -> trace ((show (PU.puId pu)) ++ ": returning ") (i'', pu':pus')
       where
         (i'', pus') = stepReturn i' pus
         -- interconnection

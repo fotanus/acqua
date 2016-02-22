@@ -1,6 +1,6 @@
 module Main where
 import System.Environment
-import Debug.Trace
+import Logger
 import Text.Show.Pretty
 
 import L1.Grammar

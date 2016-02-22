@@ -1,7 +1,7 @@
 module Simulator.Rules.Resume where
 
 import qualified Data.Map as Map
-import Debug.Trace
+import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
@@ -25,7 +25,7 @@ resume (Acqua bb q pus i f s) =
           [] -> Nothing
       in
         case (t,(zeroedCallCount callCounts), PU.tainted pu) of
-          (Empty,Just k, False) ->trace  ((show (PU.puId pu)) ++ ": resuming")  $ pu'
+          (Empty,Just k, False) -> trace ((show (PU.puId pu)) ++ ": resuming")  $ pu'
             where
               PU pId _ _ _ rEnv cEnv ra cc se _ = pu
               Just (ExecutionContext c' t') = traceShow (k,se) $ Map.lookup k se

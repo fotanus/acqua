@@ -1,6 +1,6 @@
 module Simulator.Rules.Goto where
 
-import Debug.Trace
+import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua

@@ -2,7 +2,7 @@ module Simulator.Rules.ReceiveResponse where
 
 import Data.List
 import qualified Data.Map as Map
-import Debug.Trace
+import Logger
 
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU

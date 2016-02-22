@@ -1,6 +1,6 @@
 module Compiler.CompileStates where
 
-import Debug.Trace
+import Logger
 import AcquaIR.Language as IR
 import Control.Monad.State
 

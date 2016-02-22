@@ -1,7 +1,7 @@
 module Simulator.Rules.Op where
 
 import qualified Data.Map as Map
-import Debug.Trace
+import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
