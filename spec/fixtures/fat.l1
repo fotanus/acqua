@@ -3,5 +3,5 @@ letrec fat =
           then x * (fat (x-1))
           else 1
 in
-  fat 6
+  (fat 5) - 78
 end

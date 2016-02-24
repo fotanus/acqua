@@ -19,7 +19,6 @@ main = do
       args <- getArgs
       n_pus <- return $ read (head args)
       putStrLn $ run (compile ast) n_pus
-      -- putStrLn $ run p n_pus
     Left errorMsg ->
       putStrLn errorMsg
   where

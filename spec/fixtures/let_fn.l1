@@ -1,2 +1,2 @@
 let succ = fn x => x + 1
-in succ 1 end
+in succ 41 end
