@@ -24,6 +24,7 @@ compile t =
 _compile :: L1.Term -> State CompileStates ([Statement], [Statement])
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
 _compile (Ident n) = return ([SC (AssignV resp n)],[])
+
 _compile (Fn _ t1) = do
   fn <- nextFnLabel
   (c1,bb1) <- _compile t1
@@ -38,11 +39,8 @@ _compile (App t1 t2) = do
                   (Ident fn) -> (getFnVarName fn)
                   (Fn n _ ) -> return n
                   _ -> error "App not applying identifier or function!"
-
-  t1c <- return $ c1 ++ [SC (AssignV "fn" resp)]
-  t2c <- return $ c2 ++ []
   envs <- return $ [SC (EnvNew "env_id" 0), SC (EnvAddL "env_id" paramName resp), SC (EnvAddL "env_id" "fn" "fn")] -- add free variables
-  cs <- return $ t1c ++ t2c ++ envs ++ [SC (Call resp "fn" "env_id")]
+  cs <- return $ c1 ++ [SC (AssignV "fn" resp)] ++ c2 ++ envs ++ [SC (Call resp "fn" "env_id")]
   return (cs, bb1 ++ bb2)
 
 _compile (L1.Op t1 op t2) = do
@@ -62,17 +60,17 @@ _compile (L1.If t1 t2 t3) = do
   thenLabel <- nextThenLabel
   backLabel <- nextBackLabel
   dummyLabel <- nextDummyLabel
-  t1c <- return $  c1 ++ [ST (IR.If resp thenLabel)] ++ [SL dummyLabel]
-  t3c <- return $  c3 ++ [ST (Goto backLabel)] ++ [SL backLabel]
-  bbThen <- return $  [SL thenLabel] ++ c2 ++ [ST (Goto backLabel)]
-  cs <- return $  t1c ++ t3c
-  bbs <- return $  bbThen ++ bb1 ++ bb2 ++ bb3
+  t1c <- return $ c1 ++ [ST (IR.If resp thenLabel)] ++ [SL dummyLabel]
+  t3c <- return $ c3 ++ [ST (Goto backLabel)] ++ [SL backLabel]
+  bbThen <- return $ [SL thenLabel] ++ c2 ++ [ST (Goto backLabel)]
+  cs <- return $ t1c ++ t3c
+  bbs <- return $ bbThen ++ bb1 ++ bb2 ++ bb3
   return (cs, bbs)
 
 _compile (Let n t1 t2) = do
   _ <- case t1 of
-         (Fn varName _) -> setFnVarName n varName
-         _ -> setFnVarName n "!fn" -- how to not change state here?
+     (Fn varName _) -> setFnVarName n varName
+     _ -> setFnVarName n "!fn" -- how to not change state here?
   (c1,bb1) <- _compile t1
   (c2,bb2) <- _compile t2
   cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
