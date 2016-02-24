@@ -28,19 +28,19 @@ _compile (Fn _ t1) = do
   fn <- nextFnLabel
   (c1,bb1) <- _compile t1
   bbs <- return $ [SL fn] ++ c1 ++ [ST (Return resp)]
-  cs <- return $ [] -- nothing here?
+  cs <- return $ [SC (AssignL resp fn)]
   return (cs, bbs ++ bb1)
 
 _compile (App t1 t2) = do
   (c1,bb1) <- _compile t1
   (c2,bb2) <- _compile t2
-  paramName <- case t1 of
+  paramName <- case t1 of -- lookup the variable name if is a identifier
                   (Ident fn) -> (getFnVarName fn)
                   (Fn n _ ) -> return n
                   _ -> error "App not applying identifier or function!"
 
   t1c <- return $ c1 ++ [SC (AssignV "fn" resp)]
-  t2c <- return $ c2 ++ [] -- using compile states
+  t2c <- return $ c2 ++ []
   envs <- return $ [SC (EnvNew "env_id" 0), SC (EnvAddL "env_id" paramName resp), SC (EnvAddL "env_id" "fn" "fn")] -- add free variables
   cs <- return $ t1c ++ t2c ++ envs ++ [SC (Call resp "fn" "env_id")]
   return (cs, bb1 ++ bb2)
@@ -70,6 +70,9 @@ _compile (L1.If t1 t2 t3) = do
   return (cs, bbs)
 
 _compile (Let n t1 t2) = do
+  _ <- case t1 of
+         (Fn varName _) -> setFnVarName n varName
+         _ -> setFnVarName n "!fn" -- how to not change state here?
   (c1,bb1) <- _compile t1
   (c2,bb2) <- _compile t2
   cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
@@ -77,11 +80,10 @@ _compile (Let n t1 t2) = do
 
 _compile (Letrec n t1 t2) = do
   (Fn varName _) <- return t1
-  _ <- setFnVarName n varName -- monad
-  (c1,bb1) <- _compile t1 -- c1 is empty because t1 is fn?
-  (SL fn_name) <- return $ head bb1 -- gets name of the function
+  _ <- setFnVarName n varName -- save variable name from fn to be used when called
+  (c1,bb1) <- _compile t1
   (c2,bb2) <- _compile t2
-  cs <- return $  [SC (AssignL n fn_name)] ++ c1 ++ c2
+  cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
   return (cs, bb1 ++ bb2)
 
 
