@@ -13,7 +13,7 @@ cabal-version:       >=1.8
 executable l1-ast
   main-is: l1-ast.hs
   hs-source-dirs: src
-  build-depends: base ==4.*, array, pretty-show, mtl
+  build-depends: base ==4.*, array, containers, pretty-show, mtl
   build-tools: alex, happy
   other-modules: L1.Tokens, L1.Grammar
   ghc-options: -Wall
@@ -21,7 +21,7 @@ executable l1-ast
 executable acqua-ir
   main-is: acqua-ir.hs
   hs-source-dirs: src
-  build-depends: base ==4.*, array, pretty-show, mtl
+  build-depends: base ==4.*, array, containers, pretty-show, mtl
   build-tools: alex, happy
   other-modules: L1.Tokens, L1.Grammar
   ghc-options: -Wall
@@ -29,7 +29,7 @@ executable acqua-ir
 executable acqua-run
   main-is: acqua-run.hs
   hs-source-dirs: src
-  build-depends: base ==4.*, array, pretty-show, mtl, containers
+  build-depends: base ==4.*, array, containers, pretty-show, mtl, containers
   build-tools: alex, happy
   other-modules: L1.Tokens, L1.Grammar
   ghc-options: -Wall

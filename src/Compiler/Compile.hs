@@ -9,6 +9,7 @@ import Compiler.CompileStates
 import Compiler.CompileStatement
 import Compiler.Transformations.AddWaits
 import Compiler.Transformations.EliminateRedundantVars
+import Compiler.Transformations.AddEnvNews
 
 
 resp :: IR.Name
@@ -20,6 +21,7 @@ compile t =
   where
     (c, bb) = evalState (_compile t) defaultCompileStates
     statements = [SL "main"] ++ c ++ [ST (Return resp)] ++ bb
+
 
 _compile :: L1.Term -> State CompileStates ([Statement], [Statement])
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
