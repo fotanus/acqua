@@ -17,7 +17,7 @@ resp = "resp"
 
 compile :: L1.Term -> IR.Program
 compile t =
-  addWaits (eliminateRedundantVars (statementsToProgram statements))
+  (addWaits (eliminateRedundantVars (statementsToProgram statements)))
   where
     (c, bb) = evalState (_compile t) defaultCompileStates
     statements = [SL "main"] ++ c ++ [ST (Return resp)] ++ bb
@@ -41,7 +41,7 @@ _compile (App t1 t2) = do
                   (Ident fn) -> (getFnVarName fn)
                   (Fn n _ ) -> return n
                   _ -> error "App not applying identifier or function!"
-  envs <- return $ [SC (EnvNew "env_id" 0), SC (EnvAddL "env_id" paramName resp), SC (EnvAddL "env_id" "fn" "fn")] -- add free variables
+  envs <- return $ [SC (EnvNew "env_id" 0)] -- add free variables
   cs <- return $ c1 ++ [SC (AssignV "fn" resp)] ++ c2 ++ envs ++ [SC (Call resp "fn" "env_id")]
   return (cs, bb1 ++ bb2)
 
