@@ -1,7 +1,7 @@
 module AcquaIR.BasicBlockDependencyTable where
 
 import AcquaIR.Language
-import Data.Set (Set, empty, union, insert, toList)
+import Data.Set (Set, empty, union, difference, insert, toList)
 import Debug.Trace
 import Data.Maybe
 
@@ -35,7 +35,7 @@ namesOnBasicBlocks (bb:bbs) = ((label bb), (toList (namesPerCmds (commands bb)))
 
 namesPerCmds :: [Command] -> Set Name
 namesPerCmds [] = empty
-namesPerCmds (cmd:cmds) = (namesPerCmd cmd) `union` (namesPerCmds cmds)
+namesPerCmds (cmd:cmds) = (namesPerCmd cmd) `union` (namesPerCmds cmds) `difference` (insert "resp" empty)
 
 namesPerCmd :: Command -> Set Name
 namesPerCmd cmd = case cmd of
