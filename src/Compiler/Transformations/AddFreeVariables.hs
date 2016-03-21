@@ -1,25 +1,24 @@
-module Compiler.Transformations.AddEnvNews where
+module Compiler.Transformations.AddFreeVariables where
 
 import Data.List (intersect)
-import Debug.Trace
 
 import AcquaIR.Language
 import AcquaIR.BasicBlockDependencyTable
 
-addEnvNews :: Program -> Program
-addEnvNews p  = _addEnvNews p reacheableNamesPerBB namesPerBB
+addFreeVariables :: Program -> Program
+addFreeVariables p  = _addFreeVariables p reacheableNamesPerBB namesPerBB
   where
     namesPerBB = namesOnBasicBlocks p
     reacheableNamesPerBB = namesDependencyTable p
 
-_addEnvNews :: Program -> NameDependencyTable -> NameDependencyTable -> Program
-_addEnvNews [] _ _ = []
-_addEnvNews (bb:bbs) reacheableNamesPerBB namesPerBB =
+_addFreeVariables :: Program -> NameDependencyTable -> NameDependencyTable -> Program
+_addFreeVariables [] _ _ = []
+_addFreeVariables (bb:bbs) reacheableNamesPerBB namesPerBB =
   let
     (BB l n cmds t) = bb
     cmds' = addEnvAdds cmds ((searchNames l reacheableNamesPerBB) `intersect` (searchNames l namesPerBB))
   in
-    (BB l n cmds' t) : _addEnvNews bbs reacheableNamesPerBB namesPerBB
+    (BB l n cmds' t) : _addFreeVariables bbs reacheableNamesPerBB namesPerBB
   where
     addEnvAdds [] _ = []
     addEnvAdds (cmd:cmds) names = case cmd of

@@ -2,7 +2,6 @@ module AcquaIR.BasicBlockDependencyTable where
 
 import AcquaIR.Language
 import Data.Set (Set, empty, union, difference, insert, toList)
-import Debug.Trace
 import Data.Maybe
 
 
@@ -65,7 +64,7 @@ findNeighbors :: BasicBlock -> Program -> [Label]
 findNeighbors (BB l _ cmds t) p = thisBBLabels ++ neighborLabels
   where
     thisBBLabels = (labelForCommands cmds) ++ (labelForTerminator t l p)
-    neighborLabels = concat (map (\l -> findNeighbors (findBB l p) p) thisBBLabels)
+    neighborLabels = concat (map (\l' -> findNeighbors (findBB l' p) p) thisBBLabels)
 
 labelForTerminator :: Terminator -> Label -> Program -> [Label]
 labelForTerminator (Goto l) _ _ = [l]
@@ -88,6 +87,7 @@ findBB l (bb:bbs) = if (label bb) == l
 
 nextBBLabel :: Label -> Program -> Label
 nextBBLabel l [] = error ("searching for non-existing bb (or there is an if in the last bb): " ++ l)
+nextBBLabel l (_:[]) = error ("searching for non-existing bb (or there is an if in the last bb): " ++ l)
 nextBBLabel l (bb:bb2:bbs) = if (label bb) == l
                       then (label bb2)
                       else nextBBLabel l (bb2:bbs)

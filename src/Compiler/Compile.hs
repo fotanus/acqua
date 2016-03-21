@@ -9,7 +9,7 @@ import Compiler.CompileStates
 import Compiler.CompileStatement
 import Compiler.Transformations.AddWaits
 import Compiler.Transformations.EliminateRedundantVars
-import Compiler.Transformations.AddEnvNews
+import Compiler.Transformations.AddFreeVariables
 
 
 resp :: IR.Name
@@ -17,7 +17,7 @@ resp = "resp"
 
 compile :: L1.Term -> IR.Program
 compile t =
-  addEnvNews (addWaits (eliminateRedundantVars (statementsToProgram statements)))
+  addFreeVariables (addWaits (eliminateRedundantVars (statementsToProgram statements)))
   where
     (c, bb) = evalState (_compile t) defaultCompileStates
     statements = [SL "main"] ++ c ++ [ST (Return resp)] ++ bb
