@@ -20,13 +20,13 @@ receiveResponse acqua  =
         where
           Message pId envId x v = m
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
-          PU _ c t ce rEnv cEnv ra cc se _ = pu
+          PU _ c t ce rEnv cEnv ra cc se _ enbl = pu
           Just cenv  = Map.lookup envId rEnv
           cenv' = Map.insert x v cenv
           rEnv' = Map.insert envId cenv' rEnv
           Just nCalls = Map.lookup envId cc
           cc' = Map.insert envId (nCalls-1) cc
-          pu' = PU pId c t ce rEnv' cEnv ra cc' se True
+          pu' = PU pId c t ce rEnv' cEnv ra cc' se True enbl
           pus' = updatePU pus pu'
           f' = if pId == 0
                  then True

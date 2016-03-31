@@ -18,8 +18,8 @@ wait (Acqua bb q pus i f s) =
       case (PU.commands pu, PU.locked pu) of
         (Wait:cs, False) -> trace ((show (PU.puId pu)) ++ ": Wait\n" ++ (ppShow (copyEnvs pu))) pu'
           where
-            PU pId _ t ce rEnv cEnv ra cc se _ = pu
+            PU pId _ t ce rEnv cEnv ra cc se _ enbl = pu
             se' = Map.insert ce (ExecutionContext cs t) se
-            pu' = PU pId [] Empty ce rEnv cEnv ra cc se' True
+            pu' = PU pId [] Empty ce rEnv cEnv ra cc se' True enbl
         _ -> pu
 

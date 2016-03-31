@@ -18,5 +18,5 @@ data Job = Job {
 
 newQueue :: ProcessingUnit -> Queue
 newQueue pu =
-  let PU pId _ _ envId _ _ _ _ _ _ = pu
+  let PU pId _ _ envId _ _ _ _ _ _ _ = pu
   in Queue [(Job "main" envId pId envId "result")] False

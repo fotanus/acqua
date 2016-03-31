@@ -23,7 +23,7 @@ assignJob acqua =
         trace ((show (PU.puId pu)) ++ ": assignJob " ++ (ppShow job)) $ Acqua bb q' pus' i ff s'
         where
           pus' = updatePU pus p'
-          PU pId _ _ _ rEnv cEnv ra cc se _ = pu
+          PU pId _ _ _ rEnv cEnv ra cc se _ enbl = pu
           Job l envId pId' envId'' x = job
           BB _ n c t = getBB l bb
           Just ce = copyEnv pus pId' envId n
@@ -34,7 +34,7 @@ assignJob acqua =
           Queue js lck = q
           jobs' = List.delete job js
           q' = Queue jobs' lck
-          p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se True
+          p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se True enbl
       (_,_)-> acqua
 
 

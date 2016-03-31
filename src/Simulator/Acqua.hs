@@ -40,8 +40,8 @@ newAcqua p n = Acqua p queue processingUnits newInterconnection False statesDefa
     specialProcessingUnit = head processingUnits
     queue = newQueue specialProcessingUnit
 
-untaintAll :: Acqua -> Acqua
-untaintAll (Acqua bb q pus i ff s)
+unlockAll :: Acqua -> Acqua
+unlockAll (Acqua bb q pus i ff s)
   = Acqua bb q pus' i ff s
   where
-    pus' = map (\p -> untaint p) pus
+    pus' = map (\p -> unlock p) pus
