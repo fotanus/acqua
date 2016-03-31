@@ -31,9 +31,9 @@ stepReturn i (pu:pus) =
         i' = m : i
 
         -- pu
-        PU pId _ _ ce rEnv cEnv ra cc se _ enbl = pu
+        PU pId _ _ ce rEnv cEnv ra cc se enbl _ = pu
         cc' = Map.insert ce 100 cc
-        pu' = PU pId [] Empty ce rEnv cEnv ra cc' se True enbl
+        pu' = PU pId [] Empty ce rEnv cEnv ra cc' se enbl True
 
     _ -> (i', pu:pus')
       where (i', pus') = stepReturn i pus

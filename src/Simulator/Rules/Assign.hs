@@ -18,14 +18,14 @@ assignV (Acqua bb q pus i f s) =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((AssignV x v):cs),True) -> trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) pu'
           where
-            PU pId _ t ce rEnv cEnv ra cc se _ enbl = pu
+            PU pId _ t ce rEnv cEnv ra cc se enbl _ = pu
             Just cenv = Map.lookup ce rEnv
             Just val = Map.lookup v cenv
             cenv' = case val of
                     LabelValue v' -> Map.insert x (LabelValue v') cenv
                     NumberValue v' -> Map.insert x (NumberValue v') cenv
             rEnv' = Map.insert ce cenv' rEnv
-            pu' = PU pId cs t ce rEnv' cEnv ra cc se True enbl
+            pu' = PU pId cs t ce rEnv' cEnv ra cc se enbl True
         _ -> pu
 
 assignL:: Rule
@@ -38,11 +38,11 @@ assignL (Acqua bb q pus i f s) =
                               then trace ((show (PU.puId pu)) ++ ": AssignL" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
-            PU pId _ t ce rEnv cEnv ra cc se _ enbl = pu
+            PU pId _ t ce rEnv cEnv ra cc se enbl _ = pu
             Just cenv = Map.lookup ce rEnv
             cenv' = Map.insert x (LabelValue v) cenv
             rEnv' = Map.insert ce cenv' rEnv
-            pu' = PU pId cs t ce rEnv' cEnv ra cc se True enbl
+            pu' = PU pId cs t ce rEnv' cEnv ra cc se enbl True
         _ -> pu
 
 assignI:: Rule
@@ -55,10 +55,10 @@ assignI (Acqua bb q pus i f s) =
                                 then trace ((show (PU.puId pu)) ++ ": AssignI" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
-            PU pId _ t ce rEnv cEnv ra cc se _ enbl = pu
+            PU pId _ t ce rEnv cEnv ra cc se enbl _ = pu
             Just cenv = Map.lookup ce rEnv
             cenv' = Map.insert x (NumberValue v) cenv
             rEnv' = Map.insert ce cenv' rEnv
-            pu' = PU pId cs t ce rEnv' cEnv ra cc se True enbl
+            pu' = PU pId cs t ce rEnv' cEnv ra cc se enbl True
         _ -> pu
 

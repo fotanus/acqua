@@ -18,14 +18,14 @@ ifRule (Acqua bb q pus i f s) = Acqua bb q (map executeIf pus) i f s
         ([], If x l, True) -> trace ((show (PU.puId pu))++": if") pu'
          where
 
-           PU pId _ _ ce rEnv cEnv ra cc se _ enbl = pu
+           PU pId _ _ ce rEnv cEnv ra cc se enbl _ = pu
            Just cenv = Map.lookup ce rEnv
            Just (NumberValue val) = Map.lookup x cenv
            BB _ _ c' t'  = if val > 0
                            then getBB l bb
                            else getBB (dummy l) bb
 
-           pu' = PU pId c' t' ce rEnv cEnv ra cc se True enbl
+           pu' = PU pId c' t' ce rEnv cEnv ra cc se enbl True
         _ -> pu
 
 

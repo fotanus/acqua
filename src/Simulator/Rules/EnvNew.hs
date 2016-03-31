@@ -22,12 +22,12 @@ stepNewEnv (pu:pus) s =
     ((EnvNew envId _):cs, True) -> trace ((show (PU.puId pu)) ++  ": EnvNew" ++ envId ++ " as " ++ newEnvId) $ (pu1:pus2,s2)
       where
         (pus2,s2) = (stepNewEnv pus s1)
-        PU pId _ t ce rEnv cEnv ra cc se _ enbl = pu
+        PU pId _ t ce rEnv cEnv ra cc se enbl _ = pu
         (newEnvId,s1) = getNextEnvId s envId pId
         -- cEnv1 = Map.insert envId emptyEnv cEnv
         Just cenv = Map.lookup ce rEnv
         cEnv1 = Map.insert newEnvId cenv cEnv
-        pu1 = PU pId cs t ce rEnv cEnv1 ra cc se True enbl
+        pu1 = PU pId cs t ce rEnv cEnv1 ra cc se enbl True
     _ -> (pu:pus3,s3)
       where
         (pus3,s3) = (stepNewEnv pus s)

@@ -27,7 +27,7 @@ resume (Acqua bb q pus i f s) =
         case (t,(zeroedCallCount callCounts), PU.locked pu) of
           (Empty,Just k, False) -> trace ((show (PU.puId pu)) ++ ": resuming")  $ pu'
             where
-              PU pId _ _ _ rEnv cEnv ra cc se _ enbl = pu
+              PU pId _ _ _ rEnv cEnv ra cc se enbl _ = pu
               Just (ExecutionContext c' t') = traceShow (k,se) $ Map.lookup k se
-              pu' = PU pId c' t' k rEnv cEnv ra cc se True enbl
+              pu' = PU pId c' t' k rEnv cEnv ra cc se enbl True
           _ -> pu

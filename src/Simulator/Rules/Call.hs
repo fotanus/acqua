@@ -35,14 +35,14 @@ stepCall q (pu:pus) s =
         (Just (NewEnvIds envMap)) = Map.lookup "newEnvIds" s
         (Just copyEnvId) = Map.lookup (pId,envId) envMap
         j = Job l' copyEnvId pId ce x1
-        Queue js lck = q
-        q' = Queue (j:js) lck
+        Queue js qlck = q
+        q' = Queue (j:js) qlck
 
         -- pu
-        PU pId _ t ce rEnv cEnv ra cc se _ enbl = pu
+        PU pId _ t ce rEnv cEnv ra cc se enbl _ = pu
         Just nCalls = Map.lookup ce cc
         cc' = Map.insert ce (nCalls+1) cc
-        pu' = PU pId cs t ce rEnv cEnv ra cc' se True enbl
+        pu' = PU pId cs t ce rEnv cEnv ra cc' se enbl True
 
     _ -> (q', pu:pus')
       where (q', pus') = stepCall q pus s
