@@ -18,7 +18,7 @@ assignJob acqua =
   let
     Acqua bb q pus i ff s = acqua
   in
-    case (getAvailable pus, firstOf q) of
+    case (getAvailable pus, firstOf (jobs q)) of
       (Just pu, Just job) ->
         trace ((show (PU.puId pu)) ++ ": assignJob " ++ (ppShow job)) $ Acqua bb q' pus' i ff s'
         where
@@ -31,7 +31,9 @@ assignJob acqua =
           (newEnvId,s') = getNextEnvId s
           ra' = Map.insert newEnvId (ReturnAddr pId' envId'' x) ra
           cc' = Map.insert newEnvId 0 cc
-          q' = List.delete job q
+          Queue js lck = q
+          jobs' = List.delete job js
+          q' = Queue jobs' lck
           p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se True
       (_,_)-> acqua
 

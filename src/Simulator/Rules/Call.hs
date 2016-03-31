@@ -6,7 +6,7 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Queue
+import Simulator.Queue as Q
 import Simulator.Environment
 
 import Simulator.Rules.Base
@@ -20,8 +20,8 @@ call (Acqua bb q pus i f s) =
 stepCall :: Queue -> [ProcessingUnit] -> Map.Map String StateValue -> (Queue, [ProcessingUnit])
 stepCall q [] _ = (q,[])
 stepCall q (pu:pus) s =
-  case (PU.commands pu,PU.locked pu) of
-    ((Call x1 x2 envId):cs,False) -> trace ((show (PU.puId pu)) ++  ": call" ) (q'', pu':pus')
+  case (PU.commands pu,PU.locked pu,Q.locked q) of
+    ((Call x1 x2 envId):cs,False,False) -> trace ((show (PU.puId pu)) ++  ": call" ) (q'', pu':pus')
       where
         (q'', pus') = stepCall q' pus s
         -- queue
@@ -35,7 +35,8 @@ stepCall q (pu:pus) s =
         (Just (NewEnvIds envMap)) = Map.lookup "newEnvIds" s
         (Just copyEnvId) = Map.lookup (pId,envId) envMap
         j = Job l' copyEnvId pId ce x1
-        q' = q ++ [j]
+        Queue js lck = q
+        q' = Queue (j:js) lck
 
         -- pu
         PU pId _ t ce rEnv cEnv ra cc se _ = pu

@@ -3,7 +3,10 @@ module Simulator.Queue where
 import AcquaIR.Language
 import Simulator.ProcessingUnit
 
-type Queue = [Job]
+data Queue = Queue {
+  jobs :: [Job],
+  locked :: Bool
+} deriving(Show, Eq)
 
 data Job = Job {
   label :: Label,
@@ -16,4 +19,4 @@ data Job = Job {
 newQueue :: ProcessingUnit -> Queue
 newQueue pu =
   let PU pId _ _ envId _ _ _ _ _ _ = pu
-  in [(Job "main" envId pId envId "result")]
+  in Queue [(Job "main" envId pId envId "result")] False
