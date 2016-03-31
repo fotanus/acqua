@@ -14,8 +14,8 @@ ifRule :: Rule
 ifRule (Acqua bb q pus i f s) = Acqua bb q (map executeIf pus) i f s
   where
     executeIf pu =
-      case (PU.commands pu,PU.terminator pu, PU.locked pu) of
-        ([], If x l, False) -> trace ((show (PU.puId pu))++": if") pu'
+      case (PU.commands pu,PU.terminator pu, PU.canExecuteCmds pu) of
+        ([], If x l, True) -> trace ((show (PU.puId pu))++": if") pu'
          where
 
            PU pId _ _ ce rEnv cEnv ra cc se _ enbl = pu

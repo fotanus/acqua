@@ -18,8 +18,8 @@ envNew (Acqua bb q pus i f s) =
 stepNewEnv :: [ProcessingUnit] -> AcquaState -> ([ProcessingUnit], AcquaState)
 stepNewEnv [] s = ([],s)
 stepNewEnv (pu:pus) s =
-  case (PU.commands pu,PU.locked pu) of
-    ((EnvNew envId _):cs, False) -> trace ((show (PU.puId pu)) ++  ": EnvNew" ++ envId ++ " as " ++ newEnvId) $ (pu1:pus2,s2)
+  case (PU.commands pu,PU.canExecuteCmds pu) of
+    ((EnvNew envId _):cs, True) -> trace ((show (PU.puId pu)) ++  ": EnvNew" ++ envId ++ " as " ++ newEnvId) $ (pu1:pus2,s2)
       where
         (pus2,s2) = (stepNewEnv pus s1)
         PU pId _ t ce rEnv cEnv ra cc se _ enbl = pu

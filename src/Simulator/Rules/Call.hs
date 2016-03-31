@@ -20,8 +20,8 @@ call (Acqua bb q pus i f s) =
 stepCall :: Queue -> [ProcessingUnit] -> Map.Map String StateValue -> (Queue, [ProcessingUnit])
 stepCall q [] _ = (q,[])
 stepCall q (pu:pus) s =
-  case (PU.commands pu,PU.locked pu,Q.locked q) of
-    ((Call x1 x2 envId):cs,False,False) -> trace ((show (PU.puId pu)) ++  ": call" ) (q'', pu':pus')
+  case (PU.commands pu,PU.canExecuteCmds pu,Q.locked q) of
+    ((Call x1 x2 envId):cs,True,False) -> trace ((show (PU.puId pu)) ++  ": call" ) (q'', pu':pus')
       where
         (q'', pus') = stepCall q' pus s
         -- queue

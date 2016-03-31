@@ -15,8 +15,8 @@ wait (Acqua bb q pus i f s) =
     Acqua bb q (map stepWait pus) i f s
   where
     stepWait pu =
-      case (PU.commands pu, PU.locked pu) of
-        (Wait:cs, False) -> trace ((show (PU.puId pu)) ++ ": Wait\n" ++ (ppShow (copyEnvs pu))) pu'
+      case (PU.commands pu, PU.canExecuteCmds pu) of
+        (Wait:cs, True) -> trace ((show (PU.puId pu)) ++ ": Wait\n" ++ (ppShow (copyEnvs pu))) pu'
           where
             PU pId _ t ce rEnv cEnv ra cc se _ enbl = pu
             se' = Map.insert ce (ExecutionContext cs t) se

@@ -44,11 +44,14 @@ specialPU = PU 0 [] Empty
 newPU :: Int -> ProcessingUnit
 newPU n = PU n [] Empty
                "" (Map.fromList []) (Map.fromList [])
-               (Map.fromList []) (Map.fromList []) (Map.fromList []) False False
+               (Map.fromList []) (Map.fromList []) (Map.fromList []) True False
 
 newProcessingUnits :: Int -> [ProcessingUnit]
 newProcessingUnits n = specialPU : (map newPU [1..n])
 
 unlock :: ProcessingUnit -> ProcessingUnit
-unlock (PU pId c t ce rEnv cEnv ra cc se _ _)
-      = (PU pId c t ce rEnv cEnv ra cc se False False)
+unlock (PU pId c t ce rEnv cEnv ra cc se enbl _)
+      = (PU pId c t ce rEnv cEnv ra cc se enbl False)
+
+canExecuteCmds :: ProcessingUnit -> Bool
+canExecuteCmds pu = (enabled pu) && (not (locked pu))
