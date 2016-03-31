@@ -15,10 +15,8 @@ receiveResponse acqua  =
   let
     Acqua bb q pus i _ s = acqua
   in case i of
-      [] -> acqua
-      (m:ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ Acqua bb q pus' ms f' s
+      ((ConstMsgUpdate (MsgUpdate pId envId x v)):ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ Acqua bb q pus' ms f' s
         where
-          Message pId envId x v = m
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           PU _ c t ce rEnv cEnv ra cc se enbl _ = pu
           Just cenv  = Map.lookup envId rEnv
@@ -31,3 +29,4 @@ receiveResponse acqua  =
           f' = if pId == 0
                  then True
                  else False
+      _ -> acqua

@@ -27,8 +27,8 @@ stepReturn i (pu:pus) =
         Just cenv = Map.lookup ce rEnv
         Just returnValue = Map.lookup x cenv
         Just (ReturnAddr pId' envId' x') = Map.lookup ce ra
-        m = Message pId' envId' x' returnValue
-        i' = m : i
+        m = MsgUpdate pId' envId' x' returnValue
+        i' = (ConstMsgUpdate m) : i
 
         -- pu
         PU pId _ _ ce rEnv cEnv ra cc se enbl _ = pu
