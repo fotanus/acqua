@@ -15,7 +15,7 @@ envAdd (Acqua bb q pus i f s) =
     Acqua bb q (map stepEnvAdd pus) i f s
   where
     stepEnvAdd pu =
-      case (PU.commands pu, PU.tainted pu) of
+      case (PU.commands pu, PU.locked pu) of
         ((EnvAddL envId x1 x2):cs, False) -> trace ((show (PU.puId pu)) ++  ": EnvAdd to env " ++ envId ++ " AKA " ++ copyEnvId) pu'
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu

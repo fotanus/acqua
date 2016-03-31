@@ -32,7 +32,7 @@ data ProcessingUnit = PU {
   callCount :: Map.Map EnvId Int,
   sleepingExecution :: Map.Map EnvId ExecutionContext,
 
-  tainted :: Bool
+  locked :: Bool
 } deriving (Show,Eq)
 
 specialPU :: ProcessingUnit

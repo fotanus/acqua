@@ -58,7 +58,7 @@ copyEnv (pu:pus) pId' envId n =
 getAvailable :: [ProcessingUnit] -> Maybe ProcessingUnit
 getAvailable [] = Nothing
 getAvailable (pu:pus') =
-  if (PU.terminator pu) == Empty && (PU.tainted pu) == False && (PU.puId pu) > 0
+  if (PU.terminator pu) == Empty && (PU.locked pu) == False && (PU.puId pu) > 0
     then Just pu
     else getAvailable pus'
 

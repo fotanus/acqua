@@ -15,7 +15,7 @@ assignV (Acqua bb q pus i f s) =
     Acqua bb q (map stepAssignV pus) i f s
   where
     stepAssignV pu =
-      case (PU.commands pu,PU.tainted pu) of
+      case (PU.commands pu,PU.locked pu) of
         (((AssignV x v):cs),False) -> trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) pu'
           where
             PU pId _ t ce rEnv cEnv ra cc se _ = pu
@@ -34,7 +34,7 @@ assignL (Acqua bb q pus i f s) =
   where
     stepAssignL pu =
       case PU.commands pu of
-        ((AssignL x v):cs) -> if PU.tainted pu == False
+        ((AssignL x v):cs) -> if PU.locked pu == False
                               then trace ((show (PU.puId pu)) ++ ": AssignL" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
@@ -51,7 +51,7 @@ assignI (Acqua bb q pus i f s) =
   where
     stepAssignI pu =
       case PU.commands pu of
-        ((AssignI x v):cs) -> if PU.tainted pu == False
+        ((AssignI x v):cs) -> if PU.locked pu == False
                                 then trace ((show (PU.puId pu)) ++ ": AssignI" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where

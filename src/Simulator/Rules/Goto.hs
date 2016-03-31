@@ -12,7 +12,7 @@ goto :: Rule
 goto (Acqua bb q pus i f s) = Acqua bb q (map executeGoto pus) i f s
   where
     executeGoto pu =
-      case (PU.commands pu,PU.terminator pu, PU.tainted pu) of
+      case (PU.commands pu,PU.terminator pu, PU.locked pu) of
         ([], Goto l, False) -> trace ((show (PU.puId pu)) ++ ": goto") pu'
          where
 
