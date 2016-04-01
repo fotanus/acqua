@@ -9,6 +9,7 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue
+import Simulator.Interconnection
 import Simulator.Environment
 
 import Simulator.Rules.Base
@@ -23,7 +24,7 @@ assignJob acqua =
         trace ((show (PU.puId pu)) ++ ": assignJob " ++ (ppShow job)) $ Acqua bb q' pus' i ff s'
         where
           pus' = updatePU pus p'
-          PU pId _ _ _ rEnv cEnv ra cc se _ _ = pu
+          PU pId _ _ _ rEnv cEnv ra cc se omq _ _ = pu
           BB _ n c t = getBB l bb
 
           Job l envId pId' envId'' x = job
@@ -39,8 +40,12 @@ assignJob acqua =
           ra' = Map.insert newEnvId (ReturnAddr pId' envId'' x) ra
           cc' = Map.insert newEnvId 0 cc
 
+          -- add message
+          m = MsgReqEnv pId newEnvId pId' envId
+          i' = (ConstMsgReqEnv m) : i
+
           q' = Queue jobs' qlck
-          p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se True True
+          p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se omq True True
       (_,_)-> acqua
 
 

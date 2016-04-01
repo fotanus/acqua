@@ -18,7 +18,7 @@ envAdd (Acqua bb q pus i f s) =
       case (PU.commands pu, PU.canExecuteCmds pu) of
         ((EnvAddL envId x1 x2):cs, True) -> trace ((show (PU.puId pu)) ++  ": EnvAdd to env " ++ envId ++ " AKA " ++ copyEnvId) pu'
           where
-            PU pId _ t ce rEnv cEnv ra cc se enbl _ = pu
+            PU pId _ t ce rEnv cEnv ra cc se omq enbl _ = pu
             Just cenv = Map.lookup ce rEnv
             (Just (NewEnvIds envMap)) = Map.lookup "newEnvIds" s
             (Just copyEnvId) = Map.lookup (pId,envId) envMap
@@ -28,6 +28,6 @@ envAdd (Acqua bb q pus i f s) =
                       (NumberValue n) -> Map.insert x1 (NumberValue n) cenv'
                       (LabelValue l) -> Map.insert x1 (LabelValue l) cenv'
             cEnv' = Map.insert copyEnvId cenv'' cEnv
-            pu' = PU pId cs t ce rEnv cEnv' ra cc se enbl True 
+            pu' = PU pId cs t ce rEnv cEnv' ra cc se omq enbl True 
         _ -> pu
 

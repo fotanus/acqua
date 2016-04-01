@@ -39,10 +39,10 @@ stepCall q (pu:pus) s =
         q' = Queue (j:js) qlck
 
         -- pu
-        PU pId _ t ce rEnv cEnv ra cc se enbl _ = pu
+        PU pId _ t ce rEnv cEnv ra cc se omq enbl _ = pu
         Just nCalls = Map.lookup ce cc
         cc' = Map.insert ce (nCalls+1) cc
-        pu' = PU pId cs t ce rEnv cEnv ra cc' se enbl True
+        pu' = PU pId cs t ce rEnv cEnv ra cc' se omq enbl True
 
     _ -> (q', pu:pus')
       where (q', pus') = stepCall q pus s

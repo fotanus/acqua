@@ -1,11 +1,10 @@
 module Simulator.Interconnection where
 
 import AcquaIR.Language
-import Simulator.ProcessingUnit
 import Simulator.Environment
 
-
 type Interconnection = [Message]
+type PId = Int
 
 data Message
  = ConstMsgUpdate  MsgUpdate

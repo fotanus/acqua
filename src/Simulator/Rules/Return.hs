@@ -31,9 +31,9 @@ stepReturn i (pu:pus) =
         i' = (ConstMsgUpdate m) : i
 
         -- pu
-        PU pId _ _ ce rEnv cEnv ra cc se enbl _ = pu
+        PU pId _ _ ce rEnv cEnv ra cc se omq enbl _ = pu
         cc' = Map.insert ce 100 cc
-        pu' = PU pId [] Empty ce rEnv cEnv ra cc' se enbl True
+        pu' = PU pId [] Empty ce rEnv cEnv ra cc' se omq enbl True
 
     _ -> (i', pu:pus')
       where (i', pus') = stepReturn i pus

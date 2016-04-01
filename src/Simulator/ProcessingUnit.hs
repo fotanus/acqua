@@ -4,8 +4,7 @@ import qualified Data.Map as Map
 
 import AcquaIR.Language
 import Simulator.Environment
-
-type PId = Int
+import Simulator.Interconnection
 
 data ReturnAddr = ReturnAddr {
   addr_pId :: PId,
@@ -31,6 +30,7 @@ data ProcessingUnit = PU {
   returnAddrs :: Map.Map EnvId ReturnAddr,
   callCount :: Map.Map EnvId Int,
   sleepingExecution :: Map.Map EnvId ExecutionContext,
+  outgoingMessageQueue :: Interconnection,
 
   enabled :: Bool,
   locked :: Bool
@@ -39,19 +39,19 @@ data ProcessingUnit = PU {
 specialPU :: ProcessingUnit
 specialPU = PU 0 [] Empty
                  "0" (Map.fromList [("0",emptyEnv)]) (Map.fromList [("0",emptyEnv)])
-                 (Map.fromList []) (Map.fromList [("0",1)]) (Map.fromList [("0", ExecutionContext [] Empty)]) False False
+                 (Map.fromList []) (Map.fromList [("0",1)]) (Map.fromList [("0", ExecutionContext [] Empty)]) [] False False
 
 newPU :: Int -> ProcessingUnit
 newPU n = PU n [] Empty
                "" (Map.fromList []) (Map.fromList [])
-               (Map.fromList []) (Map.fromList []) (Map.fromList []) True False
+               (Map.fromList []) (Map.fromList []) (Map.fromList []) [] True False
 
 newProcessingUnits :: Int -> [ProcessingUnit]
 newProcessingUnits n = specialPU : (map newPU [1..n])
 
 unlock :: ProcessingUnit -> ProcessingUnit
-unlock (PU pId c t ce rEnv cEnv ra cc se enbl _)
-      = (PU pId c t ce rEnv cEnv ra cc se enbl False)
+unlock (PU pId c t ce rEnv cEnv ra cc se omq enbl _)
+      = (PU pId c t ce rEnv cEnv ra cc se omq enbl False)
 
 canExecuteCmds :: ProcessingUnit -> Bool
 canExecuteCmds pu = (enabled pu) && (not (locked pu))
