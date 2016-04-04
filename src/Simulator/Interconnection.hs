@@ -8,6 +8,7 @@ type PId = Int
 
 data Message
  = ConstMsgUpdate  MsgUpdate
+ | ConstMsgResponse MsgResponse
  | ConstMsgReqEnv  MsgReqEnv
  | ConstMsgEndCopy MsgEndCopy
  deriving (Show, Eq)
@@ -17,6 +18,13 @@ data MsgUpdate = MsgUpdate {
   environment :: EnvId,
   variable :: Name,
   value :: Value
+  } deriving (Show, Eq)
+
+data MsgResponse = MsgResponse {
+  puIdR :: PId,
+  environmentR :: EnvId,
+  variableR :: Name,
+  valueR :: Value
   } deriving (Show, Eq)
 
 data MsgReqEnv = MsgReqEnv {

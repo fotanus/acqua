@@ -21,7 +21,7 @@ assignJob acqua =
   in
     case (getAvailable pus, firstOf (jobs q)) of
       (Just pu, Just job) ->
-        trace ((show (PU.puId pu)) ++ ": assignJob " ++ (ppShow job)) $ Acqua bb q' pus' i ff s'
+        trace ((show (PU.puId pu)) ++ ": assignJob " ++ (ppShow job)) $ Acqua bb q' pus' i' ff s'
         where
           pus' = updatePU pus p'
           PU pId _ _ _ rEnv cEnv ra cc se omq _ _ = pu
@@ -32,20 +32,21 @@ assignJob acqua =
           jobs' = List.delete job js
 
           -- Copy env
-          Just ce = copyEnv pus pId' envId n
-          rEnv' = Map.insert newEnvId ce rEnv
+          -- Just ce = copyEnv pus pId' envId n
+          -- rEnv' = Map.insert newEnvId ce rEnv
 
           -- init env
           (newEnvId,s') = getNextEnvId s
           ra' = Map.insert newEnvId (ReturnAddr pId' envId'' x) ra
           cc' = Map.insert newEnvId 0 cc
+          rEnv' = Map.insert newEnvId (Map.fromList []) rEnv
 
           -- add message
           m = MsgReqEnv pId newEnvId pId' envId
           i' = (ConstMsgReqEnv m) : i
 
           q' = Queue jobs' qlck
-          p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se omq True True
+          p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se omq False True
       (_,_)-> acqua
 
 

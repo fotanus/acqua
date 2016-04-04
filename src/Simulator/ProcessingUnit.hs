@@ -44,7 +44,7 @@ specialPU = PU 0 [] Empty
 newPU :: Int -> ProcessingUnit
 newPU n = PU n [] Empty
                "" (Map.fromList []) (Map.fromList [])
-               (Map.fromList []) (Map.fromList []) (Map.fromList []) [] True False
+               (Map.fromList []) (Map.fromList []) (Map.fromList []) [] False False
 
 newProcessingUnits :: Int -> [ProcessingUnit]
 newProcessingUnits n = specialPU : (map newPU [1..n])

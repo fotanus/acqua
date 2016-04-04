@@ -52,7 +52,7 @@ assignI (Acqua bb q pus i f s) =
     stepAssignI pu =
       case PU.commands pu of
         ((AssignI x v):cs) -> if PU.canExecuteCmds pu
-                                then trace ((show (PU.puId pu)) ++ ": AssignI" ++ (show x) ++ " " ++ (show v)) pu'
+                                then trace ((show (PU.puId pu)) ++ ": AssignI " ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
             PU pId _ t ce rEnv cEnv ra cc se omq enbl _ = pu
