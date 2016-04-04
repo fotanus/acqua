@@ -1,6 +1,6 @@
 module Compiler.Transformations.AddFreeVariables where
 
-import Data.List (intersect)
+import Data.List
 
 import AcquaIR.Language
 import AcquaIR.BasicBlockDependencyTable
@@ -16,9 +16,12 @@ _addFreeVariables [] _ _ = []
 _addFreeVariables (bb:bbs) reacheableNamesPerBB namesPerBB =
   let
     (BB l n cmds t) = bb
-    cmds' = addEnvAdds cmds ((searchNames l reacheableNamesPerBB) `intersect` (searchNames l namesPerBB))
+    cmds' = addEnvAdds cmds (nub (recheableBBNames `intersect` thisBBNames  \\ ["resp"]))
+    n' = length (nub (recheableBBNames `union` thisBBNames))
+    thisBBNames = searchNames l namesPerBB
+    recheableBBNames = searchNames l reacheableNamesPerBB
   in
-    (BB l n cmds' t) : _addFreeVariables bbs reacheableNamesPerBB namesPerBB
+    (BB l n' cmds' t) : _addFreeVariables bbs reacheableNamesPerBB namesPerBB
   where
     addEnvAdds [] _ = []
     addEnvAdds (cmd:cmds) names = case cmd of

@@ -55,10 +55,10 @@ ident :: String
 ident = "    "
 
 printBasicBlock :: BasicBlock -> String
-printBasicBlock (BB l _ cs t) = (printLabel l) ++ (printCommands cs) ++ (printTerminator t)
+printBasicBlock (BB l n cs t) = (printLabel l n) ++ (printCommands cs) ++ (printTerminator t)
 
-printLabel :: Label -> String
-printLabel l = (yellow l) ++ ":\n"
+printLabel :: Label -> Int -> String
+printLabel l n = (yellow l) ++ " (" ++ (show n) ++ "):\n"
 
 printCommands :: [Command] -> String
 printCommands cs = foldr (++) "" (map printCommand cs)

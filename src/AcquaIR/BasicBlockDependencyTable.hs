@@ -34,7 +34,7 @@ namesOnBasicBlocks (bb:bbs) = ((label bb), (toList (namesPerCmds (commands bb)))
 
 namesPerCmds :: [Command] -> Set Name
 namesPerCmds [] = empty
-namesPerCmds (cmd:cmds) = (namesPerCmd cmd) `union` (namesPerCmds cmds) `difference` (insert "resp" empty)
+namesPerCmds (cmd:cmds) = (namesPerCmd cmd) `union` (namesPerCmds cmds)  
 
 namesPerCmd :: Command -> Set Name
 namesPerCmd cmd = case cmd of
