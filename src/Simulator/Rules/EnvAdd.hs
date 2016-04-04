@@ -22,7 +22,7 @@ envAdd (Acqua bb q pus i f s) =
             Just cenv = Map.lookup ce rEnv
             (Just (NewEnvIds envMap)) = Map.lookup "newEnvIds" s
             (Just copyEnvId) = Map.lookup (pId,envId) envMap
-            Just cenv' = traceShow (pId,copyEnvId) $ Map.lookup copyEnvId cEnv
+            Just cenv' = Map.lookup copyEnvId cEnv
             Just val = Map.lookup x2 cenv
             cenv'' = case val of
                       (NumberValue n) -> Map.insert x1 (NumberValue n) cenv'

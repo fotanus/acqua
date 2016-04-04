@@ -19,5 +19,9 @@ import Simulator.Rules.SendEnvMsg
 import Simulator.Rules.EndCopy
 
 rules :: [Rule]
-rules = [assignJob, assignV, assignL, assignI, envNew, call, returnTerminator, receiveResponse, receiveUpdate, resume, wait, op, ifRule, goto, envAdd, reqEnv, sendEnvMsg, endCopy]
+rules = [
+  assignV, assignL, assignI, envNew, returnTerminator, resume, wait, op, ifRule, goto, envAdd,
+  receiveResponse, receiveUpdate, endCopy,
+  sendEnvMsg, reqEnv, assignJob, call
+  ]
 

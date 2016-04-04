@@ -15,7 +15,7 @@ receiveUpdate acqua  =
   let
     Acqua bb q pus i _ s = acqua
   in case i of
-      ((ConstMsgUpdate (MsgUpdate pId envId x v)):ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ Acqua bb q pus' ms f' s
+      ((ConstMsgUpdate (MsgUpdate pId envId x v)):ms) -> trace ((show (PU.puId pu)) ++ ": receive update")  $ Acqua bb q pus' ms f' s
         where
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           PU _ c t ce rEnv cEnv ra cc se omq enbl _ = pu
