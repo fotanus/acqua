@@ -4,5 +4,5 @@ letrec fibo =
       then 1
       else (fibo (x - 1)) + (fibo (x - 2))
 in
-  fibo 12
+  fibo 6
 end
