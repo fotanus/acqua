@@ -15,3 +15,7 @@ traceShow msg ret = if doTrace
                 then Debug.Trace.traceShow msg ret
                 else ret
 
+traceShowId :: Show a => a -> a
+traceShowId ret = if doTrace
+                then Debug.Trace.traceShowId ret
+                else ret
