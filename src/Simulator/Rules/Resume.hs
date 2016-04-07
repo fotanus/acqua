@@ -28,6 +28,6 @@ resume (Acqua bb q pus i f s) =
           (Empty,Just k, False) -> trace ((show (PU.puId pu)) ++ ": resuming")  $ pu'
             where
               PU pId _ _ _ rEnv cEnv ra cc se omq enbl _ = pu
-              Just (ExecutionContext c' t') = traceShow (k,se) $ Map.lookup k se
+              Just (ExecutionContext c' t') = Map.lookup k se
               pu' = PU pId c' t' k rEnv cEnv ra cc se omq enbl True
           _ -> pu
