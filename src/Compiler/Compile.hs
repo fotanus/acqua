@@ -1,6 +1,7 @@
 module Compiler.Compile where
 
 import Control.Monad.State
+import Logger
 
 import L1.Language as L1
 import AcquaIR.Language as IR
@@ -36,16 +37,16 @@ _compile (Fn _ t1) = do
 
 _compile (App t1 t2) = do
   (c1,bb1) <- _compile t1
-  fn_name <- case last c1 of
-                SC (AssignV _ fn_name) -> return fn_name
-                _ -> error "error"
+  recFuncEnvAdd <- case last c1 of
+                SC (AssignV _ fn_name) -> return $ [SC (EnvAddL "env_id" fn_name fn_name)]
+                _ -> return $ []
 
   (c2,bb2) <- _compile t2
   paramName <- case t1 of -- lookup the variable name if is a identifier
                   (Ident fn) -> (getFnVarName fn)
                   (Fn n _ ) -> return n
                   _ -> error "App not applying identifier or function!"
-  envs <- return $ [SC (EnvNew "env_id" 0), SC (EnvAddL "env_id" paramName resp), SC (EnvAddL "env_id" fn_name fn_name)]
+  envs <- return $ [SC (EnvNew "env_id" 0), SC (EnvAddL "env_id" paramName resp)] ++ recFuncEnvAdd
   cs <- return $ c1 ++ [SC (AssignV "fn" resp)] ++ c2 ++ envs ++ [SC (Call resp "fn" "env_id")]
   return (cs, bb1 ++ bb2)
 
