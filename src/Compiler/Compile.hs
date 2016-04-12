@@ -43,18 +43,24 @@ _compile (App t1 t2) = do
 
   (c2,bb2) <- _compile t2
   paramName <- lookupvar t1
-  envs <- return $ [SC (EnvNew "env_id" 0), SC (EnvAddL "env_id" paramName resp)] ++ recFuncEnvAdd
+  params <- return $ traceShow t1 $ traceShow t2 $ [SC (EnvAddL "env_id" paramName resp)]
+  envs <- return $ [SC (EnvNew "env_id" 0)] ++ params ++ recFuncEnvAdd
   cs <- return $ c1 ++ [SC (AssignV "fn" resp)] ++ c2 ++ envs ++ [SC (Call resp "fn" "env_id")]
   return (cs, bb1 ++ bb2)
     where
+      paramNames t = case t of
+        (App e1 e2) -> lookupvar e1
       -- lookup the variable name if is a identifier
       lookupvar t = case t of
-        (Ident fn) -> (getFnVarName fn)
-        (Fn _ (Fn n b) ) -> lookupvar (Fn n b)
+        (Ident fn) ->  (getFnVarName fn)
         (Fn n _ ) -> return n
-        (App (App e11 e12) e2) -> lookupvar e12
-        (App e1 e2) -> traceShow t $ lookupvar e1
-        _ ->  error $ "App not applying identifier or function!" ++ (show t)
+        -- TODO: generalize
+        -- every app makes the need for going one level after the current fn
+        -- currently up to 3 levels of applications
+        (App (App (Fn _ (Fn _ (Fn n _)) ) _) _) -> return n
+        (App (Fn _ (Fn n _)) _) -> return n
+        (App (Ident fn) _) -> getFnVarName fn
+        _ ->  error $ "App not applying identifier or function! " ++ (show t)
 
 _compile (L1.Op t1 op t2) = do
   (c1,bb1) <- _compile t1
