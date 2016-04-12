@@ -21,7 +21,7 @@ assignJob acqua =
   in
     case (getAvailable pus, firstOf (jobs q)) of
       (Just pu, Just job) ->
-        trace ((show (PU.puId pu)) ++ ": assignJob " ++ (ppShow job)) $ Acqua bb q' pus' i' ff s'
+        trace ((show (PU.puId pu)) ++ ": assignJob ") $ Acqua bb q' pus' i' ff s'
         where
           pus' = updatePU pus p'
           PU pId _ _ _ rEnv cEnv ra cc se omq _ _ = pu

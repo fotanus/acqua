@@ -42,14 +42,13 @@ import L1.Language
 %left '<' '>' '!=' '==' '<=' '>=' '=' 'and' 'or'
 %left '+' '-'
 %left '*'
-%left NEGATIVE
 %left '(' ')'
 %left let letrec
 %left APP
 %left NOT_APP
+%left NEGATIVE
 
 %%
-
 Exp :
     -- Let and letrec
     let var '=' Exp in Exp end           { Let $2 $4 $6 }
@@ -57,10 +56,6 @@ Exp :
 
     -- Constructions
     | if BoolExp then Exp else Exp       { If $2 $4 $6 }
-
-    -- Applications
-    | var Exp %prec APP                  { App (Ident $1) $2 }
-    | '(' fn var '=>' Exp ')' Exp        { App (Fn $3 $5) $7 }
 
     -- Math
     | Exp '+' Exp                        { Op $1 Add $3 }
@@ -73,6 +68,10 @@ Exp :
     | num                                { Num $1 }
     | '-' num %prec NEGATIVE             { Num (-$2) }
     | '(' Exp ')'                        { $2 }
+
+    | var Exp %prec APP                    { App (Ident $1) $2 }
+    | '(' fn var '=>' Exp ')' Exp %prec APP        { App (Fn $3 $5) $7 }
+    | '(' Exp ')' Exp %prec APP                    { App $2 $4 }
 
 
 BoolExp : Exp '==' Exp          { Op $1 Equal $3 }
