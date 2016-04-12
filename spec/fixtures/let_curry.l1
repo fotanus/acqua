@@ -1,0 +1,3 @@
+let fun = fn x => fn y => x + y + 20 in
+  (fun 20) 2
+end

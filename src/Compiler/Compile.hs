@@ -36,6 +36,9 @@ _compile (Fn _ t1) = do
   return (cs, bbs ++ bb1)
 
 _compile (App t1 t2) = do
+  _ <- case (t1,t2) of
+     ((Fn n1 _), (Fn n2 _ )) -> setFnVarName n1 n2
+     _ -> setFnVarName "unused" "!fn"
   (c1,bb1) <- _compile t1
   recFuncEnvAdd <- case last c1 of
                 SC (AssignV _ fn_name) -> return $ [SC (EnvAddL "env_id" fn_name fn_name)]
@@ -43,13 +46,11 @@ _compile (App t1 t2) = do
 
   (c2,bb2) <- _compile t2
   paramName <- lookupvar t1
-  params <- return $ traceShow t1 $ traceShow t2 $ [SC (EnvAddL "env_id" paramName resp)]
+  params <- return $ [SC (EnvAddL "env_id" paramName resp)]
   envs <- return $ [SC (EnvNew "env_id" 0)] ++ params ++ recFuncEnvAdd
   cs <- return $ c1 ++ [SC (AssignV "fn" resp)] ++ c2 ++ envs ++ [SC (Call resp "fn" "env_id")]
   return (cs, bb1 ++ bb2)
     where
-      paramNames t = case t of
-        (App e1 e2) -> lookupvar e1
       -- lookup the variable name if is a identifier
       lookupvar t = case t of
         (Ident fn) ->  (getFnVarName fn)
