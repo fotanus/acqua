@@ -69,8 +69,8 @@ Exp :
     | '-' num %prec NEGATIVE             { Num (-$2) }
     | '(' Exp ')'                        { $2 }
 
-    | var Exp %prec APP                    { App (Ident $1) $2 }
-    | '(' fn var '=>' Exp ')' Exp %prec APP        { App (Fn $3 $5) $7 }
+    -- Application
+    | var Exp   %prec APP                          { App (Ident $1) $2 }
     | '(' Exp ')' Exp %prec APP                    { App $2 $4 }
 
 

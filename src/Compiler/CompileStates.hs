@@ -59,7 +59,7 @@ getFnVarName a = do
   s <- get
   return $ case lookup a (fnVarNames s) of
            Just ret -> ret
-           Nothing -> traceShow (a, fnVarNames s) $ error "Can't find symbol!"
+           Nothing -> traceShow (a, fnVarNames s) $ error "Can't find symbol on getFnVarName!"
 
 setFnLabelName :: String -> String -> State CompileStates IR.Name
 setFnLabelName a b = do
@@ -73,5 +73,5 @@ getFnLabelName a = do
   s <- get
   return $ case lookup a (fnLabelNames s) of
            Just ret -> ret
-           Nothing -> traceShow (a, fnLabelNames s) $ error "Can't find symbol!"
+           Nothing -> traceShow (a, fnLabelNames s) $ error "Can't find symbol on getFnLabelName!"
 

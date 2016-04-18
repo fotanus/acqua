@@ -1,0 +1,5 @@
+let f1 = fn x => x 41 in
+let f2 = fn y => y + 1 in
+  f1 f2
+end
+end
