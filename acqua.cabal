@@ -34,6 +34,13 @@ executable acqua-run
   other-modules: L1.Tokens, L1.Grammar
   ghc-options: -Wall
 
+executable l1-run
+  main-is: l1-run.hs
+  hs-source-dirs: src
+  build-depends: base ==4.*, array, containers, pretty-show, mtl, containers
+  build-tools: alex, happy
+  other-modules: L1.Tokens, L1.Grammar
+  ghc-options: -Wall
 
 --library
 --  build-depends: base ==4.*, array, pretty-show
