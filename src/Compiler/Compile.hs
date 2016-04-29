@@ -16,6 +16,51 @@ import Compiler.Transformations.AddFreeVariables
 resp :: IR.Name
 resp = "resp"
 
+isTypeOrUnknown :: L1.Type -> L1.Type -> Bool
+isTypeOrUnknown t1 t2 = t1 == t2 || t1 == UnknownT || t2 == UnknownT
+
+typeCheck :: L1.Term -> [(L1.Name, L1.Type)] -> L1.Type
+typeCheck (Num _) nameTypes = IntT
+typeCheck (Ident n) nameTypes = case lookup n nameTypes of
+                                     Just t -> t
+                                     Nothing -> UnknownT
+typeCheck (Fn name e1) nameTypes = FnT UnknownT (typeCheck e1 nameTypes) --fixme
+
+typeCheck (App (Ident n) e2) nameTypes = case lookup n nameTypes of
+                                         Just (FnT t1 t2) -> if isTypeOrUnknown (typeCheck e2 nameTypes) t1
+                                                             then t2
+                                                             else error "parameter for identifier is not from the correct type"
+                                         Nothing -> FnT (typeCheck e2 nameTypes) UnknownT
+
+typeCheck (App e1 e2) nameTypes = case (typeCheck e1 nameTypes) of
+                           (FnT t1 t2) -> if isTypeOrUnknown (typeCheck e2 nameTypes) t1
+                                            then t2
+                                            else error $ "Argument " ++ (show e2) ++ " type " ++ (show (typeCheck e2 nameTypes)) ++ " does not match type " ++ (show t1)
+                           _ -> error $ "Applying something which type is not a function: " ++ (show e1) ++ " is type " ++ (show (typeCheck e1 nameTypes))
+
+typeCheck (L1.Op e1 _ e2) nameTypes = if isTypeOrUnknown (typeCheck e1 nameTypes) IntT
+                             then if isTypeOrUnknown (typeCheck e2 nameTypes) IntT
+                                  then IntT
+                                  else error "right expression is not int on operation"
+                             else error "left expresison is not int on operation"
+
+typeCheck (L1.If e1 e2 e3) nameTypes = if isTypeOrUnknown (typeCheck e1 nameTypes) IntT
+                             then if isTypeOrUnknown (typeCheck e2 nameTypes) (typeCheck e3 nameTypes)
+                                  then typeCheck e2 nameTypes
+                                  else error "Two branches of if don't have the same type"
+                             else error "expression on if is not int"
+
+typeCheck (Let n e1 e2) nameTypes = let nameTypes' = (n, typeCheck e1 nameTypes):nameTypes
+                                    in typeCheck e2 nameTypes'
+
+typeCheck (Letrec n e1 e2) nameTypes = let
+                                         tempNameTypes = (n,FnT UnknownT UnknownT):nameTypes
+                                         nameTypes' = (n, typeCheck e1 tempNameTypes):nameTypes
+                                       in
+                                         typeCheck e2 nameTypes'
+
+
+
 compile :: L1.Term -> IR.Program
 compile t =
   addFreeVariables (addWaits (eliminateRedundantVars (statementsToProgram statements)))
