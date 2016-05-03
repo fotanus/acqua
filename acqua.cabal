@@ -69,3 +69,11 @@ test-suite acqua-run-spec
   hs-source-dirs: spec
   main-is: acqua_run.hs
   build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
+
+test-suite l1-typecheck-spec
+  type: exitcode-stdio-1.0
+  hs-source-dirs: spec, src
+  other-modules: L1.Tokens, L1.Grammar
+  main-is: l1_typecheck.hs
+  build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
+
