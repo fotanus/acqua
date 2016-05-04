@@ -1,8 +1,7 @@
 module Main where
 
-import Text.Show.Pretty
 import L1.Grammar
-import Compiler.Compile
+import L1.Type
 
 main :: IO ()
 main = do

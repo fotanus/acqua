@@ -1,7 +1,6 @@
 module Compiler.Compile where
 
 import Control.Monad.State
-import Logger
 
 import L1.Language as L1
 import AcquaIR.Language as IR
@@ -16,111 +15,6 @@ import Compiler.Transformations.AddFreeVariables
 resp :: IR.Name
 resp = "resp"
 
-isTypeOrUnknown :: L1.Type -> L1.Type -> Bool
---isTypeOrUnknown t1 t2 = t1 == t2 || t1 == UnknownT || t2 == UnknownT
-isTypeOrUnknown t1 t2 = case (t1,t2) of
-                        ((FnT t11 t12),(FnT t21 t22)) -> (isTypeOrUnknown t11 t21) && (isTypeOrUnknown t12 t22)
-                        _ -> t1 == t2 || t1 == UnknownT || t2 == UnknownT
-
-inferType :: L1.Name -> L1.Term -> [(L1.Name, (L1.Type, L1.Term, Bool))] -> L1.Type
-inferType _ (Num _) _ = UnknownT
-inferType _ (Ident _) _ = UnknownT
-
-inferType n (L1.Op e1 _ e3) nameTypes = if e1 == (Ident n) || e3 == (Ident n)
-                                        then IntT
-                                        else if inferType n e1 nameTypes == UnknownT
-                                             then inferType n e3 nameTypes
-                                             else inferType n e1 nameTypes
-
-inferType n (Fn name e1) nameTypes = if name == n
-                                     then UnknownT
-                                     else inferType n e1 nameTypes
-
-inferType n (App e1 e2) nameTypes = if e1 == (Ident n)
-                                    then (FnT (typeCheck e2 nameTypes) UnknownT)
-                                    else if inferType n e1 nameTypes == UnknownT
-                                         then inferType n e2 nameTypes
-                                         else inferType n e1 nameTypes
-
-inferType n (L1.If e1 e2 e3) nameTypes = if e1 == (Ident n)
-                                         then IntT
-                                        else if inferType n e2 nameTypes == UnknownT
-                                             then inferType n e3 nameTypes
-                                             else inferType n e2 nameTypes
-
-inferType n (Let name e1 e2) nameTypes = let nameTypes' = (name,(typeCheck e1 nameTypes,e1,False)):nameTypes
-                                         in if inferType n e1 nameTypes == UnknownT
-                                            then inferType n e2 nameTypes
-                                            else inferType n e1 nameTypes
-
-
-inferType n (Letrec name e1 e2) nameTypes = let
-                                         tempNameTypes = (name,(FnT UnknownT UnknownT,Ident "temp",True)):nameTypes
-                                         nameTypes' = (name,(typeCheck e1 tempNameTypes,e1,True)):nameTypes
-                                            in
-                                              if inferType n e1 nameTypes == UnknownT
-                                              then inferType n e2 nameTypes
-                                              else inferType n e1 nameTypes
-
-
-
-typeCheck :: L1.Term -> [(L1.Name, (L1.Type,L1.Term, Bool))] -> L1.Type
-typeCheck (Num _) nameTypes = IntT
-typeCheck (Ident n) nameTypes = case lookup n nameTypes of
-                                     Just (t,_,_) -> t
-                                     Nothing -> UnknownT
-
-typeCheck (Fn name e1) nameTypes = FnT (inferType name e1 nameTypes) (typeCheck e1 nameTypes)
-
-typeCheck (App (Ident n) e2) nameTypes = case lookup n nameTypes  of
-                                         Just (t,e,rec) -> let
-                                                         nameTypes' = case e of
-                                                                      Fn var _ -> (var,(typeCheck e2 nameTypes, e2,rec)):nameTypes
-                                                                      _ -> nameTypes
-                                                       in case if rec then t else typeCheck e nameTypes' of
-                                                          (FnT t1 t2) -> if isTypeOrUnknown (typeCheck e2 nameTypes) t1
-                                                                         then t2
-                                                                         else error "parameter for identifier is not from the correct type"
-                                                          _ -> error "Applying something which type is not a function"
-                                         Nothing -> UnknownT
-
-typeCheck (App (Fn n e1) e2) nameTypes = case (typeCheck (Fn n e1) nameTypes') of
-                                  (FnT t1 t2) -> if isTypeOrUnknown (typeCheck e2 nameTypes) t1
-                                                 then t2
-                                                 else error $ "Argument " ++ (show e2) ++ " type " ++ (show (typeCheck e2 nameTypes)) ++ " does not match type " ++ (show t1)
-                                  _ -> error $ "Applying wrong parameter to function"
-                                  where
-                                    nameTypes' = (n,(typeCheck e2 nameTypes, e2,False)):nameTypes
-
-typeCheck (App e1 e2) nameTypes = case (typeCheck e1 nameTypes) of
-                                  (FnT t1 t2) -> if isTypeOrUnknown (typeCheck e2 nameTypes) t1
-                                                 then t2
-                                                 else error $ "Argument " ++ (show e2) ++ " type " ++ (show (typeCheck e2 nameTypes)) ++ " does not match type " ++ (show t1)
-                                  _ -> error $ "Applying something which type is not a function: " ++ (show e1) ++ " is type " ++ (show (typeCheck e1 nameTypes))
-
-typeCheck (L1.Op e1 _ e2) nameTypes = if isTypeOrUnknown (typeCheck e1 nameTypes) IntT
-                             then if isTypeOrUnknown (typeCheck e2 nameTypes) IntT
-                                  then IntT
-                                  else error "right expression is not int on operation"
-                             else error "left expresison is not int on operation"
-
-typeCheck (L1.If e1 e2 e3) nameTypes = if isTypeOrUnknown (typeCheck e1 nameTypes) IntT
-                             then if isTypeOrUnknown (typeCheck e2 nameTypes) (typeCheck e3 nameTypes)
-                                  then typeCheck e2 nameTypes
-                                  else error "Two branches of if don't have the same type"
-                             else error "expression on if is not int"
-
-typeCheck (Let n e1 e2) nameTypes = let nameTypes' = (n,(typeCheck e1 nameTypes, e1,False)):nameTypes
-                                    in typeCheck e2 nameTypes'
-
-typeCheck (Letrec n e1 e2) nameTypes = let
-                                         tempNameTypes = (n,(FnT UnknownT UnknownT,e1,True)):nameTypes
-                                         nameTypes' = (n,(typeCheck e1 tempNameTypes,e1,True)):nameTypes
-                                       in
-                                         typeCheck e2 nameTypes'
-
-
-
 compile :: L1.Term -> IR.Program
 compile t =
   addFreeVariables (addWaits (eliminateRedundantVars (statementsToProgram statements)))
@@ -130,6 +24,7 @@ compile t =
 
 
 _compile :: L1.Term -> State CompileStates ([Statement], [Statement])
+_compile (Param _) = error "Compiler not implemented for Param"
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
 _compile (Ident n) = return ([SC (AssignV resp n)],[])
 
