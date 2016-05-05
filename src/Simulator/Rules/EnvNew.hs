@@ -25,7 +25,6 @@ stepNewEnv (pu:pus) s =
         PU pId _ t ce rEnv cEnv ra cc se omq enbl _ = pu
         (newEnvId,s1) = getNextEnvId s envId pId
         cEnv1 = Map.insert newEnvId (Map.fromList []) cEnv
-        Just cenv = Map.lookup ce rEnv
         pu1 = PU pId cs t ce rEnv cEnv1 ra cc se omq enbl True
     _ -> (pu:pus3,s3)
       where

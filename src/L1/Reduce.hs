@@ -41,6 +41,7 @@ _run t t' = let t'' = trace (ppShow t) $ traceShow "---" $ reduce t
 
 reduce :: Term -> Term
 -- reductions on math operations
+reduce (Param _) = error "Reduce do not implement param"
 reduce (Op (Num n1) Add (Num n2)) = Num (n1 + n2)
 reduce (Op (Num n1) Sub (Num n2)) = Num (n1 - n2)
 reduce (Op (Num n1) Mult (Num n2)) = Num (n1 * n2)
@@ -78,6 +79,7 @@ substitute _ _ t2 = error $ "Can't substitute on " ++ (show t2)
 -- Removes the let and letrec from a L1 program, transforming it on applications.
 removeLet :: Term -> Term
 --terms that change
+removeLet (Param _) = error "removeLet do not implement param"
 removeLet (Let n t1 t2) = App (Fn n t2) t1
 removeLet (Letrec n1 (Fn n2 t1) t2) =  App (Fn n1 t2) (App (Fn n1 fnBody) fnBody)
                                        where fnBody = (Fn n2 t1)

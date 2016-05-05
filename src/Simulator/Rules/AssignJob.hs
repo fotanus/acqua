@@ -1,6 +1,5 @@
 module Simulator.Rules.AssignJob where
 
-import Text.Show.Pretty
 import Data.List as List
 import qualified Data.Map as Map
 import Logger
@@ -25,7 +24,7 @@ assignJob acqua =
         where
           pus' = updatePU pus p'
           PU pId _ _ _ rEnv cEnv ra cc se omq _ _ = pu
-          BB _ n c t = getBB l bb
+          BB _ _ c t = getBB l bb
 
           Job l envId pId' envId'' x = job
           Queue js qlck = q

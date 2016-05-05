@@ -15,7 +15,7 @@ _addFreeVariables :: Program -> NameDependencyTable -> NameDependencyTable -> Pr
 _addFreeVariables [] _ _ = []
 _addFreeVariables (bb:bbs) reacheableNamesPerBB namesPerBB =
   let
-    (BB l n cmds t) = bb
+    (BB l _ cmds t) = bb
     cmds' = addEnvAdds cmds (nub (recheableBBNames `intersect` thisBBNames  \\ ["resp"]))
     n' = length (nub (recheableBBNames `union` thisBBNames))
     thisBBNames = searchNames l namesPerBB

@@ -1,7 +1,7 @@
 module AcquaIR.BasicBlockDependencyTable where
 
 import AcquaIR.Language
-import Data.Set (Set, empty, union, difference, insert, toList)
+import Data.Set (Set, empty, union, insert, toList)
 import Data.Maybe
 
 
