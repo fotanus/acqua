@@ -3,6 +3,8 @@ module Main where
 import L1.Grammar
 import L1.Type
 
+-- prints the type of a given L1 program
+
 main :: IO ()
 main = do
   s <- getContents

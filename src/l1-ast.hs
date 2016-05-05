@@ -3,6 +3,7 @@ module Main where
 import Text.Show.Pretty
 import L1.Grammar
 
+-- prints the AST of a L1 program after being parsed
 main :: IO ()
 main = do
   s <- getContents

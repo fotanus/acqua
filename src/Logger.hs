@@ -1,3 +1,5 @@
+-- This module is a wrapper over Debug.Trace that allows it to be disabled
+
 module Logger where
 
 import Debug.Trace

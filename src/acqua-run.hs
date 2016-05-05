@@ -10,6 +10,7 @@ import Simulator.Acqua
 import Simulator.Rules
 import Simulator.Rules.Base
 
+-- Run a L1 program in a simulation
 main :: IO ()
 main = do
   s <- getContents

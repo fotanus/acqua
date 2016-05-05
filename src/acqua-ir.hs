@@ -4,6 +4,7 @@ import L1.Grammar
 import AcquaIR.Language
 import Compiler.Compile
 
+-- Prints the acqua IR for a given L1 program
 main :: IO ()
 main = do
   s <- getContents

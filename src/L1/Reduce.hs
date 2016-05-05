@@ -4,41 +4,8 @@ import L1.Language as L1
 import Logger
 import Text.Show.Pretty
 
--- data OpCode
---   = And
---   | Or
---   | Add
---   | Sub
---   | Mult
---   | Equal
---   | NotEqual
---   | Greater
---   | GreaterEqual
---   | Lesser
---   | LesserEqual
---   deriving (Eq,Ord,Show,Read)
--- 
--- data Term
---   = Op Term OpCode Term
---   | Num Int
---   | Ident Name
---   | App Term Term
---   | Let Name Term Term
---   | Letrec Name Term Term
---   | If Term Term Term
---   | Fn Name Term
---   deriving (Eq,Ord,Show,Read)
-
-
-run :: Term -> Term
-run t = let t' = removeLet t
-        in _run t' t'
-
-_run :: Term -> Term -> Term
-_run t t' = let t'' = trace (ppShow t) $ traceShow "---" $ reduce t
-           in if t'' == t' then t'' else _run t'' t''
-
-
+-- reduction is not working. It was planned to reduce after removing let/letrec, but
+-- we decided to not removing them.
 reduce :: Term -> Term
 -- reductions on math operations
 reduce (Param _) = error "Reduce do not implement param"
@@ -74,21 +41,3 @@ substitute _ _ (Num i) = Num i
 substitute n newBlock (Ident name) = if name == n then newBlock else Ident name
 substitute n newBlock (Fn name t) = if name /= n then Fn name (substitute n newBlock t) else Fn name t
 substitute _ _ t2 = error $ "Can't substitute on " ++ (show t2)
-
-
--- Removes the let and letrec from a L1 program, transforming it on applications.
-removeLet :: Term -> Term
---terms that change
-removeLet (Param _) = error "removeLet do not implement param"
-removeLet (Let n t1 t2) = App (Fn n t2) t1
-removeLet (Letrec n1 (Fn n2 t1) t2) =  App (Fn n1 t2) (App (Fn n1 fnBody) fnBody)
-                                       where fnBody = (Fn n2 t1)
-removeLet (Letrec _ _ _) = error "Letrec first term is not a function"
-
--- call recursivelly for other terms
-removeLet (Op t1 opc t2) = Op (removeLet t1) opc (removeLet t2)
-removeLet (App t1 t2) = App (removeLet t1) (removeLet t2)
-removeLet (If t1 t2 t3) = If (removeLet t1) (removeLet t2) (removeLet t3)
-removeLet (Fn n t1) = Fn n (removeLet t1)
-removeLet (Num i) = Num i
-removeLet (Ident n) = Ident n

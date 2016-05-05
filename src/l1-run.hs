@@ -4,6 +4,7 @@ import Text.Show.Pretty
 import L1.Grammar
 import L1.Reduce
 
+-- Reduces a L1 program - not working
 main :: IO ()
 main = do
   s <- getContents
