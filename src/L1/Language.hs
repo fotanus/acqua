@@ -27,9 +27,3 @@ data Term
   | Fn Name Term
   | Param Int
   deriving (Eq,Ord,Show,Read)
-
-data Type
-  = IntT
-  | FnT Type Type
-  | UnknownT 
-  deriving (Eq,Ord,Show,Read)
