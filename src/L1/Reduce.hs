@@ -1,8 +1,6 @@
 module L1.Reduce where
 
 import L1.Language as L1
-import Logger
-import Text.Show.Pretty
 
 -- reduction is not working. It was planned to reduce after removing let/letrec, but
 -- we decided to not removing them.
