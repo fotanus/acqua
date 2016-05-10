@@ -11,7 +11,7 @@ fixturesDir = "spec/fixtures/"
 main :: IO ()
 main = do
   files <- getDirectoryContents fixturesDir
-  let fixtures = (filter (\f -> not (elem f [".", ".."])) files)
+  let fixtures = (filter (\f -> not (elem f [".", "..", "disabled"])) files)
   hspec (spec fixtures)
 
 spec :: [String] -> Spec
