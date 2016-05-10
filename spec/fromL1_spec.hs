@@ -9,13 +9,7 @@ main = hspec spec
 
 spec :: Spec
 spec = do
-  it "ident x" $ do
-    fromL1 (L1.Ident "x")
+  it "remove free variables form function" $ do
+    fromL1 (L1.Fn "x" (L1.Op (L1.Ident "x") L1.Add (L1.Ident "y")))
     `shouldBe`
-    UL1.Ident "x"
-
-  it "error" $ do
-    fromL1 (L1.Ident "x")
-    `shouldBe`
-    UL1.Ident "y"
-
+    UL1.Fn ["x","y"] (UL1.Op (UL1.Ident "x") UL1.Add (UL1.Ident "y"))
