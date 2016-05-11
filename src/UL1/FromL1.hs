@@ -13,18 +13,19 @@ fromL1 (L1.Op t1 op t2) = UL1.Op (fromL1 t1) (opFromL1 op) (fromL1 t2)
 fromL1 (L1.App t1 t2) = UL1.App (fromL1 t1) (fromL1 t2)
 fromL1 (L1.Let n t1 t2) = UL1.Let n (fromL1 t1) (fromL1 t2)
 fromL1 (L1.Letrec n t1 t2) = UL1.Letrec n (fromL1 t1) (fromL1 t2)
-fromL1 (L1.Fn n t) = UL1.Fn (freeVariables t) (fromL1 t)
+fromL1 (L1.Fn _ t) = UL1.Fn (freeVariables t) (fromL1 t)
 
 -- Given a term from L1, look for all variable names that occur inside it
 freeVariables :: L1.Term -> [L1.Name]
+freeVariables (L1.Param _) = error "Param not implemented"
 freeVariables (L1.Num _) = []
 freeVariables (L1.Ident n) = [n]
 freeVariables (L1.If t1 t2 t3) = (freeVariables t1) ++ (freeVariables t2) ++ (freeVariables t3)
-freeVariables (L1.Op t1 op t2) = (freeVariables t1) ++ (freeVariables t2)
+freeVariables (L1.Op t1 _ t2) = (freeVariables t1) ++ (freeVariables t2)
 freeVariables (L1.App t1 t2) = (freeVariables t1) ++ (freeVariables t2)
-freeVariables (L1.Let n t1 t2) = (freeVariables t1) ++ (freeVariables t2)
-freeVariables (L1.Letrec n t1 t2) = (freeVariables t1) ++ (freeVariables t2)
-freeVariables (L1.Fn n t) = (freeVariables t)
+freeVariables (L1.Let _ t1 t2) = (freeVariables t1) ++ (freeVariables t2)
+freeVariables (L1.Letrec _ t1 t2) = (freeVariables t1) ++ (freeVariables t2)
+freeVariables (L1.Fn _ t) = (freeVariables t)
 
 
 -- Simple function that transforms L1 operators to UL1 operators.
