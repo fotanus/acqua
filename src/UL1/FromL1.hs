@@ -6,7 +6,7 @@ import UL1.Language as UL1
 -- For a given L1 Term, convert this term to UL1. That is, transform
 -- the free variables in function parameters.
 fromL1 :: L1.Term -> UL1.Term
-formL1 (L1.Num n) = UL1.Num n
+fromL1 (L1.Num n) = UL1.Num n
 fromL1 (L1.Ident n) = UL1.Ident n
 fromL1 (L1.If t1 t2 t3) = UL1.If (fromL1 t1) (fromL1 t2) (fromL1 t3)
 fromL1 (L1.Op t1 op t2) = UL1.Op (fromL1 t1) (opFromL1 op) (fromL1 t2)
