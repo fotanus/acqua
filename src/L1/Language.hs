@@ -25,5 +25,4 @@ data Term
   | Letrec Name Term Term
   | If Term Term Term
   | Fn Name Term
-  | Param Int
   deriving (Eq,Ord,Show,Read)

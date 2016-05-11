@@ -27,7 +27,6 @@ isTypeOrUnknown t1 t2 = case (t1,t2) of
 -- that it encounters using this name. For instance, if the name is used with a plus operation, it is clear that
 -- this name type is an integer.
 inferType :: Name -> Term -> IdentifierTypeTable  -> Type
-inferType _ (Param _) _ = error "typeCheck is not implemented for L1.Params"
 inferType _ (Num _) _ = UnknownT
 inferType _ (Ident _) _ = UnknownT
 inferType n (Op e1 _ e3) nameTypes =
@@ -65,7 +64,6 @@ inferType n (Letrec _ e1 e2) nameTypes =
 -- typeCheck takes a term and a table and returns the type of the term. It might infer
 -- the free variable types in the body.
 typeCheck :: Term -> IdentifierTypeTable -> Type
-typeCheck (Param _) _ = error "typeCheck is not implemented for L1.Params"
 typeCheck (Num _) _ = IntT
 typeCheck (Ident n) nameTypes = case lookup n nameTypes of
                                      Just (t,_,_) -> t

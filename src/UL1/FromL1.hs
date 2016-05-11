@@ -17,7 +17,6 @@ fromL1 (L1.Fn _ t) = UL1.Fn (freeVariables t) (fromL1 t)
 
 -- Given a term from L1, look for all variable names that occur inside it
 freeVariables :: L1.Term -> [L1.Name]
-freeVariables (L1.Param _) = error "Param not implemented"
 freeVariables (L1.Num _) = []
 freeVariables (L1.Ident n) = [n]
 freeVariables (L1.If t1 t2 t3) = (freeVariables t1) ++ (freeVariables t2) ++ (freeVariables t3)
