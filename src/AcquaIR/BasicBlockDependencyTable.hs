@@ -38,7 +38,7 @@ namesPerCmds (cmd:cmds) = (namesPerCmd cmd) `union` (namesPerCmds cmds)
 
 namesPerCmd :: Command -> Set Name
 namesPerCmd cmd = case cmd of
-                      Call n1 n2 _ -> insert n1 (insert n2 empty)
+                      Call n1 n2 -> insert n1 (insert n2 empty)
                       Op n1 _ n2 -> insert n1 (insert n2 empty)
                       AssignI n1 _ -> insert n1 empty
                       AssignV n1 n2 -> insert n1 (insert n2 empty)

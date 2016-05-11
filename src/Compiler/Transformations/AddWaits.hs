@@ -11,7 +11,7 @@ addWaits (bb:bbs) =
     bb' = BB l n' (addWaits' c [])  t
     addWaits' [] vars  = if null vars then [] else [Wait]
     addWaits' (c':cs') vars = case c' of
-                           Call ret n _ -> if elem n vars
+                           Call ret n -> if elem n vars
                                             then Wait:c':(addWaits' cs' [ret])
                                             else c':(addWaits' cs' (ret:vars))
                            AssignI n _ -> if elem n vars

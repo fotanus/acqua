@@ -16,14 +16,22 @@ data BasicBlock = BB {
   } deriving (Eq,Ord,Show,Read)
 
 data Command
-  = EnvAddI EnvId Name Int
-  | EnvAddL EnvId Name Name
-  | EnvNew EnvId Int
-  | Call Name Name EnvId
+  = Call Name Name
   | Op Name OpCode Name
   | AssignI Name Int
   | AssignL Name Label
   | AssignV Name Name
+  | NewClosure Name Int
+  | SetClosureFn Name Label
+  | GetClosureFn Name Label
+  | SetClosureMissing Name Name
+  | SetClosureMissingI Name Int
+  | GetClosureMissing Name Name
+  | SetClosureCount Name Name
+  | SetClosureCountI Name Int
+  | GetClosureCount Name Name
+  | SetClosureParam Name Name Name
+  | GetClosureParam Name Name
   | Wait
   deriving (Eq,Ord,Show,Read)
 
@@ -64,10 +72,7 @@ printCommands :: [Command] -> String
 printCommands cs = foldr (++) "" (map printCommand cs)
 
 printCommand :: Command -> String
-printCommand (EnvNew i n) = ident ++ (blue (i ++ " = EnvNew " ++ (show n))) ++ "\n"
-printCommand (EnvAddI i name n) = ident ++ (blue ("EnvAdd " ++ i ++ " " ++ name ++ " " ++ (show n))) ++ "\n"
-printCommand (EnvAddL i name l) = ident ++ (blue ("EnvAdd " ++ i ++ " " ++ name ++ " " ++ l)) ++ "\n"
-printCommand (Call name1 name2 i) = ident ++ (blue (name1 ++ " = Call " ++ name2 ++ " " ++ i)) ++ "\n"
+printCommand (Call name1 name2) = ident ++ (blue (name1 ++ " = Call " ++ name2)) ++ "\n"
 printCommand (Op name1 op name2) = ident ++ "resp = " ++ name1 ++ " " ++ (printOpCode op) ++ " " ++ name2 ++ "\n"
 printCommand (AssignI name n) = ident ++ name ++ " = " ++ (show n) ++ "\n"
 printCommand (AssignL name l) = ident ++ name ++ " = \"" ++ l ++ "\"\n"

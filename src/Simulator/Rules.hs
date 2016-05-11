@@ -2,9 +2,6 @@ module Simulator.Rules where
 
 import Simulator.Rules.Base
 import Simulator.Rules.AssignJob
-import Simulator.Rules.Call
-import Simulator.Rules.EnvNew
-import Simulator.Rules.EnvAdd
 import Simulator.Rules.Assign
 import Simulator.Rules.Return
 import Simulator.Rules.If
@@ -20,8 +17,8 @@ import Simulator.Rules.EndCopy
 
 rules :: [Rule]
 rules = [
-  assignV, assignL, assignI, envNew, returnTerminator, resume, wait, op, ifRule, goto, envAdd,
+  assignV, assignL, assignI, returnTerminator, resume, wait, op, ifRule, goto,
   receiveResponse, receiveUpdate, endCopy,
-  sendEnvMsg, reqEnv, assignJob, call
+  sendEnvMsg, reqEnv, assignJob
   ]
 

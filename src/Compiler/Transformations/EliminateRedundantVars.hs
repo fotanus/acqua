@@ -13,8 +13,8 @@ eliminateRedundantVars (bb:bbs) =
 eliminateCallReuse :: [Command] -> [Command]
 eliminateCallReuse [] = []
 eliminateCallReuse (c:cs) = case (c,cs) of
-                                      ((Call _ l env),(AssignV x1 _):cs') ->
-                                            (Call x1 l env):(eliminateCallReuse cs')
+                                      ((Call _ l),(AssignV x1 _):cs') ->
+                                            (Call x1 l):(eliminateCallReuse cs')
                                       (_,_) -> c:(eliminateCallReuse cs)
 
 eliminateResp :: [Command] -> [Command]
