@@ -1,5 +1,6 @@
 module UL1.FromL1 where
 
+import Data.List
 import L1.Language as L1
 import UL1.Language as UL1
 
@@ -13,7 +14,7 @@ fromL1 (L1.Op t1 op t2) = UL1.Op (fromL1 t1) (opFromL1 op) (fromL1 t2)
 fromL1 (L1.App t1 t2) = UL1.App (fromL1 t1) (fromL1 t2)
 fromL1 (L1.Let n t1 t2) = UL1.Let n (fromL1 t1) (fromL1 t2)
 fromL1 (L1.Letrec n t1 t2) = UL1.Letrec n (fromL1 t1) (fromL1 t2)
-fromL1 (L1.Fn _ t) = UL1.Fn (freeVariables t) (fromL1 t)
+fromL1 (L1.Fn _ t) = UL1.Fn (nub (freeVariables t)) (fromL1 t)
 
 -- Given a term from L1, look for all variable names that occur inside it
 freeVariables :: L1.Term -> [L1.Name]

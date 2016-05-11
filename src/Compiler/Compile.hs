@@ -1,5 +1,6 @@
 module Compiler.Compile where
 
+import Data.List
 import Control.Monad.State
 
 import UL1.Language as UL1
@@ -29,15 +30,16 @@ _compile (Ident n) = return ([SC (AssignV resp n)],[])
 _compile (Fn params t1) = do
   fn <- nextFnLabel
   (c1,bb1) <- _compile t1
-  bbs <- return $ [SL fn] ++ c1 ++ [ST (Return resp)]
-  cs <- return $ [
-                   SC (NewClosure "closure" (length params)),
-                   SC (SetClosureFn "closure" fn),
-                   SC (SetClosureMissingI "closure" (length params)),
-                   SC (SetClosureCountI "closure" 0),
-                   SC (AssignL resp "closure")
-                 ]
-  return (cs, bbs ++ bb1)
+  setParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (show (snd p)) (fst p))) (zip params [0..])
+  newClosureCommands <- return $ [
+                                   SC (NewClosure "closure" (length params)),
+                                   SC (SetClosureFn "closure" fn),
+                                   SC (SetClosureMissingI "closure" (length params)),
+                                   SC (SetClosureCountI "closure" 0),
+                                   SC (AssignV resp "closure")
+                                 ]
+  fnBody <- return $ [SL fn] ++ setParamsCommands ++ c1 ++ [ST (Return resp)]
+  return (newClosureCommands, fnBody++ bb1)
 
 _compile (App t1 t2) = do
   (c1,bb1) <- _compile t1
@@ -57,6 +59,7 @@ _compile (App t1 t2) = do
                     SC (SetClosureCount "closure" "new_count"),
                     SC (SetClosureMissing "closure" "new_missing"),
                     SC (SetClosureParam "closure" "count" "param"),
+                    SC (IR.Op "missing" IR.Lesser "one"),
                     ST (IR.If resp thenLabel),
                     SL dummyLabel,
                     SC (AssignV "resp" "closure"),
@@ -101,11 +104,25 @@ _compile (Let n t1 t2) = do
   cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
   return (cs, bb1 ++ bb2)
 
-_compile (Letrec n t1 t2) = do
+_compile (Letrec n (Fn params t1) t2) = do
+  fn <- nextFnLabel
+  params' <- return $ delete n params
   (c1,bb1) <- _compile t1
+  newClosureCommands <- return $ [
+                                   SC (NewClosure "closure" (length params)),
+                                   SC (SetClosureFn "closure" fn),
+                                   SC (SetClosureMissingI "closure" (length params')),
+                                   SC (SetClosureParam "closure" "0" fn),
+                                   SC (SetClosureCountI "closure" 1),
+                                   SC (AssignV n "closure")
+                                 ]
+  setParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (show (snd p)) (fst p))) (zip params' [1..])
+  fnBody <- return $ [SL fn] ++ setParamsCommands ++ newClosureCommands ++ c1 ++ [ST (Return resp)]
   (c2,bb2) <- _compile t2
-  cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
-  return (cs, bb1 ++ bb2)
+  cs <- return $  newClosureCommands ++ c2
+  return (cs, fnBody ++ bb1 ++ bb2)
+
+_compile (Letrec _ _ _) = error "Letrec first term should be a function"
 
 
 setOp :: UL1.OpCode -> IR.OpCode
