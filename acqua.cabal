@@ -18,6 +18,14 @@ executable l1-ast
   other-modules: L1.Tokens, L1.Grammar
   ghc-options: -Wall
 
+executable ul1-ast
+  main-is: ul1-ast.hs
+  hs-source-dirs: src
+  build-depends: base ==4.*, array, containers, pretty-show, mtl
+  build-tools: alex, happy
+  other-modules: L1.Tokens, L1.Grammar
+  ghc-options: -Wall
+
 executable l1-typecheck
   main-is: l1-typeCheck.hs
   hs-source-dirs: src
