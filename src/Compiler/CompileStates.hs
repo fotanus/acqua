@@ -4,13 +4,16 @@ import Logger
 import AcquaIR.Language as IR
 import Control.Monad.State
 
+
+type ClosureInfoT = (String,Int,Bool)
+
 data CompileStates = CompileStates {
   thenLabelNum :: Int,
   backLabelNum :: Int,
   dummyLabelNum :: Int,
   fnLabelNum :: Int,
   identNum :: Int,
-  fnVarNames :: [(String,String)],
+  closureInfo :: [(String,ClosureInfoT)],
   fnLabelNames :: [(String,String)]
   }
 
@@ -19,53 +22,51 @@ defaultCompileStates = (CompileStates 0 0 0 0 0 [] [])
 
 nextThenLabel :: State CompileStates Label
 nextThenLabel = do
-  CompileStates thenN backN dummyN fnN identN fnNames fnLabels <- get
-  put (CompileStates (thenN+1) backN dummyN fnN identN fnNames fnLabels)
+  CompileStates thenN backN dummyN fnN identN closInfo fnLabels <- get
+  put (CompileStates (thenN+1) backN dummyN fnN identN closInfo fnLabels)
   return $ "then" ++ (show thenN)
 
 nextBackLabel :: State CompileStates Label
 nextBackLabel = do
-  CompileStates thenN backN dummyN fnN identN fnNames fnLabels <- get
-  put (CompileStates thenN (backN+1) dummyN fnN identN fnNames fnLabels)
+  CompileStates thenN backN dummyN fnN identN closInfo fnLabels <- get
+  put (CompileStates thenN (backN+1) dummyN fnN identN closInfo fnLabels)
   return $ "back" ++ (show backN)
 
 nextDummyLabel :: State CompileStates Label
 nextDummyLabel = do
-  CompileStates thenN backN dummyN fnN identN fnNames fnLabels <- get
-  put (CompileStates thenN backN (dummyN+1) fnN identN fnNames fnLabels)
+  CompileStates thenN backN dummyN fnN identN closInfo fnLabels <- get
+  put (CompileStates thenN backN (dummyN+1) fnN identN closInfo fnLabels)
   return $ "dummy" ++ (show dummyN)
 
 nextFnLabel :: State CompileStates Label
 nextFnLabel = do
-  CompileStates thenN backN dummyN fnN identN fnNames fnLabels <- get
-  put (CompileStates thenN backN dummyN (fnN+1) identN fnNames fnLabels)
+  CompileStates thenN backN dummyN fnN identN closInfo fnLabels <- get
+  put (CompileStates thenN backN dummyN (fnN+1) identN closInfo fnLabels)
   return $ "_fn_" ++ (show fnN)
 
 nextIdentName :: State CompileStates IR.Name
 nextIdentName = do
-  CompileStates thenN backN dummyN fnN identN fnNames fnLabels <- get
-  put (CompileStates thenN backN dummyN fnN (identN+1) fnNames fnLabels)
+  CompileStates thenN backN dummyN fnN identN closInfo fnLabels <- get
+  put (CompileStates thenN backN dummyN fnN (identN+1) closInfo fnLabels)
   return $ "var" ++ (show identN)
 
-setFnVarName :: String -> String -> State CompileStates IR.Name
-setFnVarName a b = do
-  CompileStates thenN backN dummyN fnN identN fnNames fnLabels <- get
-  fnNames' <- return $ (a,b) : (fnNames)
-  put (CompileStates thenN backN dummyN fnN identN fnNames' fnLabels)
+setClosureInfo :: String -> ClosureInfoT -> State CompileStates IR.Name
+setClosureInfo a b = do
+  CompileStates thenN backN dummyN fnN identN closInfo fnLabels <- get
+  closInfo' <- return $ (a,b) : (closInfo)
+  put (CompileStates thenN backN dummyN fnN identN closInfo' fnLabels)
   return $ "var" ++ (show identN)
 
-getFnVarName :: String -> State CompileStates String
-getFnVarName a = do
+getClosureInfo :: String -> State CompileStates (Maybe ClosureInfoT)
+getClosureInfo a = do
   s <- get
-  return $ case lookup a (fnVarNames s) of
-           Just ret -> ret
-           Nothing -> traceShow (a, fnVarNames s) $ error "Can't find symbol on getFnVarName!"
+  return $ lookup a (closureInfo s)
 
 setFnLabelName :: String -> String -> State CompileStates IR.Name
 setFnLabelName a b = do
-  CompileStates thenN backN dummyN fnN identN fnNames fnLabels <- get
+  CompileStates thenN backN dummyN fnN identN closInfo fnLabels <- get
   fnLabels' <- return $ (a,b) : fnLabels
-  put (CompileStates thenN backN dummyN fnN identN fnNames fnLabels')
+  put (CompileStates thenN backN dummyN fnN identN closInfo fnLabels')
   return $ "var" ++ (show identN)
 
 getFnLabelName :: String -> State CompileStates String

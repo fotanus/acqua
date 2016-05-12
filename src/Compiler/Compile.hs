@@ -25,7 +25,25 @@ compile t =
 _compile :: UL1.Term -> State CompileStates ([Statement], [Statement])
 _compile (Param _) = error "Compiler not implemented for Param"
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
-_compile (Ident n) = return ([SC (AssignV resp n)],[])
+_compile (Ident n) = do
+    c <- getClosureInfo n
+    return $ case c of
+               Nothing -> ([SC (AssignV resp n)],[])
+               Just (fn,vars,False) -> ([
+                           SC (NewClosure "closure" vars),
+                           SC (SetClosureFn "closure" fn),
+                           SC (SetClosureMissingI "closure" vars),
+                           SC (SetClosureCountI "closure" 0),
+                           SC (AssignV resp "closure")
+                         ],[])
+               Just (fn,vars,True) -> ([
+                           SC (NewClosure "closure" vars),
+                           SC (SetClosureFn "closure" fn),
+                           SC (SetClosureMissingI "closure" (vars-1)),
+                           SC (SetClosureCountI "closure" 1),
+                           SC (SetClosureParam "closure" "0" fn),
+                           SC (AssignV resp "closure")
+                         ],[])
 
 _compile (Fn params t1) = do
   fn <- nextFnLabel
@@ -40,6 +58,7 @@ _compile (Fn params t1) = do
                                  ]
   fnBody <- return $ [SL fn] ++ setParamsCommands ++ c1 ++ [ST (Return resp)]
   return (newClosureCommands, fnBody++ bb1)
+
 
 _compile (App t1 t2) = do
   (c1,bb1) <- _compile t1
@@ -106,21 +125,13 @@ _compile (Let n t1 t2) = do
 
 _compile (Letrec n (Fn params t1) t2) = do
   fn <- nextFnLabel
+  _ <- setClosureInfo n (fn, (length params), True)
   params' <- return $ delete n params
   (c1,bb1) <- _compile t1
-  newClosureCommands <- return $ [
-                                   SC (NewClosure "closure" (length params)),
-                                   SC (SetClosureFn "closure" fn),
-                                   SC (SetClosureMissingI "closure" (length params')),
-                                   SC (SetClosureParam "closure" "0" fn),
-                                   SC (SetClosureCountI "closure" 1),
-                                   SC (AssignV n "closure")
-                                 ]
   setParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (show (snd p)) (fst p))) (zip params' [1..])
-  fnBody <- return $ [SL fn] ++ setParamsCommands ++ newClosureCommands ++ c1 ++ [ST (Return resp)]
+  fnBody <- return $ [SL fn] ++ setParamsCommands ++ c1 ++ [ST (Return resp)]
   (c2,bb2) <- _compile t2
-  cs <- return $  newClosureCommands ++ c2
-  return (cs, fnBody ++ bb1 ++ bb2)
+  return (c2, fnBody ++ bb1 ++ bb2)
 
 _compile (Letrec _ _ _) = error "Letrec first term should be a function"
 
