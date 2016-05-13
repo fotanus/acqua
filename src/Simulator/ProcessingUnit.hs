@@ -24,8 +24,7 @@ data ProcessingUnit = PU {
   terminator :: Terminator,
 
   currentEnv :: EnvId,
-  runEnvs :: Map.Map EnvId Environment,
-  copyEnvs :: Map.Map EnvId Environment,
+  environments :: Map.Map EnvId Environment,
 
   returnAddrs :: Map.Map EnvId ReturnAddr,
   callCount :: Map.Map EnvId Int,
@@ -38,20 +37,20 @@ data ProcessingUnit = PU {
 
 specialPU :: ProcessingUnit
 specialPU = PU 0 [] Empty
-                 "0" (Map.fromList [("0",emptyEnv)]) (Map.fromList [("0",emptyEnv)])
-                 (Map.fromList []) (Map.fromList [("0",1)]) (Map.fromList [("0", ExecutionContext [] Empty)]) [] False False
+                 "0" (Map.fromList [("0",emptyEnv)]) (Map.fromList [])
+                 (Map.fromList [("0",1)]) (Map.fromList [("0", ExecutionContext [] Empty)]) [] False False
 
 newPU :: Int -> ProcessingUnit
 newPU n = PU n [] Empty
                "" (Map.fromList []) (Map.fromList [])
-               (Map.fromList []) (Map.fromList []) (Map.fromList []) [] False False
+               (Map.fromList []) (Map.fromList []) [] False False
 
 newProcessingUnits :: Int -> [ProcessingUnit]
 newProcessingUnits n = specialPU : (map newPU [1..n])
 
 unlock :: ProcessingUnit -> ProcessingUnit
-unlock (PU pId c t ce rEnv cEnv ra cc se omq enbl _)
-      = (PU pId c t ce rEnv cEnv ra cc se omq enbl False)
+unlock (PU pId c t ce env ra cc se omq enbl _)
+      = (PU pId c t ce env ra cc se omq enbl False)
 
 canExecuteCmds :: ProcessingUnit -> Bool
 canExecuteCmds pu = (enabled pu) && (not (locked pu))
