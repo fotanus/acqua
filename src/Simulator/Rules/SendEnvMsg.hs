@@ -25,5 +25,5 @@ stepSendEnvMsg (pu:pus) =
       []     -> ((pu:pus'), i')
       (m:ms) -> trace ((show pId) ++ ": sending message for env copy") $ ((pu':pus'), (m:i'))
         where
-          PU pId c t ce rEnv cEnv ra cc se _ enbl lck = pu
-          pu' = PU pId c t ce rEnv cEnv ra cc se ms enbl lck
+          PU pId c t ce env ra cc se _ enbl lck = pu
+          pu' = PU pId c t ce env ra cc se ms enbl lck

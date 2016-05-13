@@ -18,14 +18,15 @@ assignV (Acqua bb q pus i f s) =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((AssignV x v):cs),True) -> trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) pu'
           where
-            PU pId _ t ce rEnv cEnv ra cc se omq enbl _ = pu
-            Just cenv = Map.lookup ce rEnv
+            PU pId _ t ce env ra cc se omq enbl _ = pu
+            Just cenv = Map.lookup ce env
             Just val = Map.lookup v cenv
             cenv' = case val of
-                    LabelValue v' -> Map.insert x (LabelValue v') cenv
-                    NumberValue v' -> Map.insert x (NumberValue v') cenv
-            rEnv' = Map.insert ce cenv' rEnv
-            pu' = PU pId cs t ce rEnv' cEnv ra cc se omq enbl True
+                    BaseValV (LabelV v') -> Map.insert x (BaseValV (LabelV v')) cenv
+                    BaseValV (NumberV v') -> Map.insert x (BaseValV (NumberV v')) cenv
+                    _ -> error $ "closures not implemented"
+            env' = Map.insert ce cenv' env
+            pu' = PU pId cs t ce env ra cc se omq enbl True
         _ -> pu
 
 assignL:: Rule
@@ -38,11 +39,11 @@ assignL (Acqua bb q pus i f s) =
                               then trace ((show (PU.puId pu)) ++ ": AssignL" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
-            PU pId _ t ce rEnv cEnv ra cc se omq enbl _ = pu
-            Just cenv = Map.lookup ce rEnv
-            cenv' = Map.insert x (LabelValue v) cenv
-            rEnv' = Map.insert ce cenv' rEnv
-            pu' = PU pId cs t ce rEnv' cEnv ra cc se omq enbl True
+            PU pId _ t ce env ra cc se omq enbl _ = pu
+            Just cenv = Map.lookup ce env
+            cenv' = Map.insert x (BaseValV (LabelV v)) cenv
+            env' = Map.insert ce cenv' env
+            pu' = PU pId cs t ce env ra cc se omq enbl True
         _ -> pu
 
 assignI:: Rule
@@ -55,10 +56,10 @@ assignI (Acqua bb q pus i f s) =
                                 then trace ((show (PU.puId pu)) ++ ": AssignI " ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
-            PU pId _ t ce rEnv cEnv ra cc se omq enbl _ = pu
-            Just cenv = Map.lookup ce rEnv
-            cenv' = Map.insert x (NumberValue v) cenv
-            rEnv' = Map.insert ce cenv' rEnv
-            pu' = PU pId cs t ce rEnv' cEnv ra cc se omq enbl True
+            PU pId _ t ce env ra cc se omq enbl _ = pu
+            Just cenv = Map.lookup ce env
+            cenv' = Map.insert x (BaseValV (NumberV v)) cenv
+            env' = Map.insert ce cenv' env
+            pu' = PU pId cs t ce env ra cc se omq enbl True
         _ -> pu
 

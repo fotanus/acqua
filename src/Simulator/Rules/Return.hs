@@ -24,16 +24,16 @@ stepReturn i (pu:pus) =
       where
         (i'', pus') = stepReturn i' pus
         -- interconnection
-        Just cenv = Map.lookup ce rEnv
+        Just cenv = Map.lookup ce env
         Just returnValue = Map.lookup x cenv
         Just (ReturnAddr pId' envId' x') = Map.lookup ce ra
         m = MsgResponse pId' envId' x' returnValue
         i' = (ConstMsgResponse m) : i
 
         -- pu
-        PU pId _ _ ce rEnv cEnv ra cc se omq enbl _ = pu
+        PU pId _ _ ce env ra cc se omq enbl _ = pu
         cc' = Map.insert ce 100 cc
-        pu' = PU pId [] Empty ce rEnv cEnv ra cc' se omq enbl True
+        pu' = PU pId [] Empty ce env ra cc' se omq enbl True
 
     _ -> (i', pu:pus')
       where (i', pus') = stepReturn i pus

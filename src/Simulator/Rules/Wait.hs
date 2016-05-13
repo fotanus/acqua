@@ -17,8 +17,8 @@ wait (Acqua bb q pus i f s) =
       case (PU.commands pu, PU.canExecuteCmds pu) of
         (Wait:cs, True) -> trace ((show (PU.puId pu)) ++ ": Wait") pu'
           where
-            PU pId _ t ce rEnv cEnv ra cc se omq enbl _ = pu
+            PU pId _ t ce env ra cc se omq enbl _ = pu
             se' = Map.insert ce (ExecutionContext cs t) se
-            pu' = PU pId [] Empty ce rEnv cEnv ra cc se' omq enbl True
+            pu' = PU pId [] Empty ce env ra cc se' omq enbl True
         _ -> pu
 

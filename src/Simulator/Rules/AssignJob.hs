@@ -9,7 +9,6 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue
 import Simulator.Interconnection
-import Simulator.Environment
 
 import Simulator.Rules.Base
 
@@ -23,29 +22,24 @@ assignJob acqua =
         trace ((show (PU.puId pu)) ++ ": assignJob ") $ Acqua bb q' pus' i' ff s'
         where
           pus' = updatePU pus p'
-          PU pId _ _ _ rEnv cEnv ra cc se omq _ _ = pu
+          PU pId _ _ _ env ra cc se omq _ _ = pu
           BB _ _ c t = getBB l bb
 
           Job l envId pId' envId'' x = job
           Queue js qlck = q
           jobs' = List.delete job js
 
-          -- Copy env
-          -- Just ce = copyEnv pus pId' envId n
-          -- rEnv' = Map.insert newEnvId ce rEnv
-
           -- init env
           (newEnvId,s') = getNextEnvId s
           ra' = Map.insert newEnvId (ReturnAddr pId' envId'' x) ra
           cc' = Map.insert newEnvId 0 cc
-          rEnv' = Map.insert newEnvId (Map.fromList []) rEnv
 
           -- add message
           m = MsgReqEnv pId newEnvId pId' envId
           i' = (ConstMsgReqEnv m) : i
 
           q' = Queue jobs' qlck
-          p' = PU pId c t newEnvId rEnv' cEnv ra' cc' se omq False True
+          p' = PU pId c t newEnvId env ra' cc' se omq False True
       (_,_)-> acqua
 
 
@@ -59,13 +53,6 @@ getNextEnvId s = (nextEnvId,s')
 firstOf :: [Job] -> Maybe Job
 firstOf [] = Nothing
 firstOf q = Just (head q)
-
-copyEnv :: [ProcessingUnit] -> PId -> EnvId -> Int -> Maybe Environment
-copyEnv [] _ _ _  = Nothing
-copyEnv (pu:pus) pId' envId n =
-  if (PU.puId pu) == pId' 
-    then Map.lookup envId (copyEnvs pu)
-    else copyEnv pus pId' envId n
 
 
 getAvailable :: [ProcessingUnit] -> Maybe ProcessingUnit

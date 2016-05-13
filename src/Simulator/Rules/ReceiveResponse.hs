@@ -18,13 +18,13 @@ receiveResponse acqua  =
       ((ConstMsgResponse (MsgResponse pId envId x v)):ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ Acqua bb q pus' ms f' s
         where
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
-          PU _ c t ce rEnv cEnv ra cc se omq enbl _ = pu
-          Just cenv  = Map.lookup envId rEnv
+          PU _ c t ce env ra cc se omq enbl _ = pu
+          Just cenv  = Map.lookup envId env
           cenv' = Map.insert x v cenv
-          rEnv' = Map.insert envId cenv' rEnv
+          env' = Map.insert envId cenv' env
           Just nCalls = Map.lookup envId cc
           cc' = Map.insert envId (nCalls-1) cc
-          pu' = PU pId c t ce rEnv' cEnv ra cc' se omq enbl True
+          pu' = PU pId c t ce env ra cc' se omq enbl True
           pus' = updatePU pus pu'
           f' = if pId == 0
                  then True

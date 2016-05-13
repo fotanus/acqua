@@ -16,9 +16,9 @@ goto (Acqua bb q pus i f s) = Acqua bb q (map executeGoto pus) i f s
         ([], Goto l, True) -> trace ((show (PU.puId pu)) ++ ": goto") pu'
          where
 
-           PU pId _ _ ce rEnv cEnv ra cc se omq enbl _ = pu
+           PU pId _ _ ce env ra cc se omq enbl _ = pu
            BB _ _ c' t' = getBB l bb
-           pu' = PU pId c' t' ce rEnv cEnv ra cc se omq enbl True
+           pu' = PU pId c' t' ce env ra cc se omq enbl True
         _ -> pu
 
 

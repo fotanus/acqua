@@ -18,10 +18,10 @@ op (Acqua bb q pus i f s) =
       case (PU.commands pu, PU.canExecuteCmds pu) of
         ((Op x1 opc x2):cs, True) -> trace ((show (PU.puId pu)) ++ ": OP") pu'''
           where
-            PU pId _ t ce rEnv cEnv ra cc se omq enbl _ = pu
-            Just cenv = Map.lookup ce rEnv
-            Just (NumberValue v1) = Map.lookup x1 cenv
-            Just (NumberValue v2) = Map.lookup x2 cenv
+            PU pId _ t ce env ra cc se omq enbl _ = pu
+            Just cenv = Map.lookup ce env
+            Just (BaseValV (NumberV v1)) = Map.lookup x1 cenv
+            Just (BaseValV (NumberV v2)) = Map.lookup x2 cenv
             val = case opc of
               And -> v1 + v2
               Or -> v1 + v2
@@ -34,8 +34,7 @@ op (Acqua bb q pus i f s) =
               GreaterEqual -> v1 + 1 - v2
               Lesser -> v2 - v1
               LesserEqual -> v2 + 1 - v1
-            cenv' = Map.insert "resp" (NumberValue val) cenv
-            rEnv' = Map.insert ce cenv' rEnv
-            pu''' = PU pId cs t ce rEnv' cEnv ra cc se omq enbl True
+            cenv' = Map.insert "resp" (BaseValV (NumberV val)) cenv
+            pu''' = PU pId cs t ce env ra cc se omq enbl True
         _ -> pu
 
