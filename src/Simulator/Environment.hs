@@ -1,6 +1,7 @@
 module Simulator.Environment where
 
-import Data.Map
+import Data.Map as Map
+import Data.Sequence
 
 import AcquaIR.Language
 
@@ -13,7 +14,7 @@ data Closure = Closure {
   functionName :: Name,
   paramMissing :: Int,
   paramCount :: Int,
-  params :: [BaseVal]
+  params :: Seq BaseVal
 } deriving (Show,Eq)
 
 data Value
@@ -24,4 +25,4 @@ data Value
 type Environment = Map Name Value
 
 emptyEnv :: Environment
-emptyEnv = fromList []
+emptyEnv = Map.fromList []

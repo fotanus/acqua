@@ -22,7 +22,7 @@ receiveUpdate acqua  =
           Just cenv  = Map.lookup envId env
           cenv' = Map.insert x v cenv
           env' = Map.insert envId cenv' env
-          pu' = PU pId c t ce env ra cc se omq enbl True
+          pu' = PU pId c t ce env' ra cc se omq enbl True
           pus' = updatePU pus pu'
           f' = if pId == 0
                  then True

@@ -15,9 +15,17 @@ import Simulator.Rules.ReqEnv
 import Simulator.Rules.SendEnvMsg
 import Simulator.Rules.EndCopy
 
+import Simulator.Rules.NewClosure
+import Simulator.Rules.SetClosureFn
+import Simulator.Rules.SetClosureMissingI
+import Simulator.Rules.SetClosureCountI
+import Simulator.Rules.SetClosureParam
+
+
 rules :: [Rule]
 rules = [
   assignV, assignL, assignI, returnTerminator, resume, wait, op, ifRule, goto,
+  newClosure, setClosureFn, setClosureMissingI, setClosureCountI, setClosureParam,
   receiveResponse, receiveUpdate, endCopy,
   sendEnvMsg, reqEnv, assignJob
   ]
