@@ -39,7 +39,8 @@ assignJob acqua =
           i' = (ConstMsgReqEnv m) : i
 
           q' = Queue jobs' qlck
-          p' = PU pId c t newEnvId env ra' cc' se omq False True
+          env' = Map.insert newEnvId (Map.fromList []) env
+          p' = PU pId c t newEnvId env' ra' cc' se omq False True
       (_,_)-> acqua
 
 

@@ -27,7 +27,7 @@ stepReturn i (pu:pus) =
         Just cenv = Map.lookup ce env
         Just returnValue = Map.lookup x cenv
         Just (ReturnAddr pId' envId' x') = Map.lookup ce ra
-        m = MsgResponse pId' envId' x' returnValue
+        m = traceShowId $ MsgResponse pId' envId' x' returnValue
         i' = (ConstMsgResponse m) : i
 
         -- pu

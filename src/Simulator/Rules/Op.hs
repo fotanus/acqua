@@ -16,7 +16,7 @@ op (Acqua bb q pus i f s) =
   where
     stepOp pu =
       case (PU.commands pu, PU.canExecuteCmds pu) of
-        ((Op x1 opc x2):cs, True) -> trace ((show (PU.puId pu)) ++ ": OP") pu'''
+        ((Op x1 opc x2):cs, True) -> trace ((show (PU.puId pu)) ++ ": OP") pu''
           where
             PU pId _ t ce env ra cc se omq enbl _ = pu
             Just cenv = Map.lookup ce env
@@ -35,6 +35,7 @@ op (Acqua bb q pus i f s) =
               Lesser -> v2 - v1
               LesserEqual -> v2 + 1 - v1
             cenv' = Map.insert "resp" (BaseValV (NumberV val)) cenv
-            pu''' = PU pId cs t ce env ra cc se omq enbl True
+            env' = Map.insert ce cenv' env
+            pu'' = PU pId cs t ce env' ra cc se omq enbl True
         _ -> pu
 

@@ -24,7 +24,7 @@ receiveResponse acqua  =
           env' = Map.insert envId cenv' env
           Just nCalls = Map.lookup envId cc
           cc' = Map.insert envId (nCalls-1) cc
-          pu' = PU pId c t ce env ra cc' se omq enbl True
+          pu' = PU pId c t ce env' ra cc' se omq enbl True
           pus' = updatePU pus pu'
           f' = if pId == 0
                  then True

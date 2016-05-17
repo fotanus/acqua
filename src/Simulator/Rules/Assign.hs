@@ -26,7 +26,7 @@ assignV (Acqua bb q pus i f s) =
                     BaseValV (NumberV v') -> Map.insert x (BaseValV (NumberV v')) cenv
                     _ -> error $ "closures not implemented"
             env' = Map.insert ce cenv' env
-            pu' = PU pId cs t ce env ra cc se omq enbl True
+            pu' = PU pId cs t ce env' ra cc se omq enbl True
         _ -> pu
 
 assignL:: Rule
@@ -43,7 +43,7 @@ assignL (Acqua bb q pus i f s) =
             Just cenv = Map.lookup ce env
             cenv' = Map.insert x (BaseValV (LabelV v)) cenv
             env' = Map.insert ce cenv' env
-            pu' = PU pId cs t ce env ra cc se omq enbl True
+            pu' = PU pId cs t ce env' ra cc se omq enbl True
         _ -> pu
 
 assignI:: Rule
@@ -60,6 +60,6 @@ assignI (Acqua bb q pus i f s) =
             Just cenv = Map.lookup ce env
             cenv' = Map.insert x (BaseValV (NumberV v)) cenv
             env' = Map.insert ce cenv' env
-            pu' = PU pId cs t ce env ra cc se omq enbl True
+            pu' = PU pId cs t ce env' ra cc se omq enbl True
         _ -> pu
 
