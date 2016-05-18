@@ -21,10 +21,7 @@ assignV (Acqua bb q pus i f s) =
             PU pId _ t ce env ra cc se omq enbl _ = pu
             Just cenv = Map.lookup ce env
             Just val = Map.lookup v cenv
-            cenv' = case val of
-                    BaseValV (LabelV v') -> Map.insert x (BaseValV (LabelV v')) cenv
-                    BaseValV (NumberV v') -> Map.insert x (BaseValV (NumberV v')) cenv
-                    _ -> error $ "closures not implemented"
+            cenv' = Map.insert x val cenv
             env' = Map.insert ce cenv' env
             pu' = PU pId cs t ce env' ra cc se omq enbl True
         _ -> pu

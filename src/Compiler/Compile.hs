@@ -48,7 +48,7 @@ _compile (Ident n) = do
 _compile (Fn params t1) = do
   fn <- nextFnLabel
   (c1,bb1) <- _compile t1
-  setParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (show (snd p)) (fst p))) (zip params [0..])
+  setParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params [0..])
   newClosureCommands <- return $ [
                                    SC (NewClosure "closure" (length params)),
                                    SC (SetClosureFn "closure" fn),
@@ -128,7 +128,7 @@ _compile (Letrec n (Fn params t1) t2) = do
   _ <- setClosureInfo n (fn, (length params), True)
   params' <- return $ delete n params
   (c1,bb1) <- _compile t1
-  setParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (show (snd p)) (fst p))) (zip params' [1..])
+  setParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params' [1..])
   fnBody <- return $ [SL fn] ++ setParamsCommands ++ c1 ++ [ST (Return resp)]
   (c2,bb2) <- _compile t2
   return (c2, fnBody ++ bb1 ++ bb2)

@@ -24,8 +24,10 @@ setClosureParam (Acqua bb q pus i f s) =
 
             Just cenv = Map.lookup ce envs
             Just (ClosureV closure) = Map.lookup x cenv
-            params' = Sequence.update i (BaseValV (LabelV v)) (params closure)
-            closure' = closure { params = params' }
+            Just (BaseValV (NumberV idx)) = Map.lookup i cenv
+            Just (BaseValV val) = Map.lookup v cenv
+            params' = Sequence.update (idx+1) val (params closure) -- idx from first pos is 1, not 0, so we sum
+            closure' = closure { params = (traceShowId params') }
             cenv' = Map.insert x (ClosureV closure') cenv
             envs' = Map.insert ce cenv' envs
             pu' = pu { PU.commands = cs, environments = envs', locked = True }

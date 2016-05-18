@@ -22,7 +22,7 @@ newClosure (Acqua bb q pus i f s) =
             PU pId _ t ce env ra cc se omq enbl _ = pu
             Just cenv = Map.lookup ce env
 
-            clos = Closure "" 0 0 (Sequence.fromList [])
+            clos = Closure "" 0 0 (Sequence.replicate n (NumberV 0))
             cenv' = Map.insert x (ClosureV clos) cenv
             env' = Map.insert ce cenv' env
             pu' = PU pId cs t ce env' ra cc se omq enbl True

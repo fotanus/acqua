@@ -32,7 +32,7 @@ data Command
   | GetClosureCount Name Name
   | SetClosureParam Name Name Name
   | SetClosureParamIL Name Int Name
-  | GetClosureParam Name Name Name
+  | GetClosureParam Name Int Name
   | Wait
   deriving (Eq,Ord,Show,Read)
 
@@ -90,7 +90,7 @@ printCommand (SetClosureCountI n1 i) = ident ++ "SetClosureCountI " ++ n1 ++ " "
 printCommand (GetClosureCount n1 n2) = ident ++ n2 ++ " = GetClosureCount " ++ n1 ++ "\n"
 printCommand (SetClosureParam n1 n2 n3) = ident ++ "SetClosureParam " ++ n1 ++ " " ++ n2 ++ " " ++ n3 ++  "\n"
 printCommand (SetClosureParamIL n1 n2 n3) = ident ++ "SetClosureParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
-printCommand (GetClosureParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetClosureParam ") ++ n1 ++ " " ++ n2 ++ "\n"
+printCommand (GetClosureParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetClosureParam ") ++ n1 ++ " " ++ (show n2) ++ "\n"
 
 printTerminator :: Terminator -> String
 printTerminator (Goto l) = ident ++ (green ("goto " ++ l)) ++ "\n"
