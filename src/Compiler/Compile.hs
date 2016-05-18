@@ -41,7 +41,7 @@ _compile (Ident n) = do
                            SC (SetClosureFn "closure" fn),
                            SC (SetClosureMissingI "closure" (vars-1)),
                            SC (SetClosureCountI "closure" 1),
-                           SC (SetClosureParam "closure" "0" fn),
+                           SC (SetClosureParamIL "closure" 0 fn),
                            SC (AssignV resp "closure")
                          ],[])
 
@@ -78,7 +78,7 @@ _compile (App t1 t2) = do
                     SC (SetClosureCount "closure" "new_count"),
                     SC (SetClosureMissing "closure" "new_missing"),
                     SC (SetClosureParam "closure" "count" "param"),
-                    SC (IR.Op "missing" IR.Lesser "one"),
+                    SC (IR.Op "new_missing" IR.Lesser "one"),
                     ST (IR.If resp thenLabel),
                     SL dummyLabel,
                     SC (AssignV "resp" "closure"),

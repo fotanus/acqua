@@ -36,7 +36,7 @@ main = do
 
     _step :: Acqua -> Acqua -> String
     _step (Acqua _ _ pus _ True _) _ = "Finished!\n" ++ (ppShow (head pus))
-    _step acqua acqua'= --trace (ppShow acqua) $
+    _step acqua acqua'= -- traceAcqua acqua $
       if acqua == acqua'
-        then error $ "Cannot give a step!\n" -- ++ (ppShow acqua)
+        then error $ traceAcqua acqua "Cannot give a step!\n"
         else trace ("----") $ _step (applyRules rules (unlockAll acqua)) acqua
