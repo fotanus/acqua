@@ -8,6 +8,7 @@ import UL1.FromL1
 import AcquaIR.Language
 import Compiler.Compile
 import Simulator.Acqua
+import Simulator.ProcessingUnit
 import Simulator.Rules
 import Simulator.Rules.Base
 
@@ -35,8 +36,8 @@ main = do
     step acqua = _step (applyRules rules acqua) acqua
 
     _step :: Acqua -> Acqua -> String
-    _step (Acqua _ _ pus _ True _) _ = "Finished!\n" ++ (ppShow (head pus))
-    _step acqua acqua'= traceAcqua acqua $
+    _step (Acqua _ _ pus _ True _) _ = "Finished!\n" ++ (acquaResult pus)
+    _step acqua acqua'= -- traceAcqua acqua $
       if acqua == acqua'
         then error $ traceAcqua acqua "Cannot give a step!\n"
         else trace ("----") $ _step (applyRules rules (unlockAll acqua)) acqua

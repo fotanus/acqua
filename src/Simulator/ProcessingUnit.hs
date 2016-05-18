@@ -54,3 +54,13 @@ unlock (PU pId c t ce env ra cc se omq enbl _)
 
 canExecuteCmds :: ProcessingUnit -> Bool
 canExecuteCmds pu = (enabled pu) && (not (locked pu))
+
+acquaResult :: [ProcessingUnit] -> [Char]
+acquaResult pus =
+  let
+    specialPu = (head pus)
+    Just env = Map.lookup "0" (environments specialPu)
+    Just response = Map.lookup "result" env
+  in
+    "response: " ++ (show response)
+
