@@ -63,14 +63,15 @@ addWaitCommands p ((l,n):bbs) =
     addWaitOnBlock l (bb:bbs) n = if (label bb) == l
                                   then (addWaitCommand bb n):bbs
                                   else bb:(addWaitOnBlock l bbs n)
-
     addWaitCommand bb n =
         bb { commands = commands' }
       where
-        firstAssignment = head (commands bb) -- this might not work for basic blocks added by checkForExtraBlocks
+        firstAssignment = head (commands bb)
         remainingCommands = tail (commands bb)
         commands' = if null (commands bb)
-                    then []
+                    then case (terminator bb) of
+                      Return _ -> [Wait]
+                      _        -> []
                     else firstAssignment:(insertWait remainingCommands n)
 
 
