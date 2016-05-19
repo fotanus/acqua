@@ -57,6 +57,19 @@ data OpCode
   | LesserEqual
   deriving (Eq,Ord,Show,Read)
 
+lookupBB :: Program -> Label -> BasicBlock
+lookupBB [] l = error $ "lookup bb with label " ++ l ++ " not found"
+lookupBB (bb:bbs) l = if (label bb) == l
+                      then bb
+                      else lookupBB bbs l
+
+updateBB :: BasicBlock -> Program -> Program
+updateBB _ [] = error $ "Could not find basic block to be updated"
+updateBB newBB (bb:bbs) = if (label bb) == (label newBB)
+                          then newBB:bbs
+                          else bb:(updateBB newBB bbs )
+
+
 printProgram :: Program -> String
 printProgram p = foldr (++) "" (map printBasicBlock p)
 

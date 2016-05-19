@@ -27,8 +27,11 @@ blocksWithCall (bb:bbs) =
 blocksToWait :: IR.Program -> [(Label,Name)]
 blocksToWait prog = map extractLabelAndVar (blocksWithCall prog)
   where
-    extractLabelAndVar bb = case (terminator bb) of
-                            Goto l -> (l, (getFirstAssignVar l prog))
+    extractLabelAndVar bb =
+        (l,v)
+      where
+        Goto l = terminator bb
+        Call v _ = head (commands bb)
 
     getFristAssignVar l []       = error $ "Can't find label " ++ l ++ " on program"
     getFirstAssignVar l (bb:bbs) = if (label bb) == l
@@ -49,8 +52,11 @@ addWaitCommands p []          = p
 addWaitCommands p ((l,n):bbs) =
     addWaitCommands p' bbs'
   where
+    hasWait [] = False
+    hasWait (c:cs) = if c == Wait then True else hasWait cs
+
     p' = addWaitOnBlock l p n
-    bbs' = if p == p'
+    bbs' = if p == p' && not (hasWait (commands (lookupBB p' l)))
            then (checkForExtraBlocks l p n) ++ bbs
            else bbs
 
@@ -66,13 +72,11 @@ addWaitCommands p ((l,n):bbs) =
     addWaitCommand bb n =
         bb { commands = commands' }
       where
-        firstAssignment = head (commands bb)
-        remainingCommands = tail (commands bb)
         commands' = if null (commands bb)
                     then case (terminator bb) of
                       Return _ -> [Wait]
                       _        -> []
-                    else firstAssignment:(insertWait remainingCommands n)
+                    else (insertWait (commands bb) n)
 
 
     -- insert a wait command on the command list if applicable
@@ -102,7 +106,7 @@ addWaitCommands p ((l,n):bbs) =
     checkForExtraBlocks l (bb:bbs) n = if (label bb) == l
                                        then case (terminator bb) of
                                             Return _ -> []
-                                            Goto lab -> [(lab,n)]
-                                            If _ lab -> [(lab,n), ((label (head bbs)),n)]
+                                            Goto lab -> traceShow ("Adicionando " ++ lab) $ [(lab,n)]
+                                            If _ lab -> traceShow ("Adicionando " ++ lab ++ " e " ++ (label (head bbs))) $ [(lab,n), ((label (head bbs)),n)]
                                        else checkForExtraBlocks l bbs n
 
