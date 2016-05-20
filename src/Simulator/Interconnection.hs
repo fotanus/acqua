@@ -16,8 +16,8 @@ data Message
 data MsgUpdate = MsgUpdate {
   puId :: PId,
   environment :: EnvId,
-  variable :: Name,
-  value :: Value
+  index :: Int,
+  value :: BaseVal
   } deriving (Show, Eq)
 
 data MsgResponse = MsgResponse {

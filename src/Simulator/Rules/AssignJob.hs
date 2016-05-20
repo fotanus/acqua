@@ -2,6 +2,7 @@ module Simulator.Rules.AssignJob where
 
 import Data.List as List
 import qualified Data.Map as Map
+import qualified Data.Sequence as Seq
 import Logger
 
 import AcquaIR.Language as IR
@@ -9,6 +10,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue
 import Simulator.Interconnection
+import Simulator.Environment
 
 import Simulator.Rules.Base
 
@@ -39,7 +41,9 @@ assignJob acqua =
           i' = (ConstMsgReqEnv m) : i
 
           q' = Queue jobs' qlck
-          env' = Map.insert newEnvId (Map.fromList []) env
+          emptyParams = Seq.replicate 2 (NumberV 0)
+          nenv = Map.fromList [("closure", ClosureV (Closure "receivedClosure" 0 0 emptyParams))]
+          env' = Map.insert newEnvId nenv env
           p' = PU pId c t newEnvId env' ra' cc' se omq False True
       (_,_)-> acqua
 

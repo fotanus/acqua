@@ -2,6 +2,8 @@ module Simulator.Rules.ReqEnv where
 
 import Data.List
 import qualified Data.Map as Map
+import qualified Data.Sequence as Seq
+import Data.Foldable (toList)
 import Logger
 
 import Simulator.Acqua
@@ -23,11 +25,13 @@ reqEnv acqua  =
           PU _ c t ce env ra cc se omq enbl _ = pu
 
           omq' = omq ++ newMessages
-          newMessages = updMsgs:[endMsg]
+          newMessages = updMsgs ++ [endMsg]
           endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS))
-          updMsgs = ConstMsgUpdate (MsgUpdate pIdS mjsId "closure" closure)
+          updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params closure)
           Just tenv = Map.lookup mteId env
-          Just closure = Map.lookup closureName tenv
+          Just (ClosureV closure) = Map.lookup closureName tenv
+          idxValToMsg idx val =
+              ConstMsgUpdate (MsgUpdate pIdS mjsId idx val)
 
           pu' = PU pIdT c t ce env ra cc se omq' enbl True
           pus' = updatePU pus pu'
