@@ -32,7 +32,7 @@ stepCall q (pu:pus) s =
         Just cenv = Map.lookup ce envs
         Just (ClosureV closure) = Map.lookup x2 cenv
         l = functionName closure
-        j = Job l ce pId ce x1
+        j = Job l ce pId x2 x1
         q' = q { jobs = j:(jobs q) }
 
         -- increment calls count

@@ -66,6 +66,7 @@ _compile (App t1 t2) = do
   thenLabel <- nextThenLabel
   backLabel <- nextBackLabel
   dummyLabel <- nextDummyLabel
+  closureIdent <- nextIdentName
   envs <- return  [
                     SC (AssignV "param" resp),
                     SC (AssignI "one" 1),
@@ -87,7 +88,8 @@ _compile (App t1 t2) = do
                   ]
   bbThen <- return $ [
                        SL thenLabel,
-                       SC (Call "resp" "closure"),
+                       SC ( AssignV closureIdent "closure"),
+                       SC (Call "resp" closureIdent),
                        ST (Goto backLabel)
                      ]
   cs <- return $ c1 ++ [SC (AssignV "closure" resp)] ++ c2 ++ envs

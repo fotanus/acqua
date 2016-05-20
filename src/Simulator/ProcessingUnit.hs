@@ -1,6 +1,7 @@
 module Simulator.ProcessingUnit where
 
 import qualified Data.Map as Map
+import qualified Data.Sequence as Seq
 
 import AcquaIR.Language
 import Simulator.Environment
@@ -36,9 +37,18 @@ data ProcessingUnit = PU {
 } deriving (Show,Eq)
 
 specialPU :: ProcessingUnit
-specialPU = PU 0 [] Empty
-                 "0" (Map.fromList [("0",emptyEnv)]) (Map.fromList [])
-                 (Map.fromList [("0",1)]) (Map.fromList [("0", ExecutionContext [] Empty)]) [] False False
+specialPU = PU
+                0
+                []
+                Empty
+                "0"
+                --Map.fromList [("0",Map.fromList [("0",ClosureV (Closure "" 0 0 (Seq.replicate 0 (NumberV 0)) ))])]
+                (Map.fromList [("0",Map.fromList [("0",ClosureV (Closure "" 0 0 (Seq.fromList []) ))])])
+                (Map.fromList [])
+                (Map.fromList [("0",1)])
+                (Map.fromList [("0", ExecutionContext [] Empty)])
+                []
+                False False
 
 newPU :: Int -> ProcessingUnit
 newPU n = PU n [] Empty

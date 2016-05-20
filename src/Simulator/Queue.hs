@@ -11,9 +11,9 @@ data Queue = Queue {
 
 data Job = Job {
   label :: Label,
-  environmentId :: EnvId,
-  puId :: PId,
   environment :: EnvId,
+  puId :: PId,
+  closure :: Name,
   variable :: Name
 } deriving(Show, Eq)
 

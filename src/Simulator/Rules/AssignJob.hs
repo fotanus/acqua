@@ -25,17 +25,17 @@ assignJob acqua =
           PU pId _ _ _ env ra cc se omq _ _ = pu
           BB _ _ c t = getBB l bb
 
-          Job l envId pId' envId'' x = job
+          Job l envId pId' closure x = job
           Queue js qlck = q
           jobs' = List.delete job js
 
           -- init env
           (newEnvId,s') = getNextEnvId s
-          ra' = Map.insert newEnvId (ReturnAddr pId' envId'' x) ra
+          ra' = Map.insert newEnvId (ReturnAddr pId' envId x) ra
           cc' = Map.insert newEnvId 0 cc
 
           -- add message
-          m = MsgReqEnv pId newEnvId pId' envId
+          m = MsgReqEnv pId newEnvId pId' envId closure
           i' = (ConstMsgReqEnv m) : i
 
           q' = Queue jobs' qlck

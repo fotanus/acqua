@@ -31,7 +31,8 @@ data MsgReqEnv = MsgReqEnv {
   puIdS :: PId,
   jsId  :: EnvId,
   puIdT :: PId,
-  teId  :: EnvId
+  teId  :: EnvId,
+  closure :: Name
 } deriving (Show, Eq)
 
 

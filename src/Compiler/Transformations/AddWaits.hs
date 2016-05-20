@@ -31,7 +31,7 @@ blocksToWait prog = map extractLabelAndVar (blocksWithCall prog)
         (l,v)
       where
         Goto l = terminator bb
-        Call v _ = head (commands bb)
+        Call v _ = last (commands bb)
 
     getFristAssignVar l []       = error $ "Can't find label " ++ l ++ " on program"
     getFirstAssignVar l (bb:bbs) = if (label bb) == l

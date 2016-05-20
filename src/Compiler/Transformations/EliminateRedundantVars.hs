@@ -13,7 +13,7 @@ _eliminateCallVars [] p = p
 _eliminateCallVars (bb:bbs) p =
     if null (commands bb)
       then _eliminateCallVars bbs p
-      else case head (commands bb) of
+      else case last (commands bb) of
          Call resp closure -> case terminator bb of
                               Goto l ->
                                 let back = lookupBB p l
@@ -24,7 +24,7 @@ _eliminateCallVars (bb:bbs) p =
                                             _eliminateCallVars bbs p'
                                           where 
                                             p' = updateBB newBack $ updateBB newCall p
-                                            newCall = bb { commands = [Call var closure] }
+                                            newCall = bb { commands = (head (commands bb)):[Call var closure] }
                                             newBack = back { commands = tail (commands back) }
          _ -> _eliminateCallVars bbs p
 
