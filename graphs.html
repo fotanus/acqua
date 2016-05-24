@@ -7,19 +7,23 @@
   <hr>
   <div id="steps_per_pus" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
   <hr>
+  <div id="speed_up" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+  <!-- 
+  <hr>
   <div id="cmd_distribution" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+  -->
 </div>
 
 
 <script>
 $(function () {
-    $('#steps_per_pus').highcharts({
+    $('#speed_up').highcharts({
         title: {
-            text: 'steps per pus on fibonacci(20)',
+            text: 'speedup per PU on fibonacci(10)',
             x: -20 //center
         },
         xAxis: {
-           // categories: [1,2,3,4,5,10],
+            categories: [1,2,3,4,5,6,7,8,9,10],
             title: {
                 text: 'pus'
             }
@@ -41,7 +45,52 @@ $(function () {
             borderWidth: 0
         },
         series: [{
-            data: [[1,547285], [2,243597],[3,164328],[4,125596],[5,103664],[6,90260]]
+            //data: [[1,547285], [2,243597],[3,164328],[4,125596],[5,103664],[6,90260]]
+            data: [7082/7082,3626/7082,2453/7082,1891/7082,1575/7082,1402/7082,1250/7082,1099/7082,1044/7082,1004/7082]
+        }]
+/*
+        634801
+          330794
+          263783
+          247127
+          241813
+          241810
+          */
+
+    });
+});
+
+$(function () {
+    $('#steps_per_pus').highcharts({
+        title: {
+            text: 'steps per pus on fibonacci(10)',
+            x: -20 //center
+        },
+        xAxis: {
+            categories: [1,2,3,4,5,6,7,8,9,10],
+            title: {
+                text: 'pus'
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'steps'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            //data: [[1,547285], [2,243597],[3,164328],[4,125596],[5,103664],[6,90260]]
+            data: [7082,3626,2453,1891,1575,1402,1250,1099,1044,1004]
         }]
 /*
         634801
@@ -59,7 +108,7 @@ $(function () {
 $(function () {
     $('#steps_per_input').highcharts({
         title: {
-            text: 'steps per fibo input (3 PUs)',
+            text: 'steps per fibo input (4 PUs)',
             x: -20 //center
         },
         xAxis: {
@@ -86,7 +135,7 @@ $(function () {
             borderWidth: 0
         },
         series: [{
-            data: [58, 80, 106, 150, 229, 356, 549, 867, 1378]
+            data: [102,140,179,263,371,531,802,1225,1891]
         }]
     });
 });
