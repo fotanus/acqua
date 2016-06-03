@@ -101,7 +101,7 @@ printCommand (GetClosureMissing n1 n2) = ident ++ n2 ++ " = GetClosureMissing " 
 printCommand (SetClosureCount n1 n2) = ident ++ "SetClosureCount " ++ n1 ++ " " ++ n2 ++ "\n"
 printCommand (SetClosureCountI n1 i) = ident ++ "SetClosureCountI " ++ n1 ++ " " ++ (show i) ++ "\n"
 printCommand (GetClosureCount n1 n2) = ident ++ n2 ++ " = GetClosureCount " ++ n1 ++ "\n"
-printCommand (SetClosureParam n1 n2 n3) = ident ++ "SetClosureParam " ++ n1 ++ " " ++ n2 ++ " " ++ n3 ++  "\n"
+printCommand (SetClosureParam n1 n2 n3) = ident ++ (red "SetClosureParam ") ++ n1 ++ " " ++ n2 ++ " " ++ n3 ++  "\n"
 printCommand (SetClosureParamIL n1 n2 n3) = ident ++ "SetClosureParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
 printCommand (GetClosureParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetClosureParam ") ++ n1 ++ " " ++ (show n2) ++ "\n"
 
