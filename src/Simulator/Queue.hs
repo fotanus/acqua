@@ -1,7 +1,7 @@
 module Simulator.Queue where
 
 import AcquaIR.Language
-import Simulator.Interconnection
+import Simulator.ProcessingUnitId
 import Simulator.ProcessingUnit
 
 data Queue = Queue {

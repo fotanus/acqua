@@ -2,9 +2,7 @@ module Simulator.Interconnection where
 
 import AcquaIR.Language
 import Simulator.Environment
-
-type Interconnection = [Message]
-type PId = Int
+import Simulator.ProcessingUnitId
 
 data Message
  = ConstMsgUpdate  MsgUpdate
@@ -40,6 +38,8 @@ data MsgEndCopy = MsgEndCopy {
   puIdEC :: PId
 } deriving (Show, Eq)
 
+
+type Interconnection = [Message]
 
 newInterconnection :: Interconnection
 newInterconnection = []

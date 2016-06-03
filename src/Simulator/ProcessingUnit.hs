@@ -6,6 +6,8 @@ import qualified Data.Sequence as Seq
 import AcquaIR.Language
 import Simulator.Environment
 import Simulator.Interconnection
+import Simulator.ProcessingUnitId
+
 
 data ReturnAddr = ReturnAddr {
   addr_pId :: PId,
@@ -30,7 +32,7 @@ data ProcessingUnit = PU {
   returnAddrs :: Map.Map EnvId ReturnAddr,
   callCount :: Map.Map EnvId Int,
   sleepingExecution :: Map.Map EnvId ExecutionContext,
-  outgoingMessageQueue :: Interconnection,
+  outgoingMessageQueue :: [Message],
 
   enabled :: Bool,
   locked :: Bool
