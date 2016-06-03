@@ -1,0 +1,5 @@
+let two = 2 in
+let twice = fn x => two * x in
+twice 21
+end
+end
