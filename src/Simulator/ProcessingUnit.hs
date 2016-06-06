@@ -1,7 +1,6 @@
 module Simulator.ProcessingUnit where
 
 import qualified Data.Map as Map
-import qualified Data.Sequence as Seq
 
 import AcquaIR.Language
 import Simulator.Value
@@ -24,47 +23,61 @@ data ExecutionContext = ExecutionContext {
 
 data ProcessingUnit = PU {
   puId :: PId,
-
   commands :: [Command],
   terminator :: Terminator,
-
   currentEnv :: EnvId,
   environments :: Map.Map EnvId Environment,
   heap :: Heap,
-
   returnAddrs :: Map.Map EnvId ReturnAddr,
   callCount :: Map.Map EnvId Int,
   sleepingExecution :: Map.Map EnvId ExecutionContext,
   outgoingMessageQueue :: [Message],
-
   enabled :: Bool,
   locked :: Bool
 } deriving (Show,Eq)
 
 specialPU :: ProcessingUnit
-specialPU = PU
-                0
-                []
-                Empty
-                "0"
-                (Map.fromList [("0",Map.fromList [("0",ClosureV emptyClosure)])])
-                (Map.fromList [])
-                (Map.fromList [("0",1)])
-                (Map.fromList [("0", ExecutionContext [] Empty)])
-                []
-                False False
+specialPU =
+  let
+    environmentZero = Map.fromList [("0", PointerV (Pointer 0 0))]
+  in
+    PU {
+        Simulator.ProcessingUnit.puId=0,
+        Simulator.ProcessingUnit.commands = [],
+        Simulator.ProcessingUnit.terminator = Empty,
+        Simulator.ProcessingUnit.currentEnv = "0",
+        Simulator.ProcessingUnit.environments = Map.fromList [("0", environmentZero)],
+        Simulator.ProcessingUnit.heap = Map.fromList [(0, ClosureV emptyClosure)],
+        Simulator.ProcessingUnit.returnAddrs = Map.fromList [],
+        Simulator.ProcessingUnit.callCount = Map.fromList [("0",1)],
+        Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
+        Simulator.ProcessingUnit.outgoingMessageQueue = [],
+        Simulator.ProcessingUnit.enabled = False,
+        Simulator.ProcessingUnit.locked = False
+    }
 
 newPU :: Int -> ProcessingUnit
-newPU n = PU n [] Empty
-               "" (Map.fromList []) (Map.fromList [])
-               (Map.fromList []) (Map.fromList []) [] False False
+newPU n =
+    PU {
+        Simulator.ProcessingUnit.puId=n,
+        Simulator.ProcessingUnit.commands = [],
+        Simulator.ProcessingUnit.terminator = Empty,
+        Simulator.ProcessingUnit.currentEnv = "",
+        Simulator.ProcessingUnit.environments = Map.fromList [],
+        Simulator.ProcessingUnit.heap = Map.fromList [],
+        Simulator.ProcessingUnit.returnAddrs = Map.fromList [],
+        Simulator.ProcessingUnit.callCount = Map.fromList [],
+        Simulator.ProcessingUnit.sleepingExecution = Map.fromList [],
+        Simulator.ProcessingUnit.outgoingMessageQueue = [],
+        Simulator.ProcessingUnit.enabled = False,
+        Simulator.ProcessingUnit.locked = False
+    }
 
 newProcessingUnits :: Int -> [ProcessingUnit]
 newProcessingUnits n = specialPU : (map newPU [1..n])
 
 unlock :: ProcessingUnit -> ProcessingUnit
-unlock (PU pId c t ce env ra cc se omq enbl _)
-      = (PU pId c t ce env ra cc se omq enbl False)
+unlock pu = pu { locked = False }
 
 canExecuteCmds :: ProcessingUnit -> Bool
 canExecuteCmds pu = (enabled pu) && (not (locked pu))
@@ -75,7 +88,6 @@ currentPuEnv pu =
     Just cenv = Map.lookup (currentEnv pu) (environments pu)
   in
     cenv
-
 
 acquaResult :: [ProcessingUnit] -> [Char]
 acquaResult pus =

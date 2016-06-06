@@ -2,7 +2,7 @@ module Simulator.Queue where
 
 import AcquaIR.Language
 import Simulator.ProcessingUnitId
-import Simulator.ProcessingUnit
+import Simulator.ProcessingUnit as PU
 
 data Queue = Queue {
   jobs :: [Job],
@@ -19,5 +19,8 @@ data Job = Job {
 
 newQueue :: ProcessingUnit -> Queue
 newQueue pu =
-  let PU pId _ _ envId _ _ _ _ _ _ _ = pu
-  in Queue [(Job "main" envId pId envId "result")] False
+  let
+    envId = currentEnv pu
+    startingJob = Job "main" envId (PU.puId pu) envId "result"
+  in
+    Queue [startingJob] False
