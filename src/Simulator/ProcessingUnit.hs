@@ -4,10 +4,12 @@ import qualified Data.Map as Map
 import qualified Data.Sequence as Seq
 
 import AcquaIR.Language
+import Simulator.Value
 import Simulator.Environment
+import Simulator.Heap
 import Simulator.Interconnection
+import Simulator.Closure
 import Simulator.ProcessingUnitId
-
 
 data ReturnAddr = ReturnAddr {
   addr_pId :: PId,
@@ -28,6 +30,7 @@ data ProcessingUnit = PU {
 
   currentEnv :: EnvId,
   environments :: Map.Map EnvId Environment,
+  heap :: Heap,
 
   returnAddrs :: Map.Map EnvId ReturnAddr,
   callCount :: Map.Map EnvId Int,
@@ -44,8 +47,7 @@ specialPU = PU
                 []
                 Empty
                 "0"
-                --Map.fromList [("0",Map.fromList [("0",ClosureV (Closure "" 0 0 (Seq.replicate 0 (NumberV 0)) ))])]
-                (Map.fromList [("0",Map.fromList [("0",ClosureV (Closure "" 0 0 (Seq.fromList []) ))])])
+                (Map.fromList [("0",Map.fromList [("0",ClosureV emptyClosure)])])
                 (Map.fromList [])
                 (Map.fromList [("0",1)])
                 (Map.fromList [("0", ExecutionContext [] Empty)])

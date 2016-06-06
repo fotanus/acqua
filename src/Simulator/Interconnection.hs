@@ -1,7 +1,7 @@
 module Simulator.Interconnection where
 
 import AcquaIR.Language
-import Simulator.Environment
+import Simulator.Value
 import Simulator.ProcessingUnitId
 
 data Message
@@ -15,7 +15,7 @@ data MsgUpdate = MsgUpdate {
   puId :: PId,
   environment :: EnvId,
   index :: Int,
-  value :: BaseVal
+  value :: Value
   } deriving (Show, Eq)
 
 data MsgResponse = MsgResponse {
