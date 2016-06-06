@@ -32,9 +32,12 @@ stepReturn i (pu:pus) =
         i' = (ConstMsgResponse m) : i
 
         -- pu
-        PU pId _ _ ce env ra cc se omq enbl _ = pu
+        ce = currentEnv pu
+        cc = callCount pu
+        ra = returnAddrs pu
+        env = environments pu
         cc' = Map.insert ce 100 cc
-        pu' = PU pId [] Empty ce env ra cc' se omq enbl True
+        pu' = pu { PU.commands = [], PU.terminator = Empty, callCount = cc', locked = True }
 
     _ -> (i', pu:pus')
       where (i', pus') = stepReturn i pus

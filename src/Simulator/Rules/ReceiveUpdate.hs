@@ -9,6 +9,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Environment
+import Simulator.Closure
 
 import Simulator.Rules.Base
 

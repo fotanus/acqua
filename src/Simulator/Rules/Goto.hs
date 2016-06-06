@@ -15,10 +15,8 @@ goto (Acqua bb q pus i f s) = Acqua bb q (map executeGoto pus) i f s
       case (PU.commands pu,PU.terminator pu, PU.canExecuteCmds pu) of
         ([], Goto l, True) -> trace ((show (PU.puId pu)) ++ ": goto") pu'
          where
-
-           PU pId _ _ ce env ra cc se omq enbl _ = pu
            BB _ _ c' t' = getBB l bb
-           pu' = PU pId c' t' ce env ra cc se omq enbl True
+           pu' = pu { PU.commands = c', PU.terminator = t', locked = True }
         _ -> pu
 
 

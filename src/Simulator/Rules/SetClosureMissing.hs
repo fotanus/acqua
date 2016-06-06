@@ -7,6 +7,8 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
+import Simulator.Value
+import Simulator.Closure
 
 import Simulator.Rules.Base
 
@@ -23,7 +25,7 @@ setClosureMissing (Acqua bb q pus i f s) =
 
             Just cenv = Map.lookup ce envs
             Just (ClosureV closure) = Map.lookup x cenv
-            Just (BaseValV (NumberV num)) = Map.lookup n cenv
+            Just (NumberV num) = Map.lookup n cenv
             closure' = closure { paramMissing = num }
             cenv' = Map.insert x (ClosureV closure') cenv
             envs' = Map.insert ce cenv' envs

@@ -7,6 +7,7 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
+import Simulator.Value
 
 import Simulator.Rules.Base
 
@@ -18,12 +19,13 @@ assignV (Acqua bb q pus i f s) =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((AssignV x v):cs),True) -> trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) pu'
           where
-            PU pId _ t ce env ra cc se omq enbl _ = pu
+            ce = currentEnv pu
+            env = environments pu
             Just cenv = Map.lookup ce env
             Just val = Map.lookup v cenv
             cenv' = Map.insert x val cenv
             env' = Map.insert ce cenv' env
-            pu' = PU pId cs t ce env' ra cc se omq enbl True
+            pu' = pu { currentEnv = env', locked = True }
         _ -> pu
 
 assignL:: Rule
@@ -36,11 +38,12 @@ assignL (Acqua bb q pus i f s) =
                               then trace ((show (PU.puId pu)) ++ ": AssignL" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
-            PU pId _ t ce env ra cc se omq enbl _ = pu
+            ce = currentEnv pu
+            env = environments pu
             Just cenv = Map.lookup ce env
-            cenv' = Map.insert x (BaseValV (LabelV v)) cenv
+            cenv' = Map.insert x (LabelV v) cenv
             env' = Map.insert ce cenv' env
-            pu' = PU pId cs t ce env' ra cc se omq enbl True
+            pu' = pu { environments = env', locked = True}
         _ -> pu
 
 assignI:: Rule
@@ -53,10 +56,11 @@ assignI (Acqua bb q pus i f s) =
                                 then trace ((show (PU.puId pu)) ++ ": AssignI " ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
-            PU pId _ t ce env ra cc se omq enbl _ = pu
+            ce = currentEnv pu
+            env = environments pu
             Just cenv = Map.lookup ce env
-            cenv' = Map.insert x (BaseValV (NumberV v)) cenv
+            cenv' = Map.insert x (NumberV v) cenv
             env' = Map.insert ce cenv' env
-            pu' = PU pId cs t ce env' ra cc se omq enbl True
+            pu' = pu { environments = env', locked = True}
         _ -> pu
 

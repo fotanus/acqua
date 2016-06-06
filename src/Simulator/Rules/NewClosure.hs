@@ -8,6 +8,7 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
+import Simulator.Closure
 
 import Simulator.Rules.Base
 
@@ -19,11 +20,12 @@ newClosure (Acqua bb q pus i f s) =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((NewClosure x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": NewClosure " ++ (show x) ++ " " ++ (show n)) pu'
           where
-            PU pId _ t ce env ra cc se omq enbl _ = pu
+            ce = currentEnv pu
+            env = environments pu
             Just cenv = Map.lookup ce env
 
             clos = Closure "" 0 0 (Sequence.replicate n (NumberV 0))
             cenv' = Map.insert x (ClosureV clos) cenv
             env' = Map.insert ce cenv' env
-            pu' = PU pId cs t ce env' ra cc se omq enbl True
+            pu' = pu { environments = env', locked = True }
         _ -> pu

@@ -7,6 +7,7 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
+import Simulator.Value
 
 import Simulator.Rules.Base
 
@@ -17,15 +18,15 @@ ifRule (Acqua bb q pus i f s) = Acqua bb q (map executeIf pus) i f s
       case (PU.commands pu,PU.terminator pu, PU.canExecuteCmds pu) of
         ([], If x l, True) -> trace ((show (PU.puId pu))++": if " ++ x ++ " goto " ++ l ++ "( x = " ++ (show val) ++ ")") pu'
          where
-
-           PU pId _ _ ce env ra cc se omq enbl _ = pu
+           ce = currentEnv pu
+           env = environments pu
            Just cenv = Map.lookup ce env
-           Just (BaseValV (NumberV val)) = Map.lookup x cenv
+           Just (NumberV val) = Map.lookup x cenv
            BB _ _ c' t'  = if val > 0
                            then getBB l bb
                            else getBB (dummy l) bb
 
-           pu' = PU pId c' t' ce env ra cc se omq enbl True
+           pu' = pu {PU.commands = c', PU.terminator = t', locked = True }
         _ -> pu
 
 

@@ -8,6 +8,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue as Q
 import Simulator.Environment
+import Simulator.Closure
 
 import Simulator.Rules.Base
 

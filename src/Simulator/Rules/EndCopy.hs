@@ -17,7 +17,6 @@ endCopy acqua  =
       ((ConstMsgEndCopy (MsgEndCopy pId)):ms) -> trace ((show (PU.puId pu)) ++ ": receive endCopy")  $ Acqua bb q pus' ms f s
         where
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
-          PU _ c t ce env ra cc se omq _ lck = pu
-          pu' = PU pId c t ce env ra cc se omq True lck
+          pu' = pu { enabled = True }
           pus' = updatePU pus pu'
       _ -> acqua

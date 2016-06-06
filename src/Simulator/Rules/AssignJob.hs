@@ -11,6 +11,8 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Queue
 import Simulator.Interconnection
 import Simulator.Environment
+import Simulator.Value
+import Simulator.Closure
 
 import Simulator.Rules.Base
 
@@ -23,8 +25,14 @@ assignJob acqua =
       (Just pu, Just job) ->
         trace ((show (PU.puId pu)) ++ ": assignJob ") $ Acqua bb q' pus' i' ff s'
         where
-          pus' = updatePU pus p'
-          PU pId _ _ _ env ra cc se omq _ _ = pu
+          pus' = updatePU pus pu'
+          pId = PU.puId pu
+          env = environments pu
+          ra = returnAddrs pu
+          cc = callCount pu
+          se = sleepingExecution pu
+          omq = outgoingMessageQueue pu
+
           BB _ _ c t = getBB l bb
 
           Job l envId pId' closure x = job
@@ -44,7 +52,13 @@ assignJob acqua =
           emptyParams = Seq.replicate 2 (NumberV 0)
           nenv = Map.fromList [("closure", ClosureV (Closure "receivedClosure" 0 0 emptyParams))]
           env' = Map.insert newEnvId nenv env
-          p' = PU pId c t newEnvId env' ra' cc' se omq False True
+          pu' = pu {
+            environments = env',
+            returnAddrs = ra',
+            callCount = cc',
+            enabled = False,
+            PU.locked = True
+          }
       (_,_)-> acqua
 
 

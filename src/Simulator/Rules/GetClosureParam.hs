@@ -8,6 +8,8 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
+import Simulator.Value
+import Simulator.Closure
 
 import Simulator.Rules.Base
 
@@ -25,7 +27,7 @@ getClosureParam (Acqua bb q pus i f s) =
             Just cenv = Map.lookup ce envs
             Just (ClosureV closure) = Map.lookup x cenv
             val = Sequence.index (params closure) i
-            cenv' = Map.insert v (BaseValV val) cenv
+            cenv' = Map.insert v val cenv
             envs' = Map.insert ce cenv' envs
             pu' = pu { PU.commands = cs, environments = envs', locked = True }
         _ -> pu

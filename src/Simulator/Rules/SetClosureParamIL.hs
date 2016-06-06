@@ -8,6 +8,8 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
+import Simulator.Value
+import Simulator.Closure
 
 import Simulator.Rules.Base
 

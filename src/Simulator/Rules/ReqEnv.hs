@@ -10,6 +10,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Environment
+import Simulator.Closure
 
 
 import Simulator.Rules.Base
@@ -22,8 +23,9 @@ reqEnv acqua  =
       ((ConstMsgReqEnv (MsgReqEnv pIdS mjsId pIdT mteId closureName)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqEnv")  $ Acqua bb q pus' ms f s
         where
           Just pu = Data.List.find (\p -> (PU.puId p) == pIdT) pus
-          PU _ c t ce env ra cc se omq enbl _ = pu
 
+          omq = outgoingMessageQueue pu
+          env = environments pu
           omq' = omq ++ newMessages
           newMessages = updMsgs ++ [endMsg]
           endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS))
@@ -33,7 +35,7 @@ reqEnv acqua  =
           idxValToMsg idx val =
               ConstMsgUpdate (MsgUpdate pIdS mjsId idx val)
 
-          pu' = PU pIdT c t ce env ra cc se omq' enbl True
+          pu' = pu { outgoingMessageQueue = omq', locked = True }
           pus' = updatePU pus pu'
 
       _ -> acqua
