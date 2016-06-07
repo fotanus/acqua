@@ -21,14 +21,14 @@ stepReturn :: Interconnection -> [ProcessingUnit] -> (Interconnection, [Processi
 stepReturn i [] = (i,[])
 stepReturn i (pu:pus) =
   case (PU.commands pu,PU.terminator pu,PU.canExecuteCmds pu) of
-    ([], Return x,True) -> trace ((show (PU.puId pu)) ++ ": returning " ++ (show x) ++ "\n") (i'', pu':pus')
+    ([], Return x,True) -> trace ((show (PU.puId pu)) ++ ": returning " ++ (show m)) (i'', pu':pus')
       where
         (i'', pus') = stepReturn i' pus
         -- interconnection
         Just cenv = Map.lookup ce env
         Just returnValue = Map.lookup x cenv
         Just (ReturnAddr pId' envId' x') = Map.lookup ce ra
-        m = traceShowId $ MsgResponse pId' envId' x' returnValue
+        m = MsgResponse pId' envId' x' returnValue
         i' = (ConstMsgResponse m) : i
 
         -- pu
