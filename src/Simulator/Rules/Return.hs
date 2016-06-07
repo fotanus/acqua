@@ -21,7 +21,7 @@ stepReturn :: Interconnection -> [ProcessingUnit] -> (Interconnection, [Processi
 stepReturn i [] = (i,[])
 stepReturn i (pu:pus) =
   case (PU.commands pu,PU.terminator pu,PU.canExecuteCmds pu) of
-    ([], Return x,True) -> trace ((show (PU.puId pu)) ++ ": returning\n") (i'', pu':pus')
+    ([], Return x,True) -> trace ((show (PU.puId pu)) ++ ": returning " ++ (show x) ++ "\n") (i'', pu':pus')
       where
         (i'', pus') = stepReturn i' pus
         -- interconnection

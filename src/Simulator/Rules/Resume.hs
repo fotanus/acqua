@@ -24,8 +24,8 @@ resume (Acqua bb q pus i f s) =
                           else zeroedCallCount xs
           [] -> Nothing
       in
-        case (t,(zeroedCallCount callCounts), PU.locked pu) of
-          (Empty,Just k, False) -> trace ((show (PU.puId pu)) ++ ": resuming")  $ pu'
+        case (t,(zeroedCallCount callCounts), PU.locked pu, enabled pu) of
+          (Empty,Just k, False, True) -> trace ((show (PU.puId pu)) ++ ": resuming")  $ pu'
             where
               se = sleepingExecution pu
               Just (ExecutionContext c' t') = Map.lookup k se

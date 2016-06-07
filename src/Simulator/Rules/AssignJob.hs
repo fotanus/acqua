@@ -10,9 +10,10 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue
 import Simulator.Interconnection
-import Simulator.Environment
 import Simulator.Value
 import Simulator.Closure
+import Simulator.Environment
+import Simulator.Heap
 
 import Simulator.Rules.Base
 
@@ -28,10 +29,9 @@ assignJob acqua =
           pus' = updatePU pus pu'
           pId = PU.puId pu
           env = environments pu
+          hp = heap pu
           ra = returnAddrs pu
           cc = callCount pu
-          se = sleepingExecution pu
-          omq = outgoingMessageQueue pu
 
           BB _ _ c t = getBB l bb
 
@@ -48,12 +48,23 @@ assignJob acqua =
           m = MsgReqEnv pId newEnvId pId' envId closure
           i' = (ConstMsgReqEnv m) : i
 
-          q' = Queue jobs' qlck
+          -- add closure on heap
+          hpPos = Map.size hp
+          hp' = Map.insert hpPos (ClosureV (Closure "receivedClosure" 0 0 emptyParams)) hp
           emptyParams = Seq.replicate 2 (NumberV 0)
-          nenv = Map.fromList [("closure", ClosureV (Closure "receivedClosure" 0 0 emptyParams))]
+
+          -- create env with pointer to closure
+          pt = PointerV $ Pointer pId hpPos
+          nenv = Map.fromList [("closure", pt)]
           env' = Map.insert newEnvId nenv env
+
+          q' = Queue jobs' qlck
           pu' = pu {
+            PU.commands = c,
+            PU.terminator = t,
+            currentEnv = newEnvId,
             environments = env',
+            heap = hp',
             returnAddrs = ra',
             callCount = cc',
             enabled = False,

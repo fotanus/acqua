@@ -6,7 +6,7 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Environment
+import Simulator.Heap
 import Simulator.Value
 import Simulator.Closure
 
@@ -22,11 +22,13 @@ setClosureFn (Acqua bb q pus i f s) =
           where
             ce = PU.currentEnv pu
             envs = PU.environments pu
+            hp = heap pu
 
             Just cenv = Map.lookup ce envs
-            Just (ClosureV closure) = Map.lookup x cenv
-            closure' = closure { functionName = n }
-            cenv' = Map.insert x (ClosureV closure') cenv
-            envs' = Map.insert ce cenv' envs
-            pu' = pu { PU.commands = cs, environments = envs', locked = True }
+            Just (PointerV pointer) = Map.lookup x cenv
+            Just (ClosureV closur) = Map.lookup (addr pointer) hp
+
+            closur' = closur { functionName = n }
+            hp' = Map.insert (addr pointer) (ClosureV closur') hp
+            pu' = pu { PU.commands = cs, heap = hp', locked = True }
         _ -> pu

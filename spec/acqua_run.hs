@@ -25,4 +25,4 @@ spec (s:ss) = do
 runFile file = do
   fileContents <- readFile file
   output <- readProcess "./acqua-run" ["10"] fileContents
-  return $ last $ (splitOn " " (output =~ "response: BaseValV \\(NumberV [0-9]+" :: String))
+  return $ last $ (splitOn " " (output =~ "response: NumberV [0-9]+" :: String))

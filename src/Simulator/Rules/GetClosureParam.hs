@@ -7,7 +7,7 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Environment
+import Simulator.Heap
 import Simulator.Value
 import Simulator.Closure
 
@@ -23,9 +23,11 @@ getClosureParam (Acqua bb q pus i f s) =
           where
             ce = PU.currentEnv pu
             envs = PU.environments pu
+            hp = heap pu
 
             Just cenv = Map.lookup ce envs
-            Just (ClosureV closure) = Map.lookup x cenv
+            Just (PointerV pointer) = Map.lookup x cenv
+            Just (ClosureV closure) = Map.lookup (addr pointer) hp
             val = Sequence.index (params closure) i
             cenv' = Map.insert v val cenv
             envs' = Map.insert ce cenv' envs

@@ -25,7 +25,7 @@ assignV (Acqua bb q pus i f s) =
             Just val = Map.lookup v cenv
             cenv' = Map.insert x val cenv
             env' = Map.insert ce cenv' env
-            pu' = pu { currentEnv = env', locked = True }
+            pu' = pu { PU.commands = cs, environments = env', locked = True }
         _ -> pu
 
 assignL:: Rule
@@ -43,7 +43,7 @@ assignL (Acqua bb q pus i f s) =
             Just cenv = Map.lookup ce env
             cenv' = Map.insert x (LabelV v) cenv
             env' = Map.insert ce cenv' env
-            pu' = pu { environments = env', locked = True}
+            pu' = pu { PU.commands = cs, environments = env', locked = True}
         _ -> pu
 
 assignI:: Rule
@@ -61,6 +61,6 @@ assignI (Acqua bb q pus i f s) =
             Just cenv = Map.lookup ce env
             cenv' = Map.insert x (NumberV v) cenv
             env' = Map.insert ce cenv' env
-            pu' = pu { environments = env', locked = True}
+            pu' = pu { PU.commands = cs, environments = env', locked = True}
         _ -> pu
 

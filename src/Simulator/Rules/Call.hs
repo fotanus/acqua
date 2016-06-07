@@ -7,7 +7,8 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue as Q
-import Simulator.Environment
+import Simulator.Value
+import Simulator.Heap
 import Simulator.Closure
 
 import Simulator.Rules.Base
@@ -30,9 +31,11 @@ stepCall q (pu:pus) s =
         ce = PU.currentEnv pu
         pId = PU.puId pu
         envs = PU.environments pu
+        hp = PU.heap pu
         Just cenv = Map.lookup ce envs
-        Just (ClosureV closure) = Map.lookup x2 cenv
-        l = functionName closure
+        Just (PointerV pointer) = Map.lookup x2 cenv
+        Just (ClosureV closur) = Map.lookup (addr pointer) hp
+        l = functionName closur
         j = Job l ce pId x2 x1
         q' = q { jobs = j:(jobs q) }
 

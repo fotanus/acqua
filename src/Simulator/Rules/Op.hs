@@ -38,6 +38,6 @@ op (Acqua bb q pus i f s) =
               LesserEqual -> v2 + 1 - v1
             cenv' = Map.insert "resp" (NumberV val) cenv
             env' = Map.insert ce cenv' env
-            pu'' = pu { environments = env', locked = True }
+            pu'' = pu { PU.commands = cs, environments = env', locked = True }
         _ -> pu
 

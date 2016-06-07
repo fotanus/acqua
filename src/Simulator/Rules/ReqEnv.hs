@@ -9,7 +9,8 @@ import Logger
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
-import Simulator.Environment
+import Simulator.Value
+import Simulator.Heap
 import Simulator.Closure
 
 
@@ -26,12 +27,14 @@ reqEnv acqua  =
 
           omq = outgoingMessageQueue pu
           env = environments pu
+          hp = heap pu
           omq' = omq ++ newMessages
           newMessages = updMsgs ++ [endMsg]
           endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS))
-          updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params closure)
+          updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params closur)
           Just tenv = Map.lookup mteId env
-          Just (ClosureV closure) = Map.lookup closureName tenv
+          Just (PointerV pointer) = Map.lookup closureName tenv
+          Just (ClosureV closur) = Map.lookup (addr pointer) hp
           idxValToMsg idx val =
               ConstMsgUpdate (MsgUpdate pIdS mjsId idx val)
 

@@ -8,7 +8,8 @@ import Logger
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
-import Simulator.Environment
+import Simulator.Heap
+import Simulator.Value
 import Simulator.Closure
 
 import Simulator.Rules.Base
@@ -21,14 +22,19 @@ receiveUpdate acqua  =
       ((ConstMsgUpdate (MsgUpdate pId envId idx val)):ms) -> trace ((show (PU.puId pu)) ++ ": receive update")  $ Acqua bb q pus' ms f' s
         where
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
-          PU _ c t ce env ra cc se omq enbl _ = pu
+          env = environments pu
+          hp = heap pu
+
           Just cenv  = Map.lookup envId env
-          Just (ClosureV closure) = Map.lookup "closure" cenv
-          newParams = Seq.update idx val (params closure)
-          closure' = closure { params = newParams }
-          cenv' = Map.insert "closure" (ClosureV closure') cenv
-          env' = Map.insert envId cenv' env
-          pu' = PU pId c t ce env' ra cc se omq enbl True
+          Just (PointerV pointer) = Map.lookup "closure" cenv
+          Just (ClosureV closur) = Map.lookup (addr pointer) hp
+
+          newParams = Seq.update idx val (params closur)
+          closur' = closur { params = newParams }
+
+          hp' = Map.insert (addr pointer) (ClosureV closur') hp
+          pu' = pu { heap = hp', locked = True }
+
           pus' = updatePU pus pu'
           f' = if pId == 0
                  then True

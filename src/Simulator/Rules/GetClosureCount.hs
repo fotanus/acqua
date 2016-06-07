@@ -6,7 +6,7 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Environment
+import Simulator.Heap
 import Simulator.Value
 import Simulator.Closure
 
@@ -24,7 +24,8 @@ getClosureCount (Acqua bb q pus i f s) =
             envs = PU.environments pu
 
             Just cenv = Map.lookup ce envs
-            Just (ClosureV closure) = Map.lookup x cenv
+            Just (PointerV pointer) = Map.lookup x cenv
+            Just (ClosureV closure) = Map.lookup (addr pointer) (heap pu)
             count = (paramCount closure)
             cenv' = Map.insert n (NumberV count) cenv
             envs' = Map.insert ce cenv' envs
