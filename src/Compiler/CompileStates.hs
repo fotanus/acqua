@@ -5,7 +5,7 @@ import AcquaIR.Language as IR
 import Control.Monad.State
 
 
-type ClosureInfoT = (String,Int,Bool)
+type ClosureInfoT = (String,String,[String],Bool)
 
 data CompileStates = CompileStates {
   thenLabelNum :: Int,
