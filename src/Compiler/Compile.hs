@@ -48,12 +48,18 @@ _compile (Ident n) = do
 _compile (Fn params t1) = do
   fn <- nextFnLabel
   (c1,bb1) <- _compile t1
+  allKvs <- getKnownVars
+  kvs <- return $ filter (\v-> v `elem` params) allKvs
+  nMissingVars <- return $ (length params) - (length kvs)
+
+  knownVarsSetParams <- return $ map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip kvs [0..])
   setParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params [0..])
   newClosureCommands <- return $ [
                                    SC (NewClosure "closure" (length params)),
                                    SC (SetClosureFn "closure" fn),
-                                   SC (SetClosureMissingI "closure" (length params)),
-                                   SC (SetClosureCountI "closure" 0),
+                                   SC (SetClosureMissingI "closure" nMissingVars)
+                                 ] ++ knownVarsSetParams ++ [
+                                   SC (SetClosureCountI "closure" (length kvs)),
                                    SC (AssignV resp "closure")
                                  ]
   fnBody <- return $ [SL fn] ++ setParamsCommands ++ c1 ++ [ST (Return resp)]
@@ -120,12 +126,14 @@ _compile (UL1.If t1 t2 t3) = do
   return (cs, bbs)
 
 _compile (Let n t1 t2) = do
+  _ <- addKnownVars n
   (c1,bb1) <- _compile t1
   (c2,bb2) <- _compile t2
   cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
   return (cs, bb1 ++ bb2)
 
 _compile (Letrec n (Fn params t1) t2) = do
+  _ <- addKnownVars n
   fn <- nextFnLabel
   _ <- setClosureInfo n (fn, (length params), True)
   params' <- return $ delete n params

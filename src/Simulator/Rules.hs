@@ -24,6 +24,7 @@ import Simulator.Rules.SetClosureCount
 import Simulator.Rules.SetClosureCountI
 import Simulator.Rules.GetClosureParam
 import Simulator.Rules.SetClosureParam
+import Simulator.Rules.SetClosureParamI
 import Simulator.Rules.SetClosureParamIL
 import Simulator.Rules.GetClosureMissing
 import Simulator.Rules.GetClosureCount
@@ -33,7 +34,7 @@ rules :: [Rule]
 rules = [
   assignV, assignL, assignI, returnTerminator, resume, wait, op, ifRule, goto,
   newClosure, setClosureFn, setClosureMissingI, setClosureCountI, setClosureParam, getClosureParam,
-  setClosureParamIL, getClosureMissing, getClosureCount, setClosureCount, setClosureMissing,
+  setClosureParamIL, setClosureParamI, getClosureMissing, getClosureCount, setClosureCount, setClosureMissing,
   receiveResponse, receiveUpdate, endCopy,
   call, sendEnvMsg, reqEnv, assignJob
   ]

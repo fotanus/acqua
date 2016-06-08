@@ -1,0 +1,36 @@
+module Simulator.Rules.SetClosureParamI where
+
+import qualified Data.Map as Map
+import qualified Data.Sequence as Sequence
+import Logger
+
+import AcquaIR.Language as IR
+import Simulator.Acqua
+import Simulator.ProcessingUnit as PU
+import Simulator.Heap
+import Simulator.Value
+import Simulator.Closure
+
+import Simulator.Rules.Base
+
+setClosureParamI :: Rule
+setClosureParamI (Acqua bb q pus i f s) =
+    Acqua bb q (map stepSetClosureParamI pus) i f s
+  where
+    stepSetClosureParamI pu =
+      case (PU.commands pu,PU.canExecuteCmds pu) of
+        (((SetClosureParamI x idx v):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetClosureParamI " ++ (show x) ++ " " ++ (show i) ++ " " ++ (show v)) pu'
+          where
+            ce = PU.currentEnv pu
+            envs = PU.environments pu
+            hp = heap pu
+
+            Just cenv = Map.lookup ce envs
+            Just (PointerV pointer) = Map.lookup x cenv
+            Just (ClosureV closure) = Map.lookup (addr pointer) hp
+            Just val = Map.lookup v cenv
+            params' = Sequence.update idx val (params closure)
+            closure' = closure { params = params' }
+            hp' = Map.insert (addr pointer) (ClosureV closure') hp
+            pu' = pu { PU.commands = cs, heap = hp', locked = True }
+        _ -> pu
