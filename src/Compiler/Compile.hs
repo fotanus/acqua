@@ -78,32 +78,33 @@ _compile (App t1 t2) = do
   backLabel <- nextBackLabel
   dummyLabel <- nextDummyLabel
   closureIdent <- nextIdentName
+  closureIdent' <- nextIdentName
   envs <- return  [
                     SC (AssignV "param" resp),
                     SC (AssignI "one" 1),
-                    SC (GetClosureMissing "closure" "missing"),
-                    SC (GetClosureCount "closure" "count"),
+                    SC (GetClosureMissing closureIdent' "missing"),
+                    SC (GetClosureCount closureIdent' "count"),
                     SC (IR.Op "missing" IR.Sub "one"),
                     SC (AssignV "new_missing" resp),
                     SC (IR.Op "count" IR.Add "one"),
                     SC (AssignV "new_count" resp),
-                    SC (SetClosureCount "closure" "new_count"),
-                    SC (SetClosureMissing "closure" "new_missing"),
-                    SC (SetClosureParam "closure" "count" "param"),
+                    SC (SetClosureCount closureIdent' "new_count"),
+                    SC (SetClosureMissing closureIdent' "new_missing"),
+                    SC (SetClosureParam closureIdent' "count" "param"),
                     SC (IR.Op "new_missing" IR.Lesser "one"),
                     ST (IR.If resp thenLabel),
                     SL dummyLabel,
-                    SC (AssignV "resp" "closure"),
+                    SC (AssignV "resp" closureIdent'),
                     ST (Goto backLabel),
                     SL backLabel
                   ]
   bbThen <- return $ [
                        SL thenLabel,
-                       SC ( AssignV closureIdent "closure"),
+                       SC ( AssignV closureIdent closureIdent'),
                        SC (Call "resp" closureIdent),
                        ST (Goto backLabel)
                      ]
-  cs <- return $ c1 ++ [SC (AssignV "closure" resp)] ++ c2 ++ envs
+  cs <- return $ c1 ++ [SC (AssignV closureIdent' resp)] ++ c2 ++ envs
   return (cs, bbThen ++ bb1 ++ bb2)
 
 _compile (UL1.Op t1 op t2) = do
