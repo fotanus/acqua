@@ -30,43 +30,44 @@ _compile (Ident n) = do
     return $ case c of
                Nothing -> ([SC (AssignV resp n)],[])
                Just (fn,n,vars,False) -> ([
-                           SC (NewClosure "closure" (length vars')),
-                           SC (SetClosureFn "closure" fn)
-                         ] ++ freeVarsSetParams ++ [
-                           SC (SetClosureMissingI "closure" 1),
-                           SC (SetClosureCountI "closure" ((length vars')-1)),
-                           SC (AssignV resp "closure")
-                         ],[])
-                        where
-                          vars' = tail vars
-                          freeVarsSetParams = map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip vars [0..])
-               Just (fn,n,vars,True) -> ([
                            SC (NewClosure "closure" ((length vars')+1)),
-                           SC (SetClosureFn "closure" fn),
-                           SC (SetClosureParamIL "closure" 0 fn)
+                           SC (SetClosureFn "closure" fn)
                          ] ++ freeVarsSetParams ++ [
                            SC (SetClosureMissingI "closure" 1),
                            SC (SetClosureCountI "closure" ((length vars'))),
                            SC (AssignV resp "closure")
                          ],[])
                         where
-                          vars' = tail vars
+                          vars' = if null vars then [] else tail vars
+                          freeVarsSetParams = map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip vars [0..])
+               Just (fn,n,vars,True) -> ([
+                           SC (NewClosure "closure" ((length vars')+2)),
+                           SC (SetClosureFn "closure" fn),
+                           SC (SetClosureParamIL "closure" 0 fn)
+                         ] ++ freeVarsSetParams ++ [
+                           SC (SetClosureMissingI "closure" 1),
+                           SC (SetClosureCountI "closure" ((length vars')+1)),
+                           SC (AssignV resp "closure")
+                         ],[])
+                        where
+                          vars' = if null vars then [] else tail vars
                           freeVarsSetParams = map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip vars [1..])
 
-_compile (Fn params t1) = do
+_compile (Fn n params t1) = do
   fn <- nextFnLabel
   (c1,bb1) <- _compile t1
   freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip params [0..])
   getParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params [0..])
+  getParamsCommands' <- return $ getParamsCommands ++ [SC (GetClosureParam "closure" (length getParamsCommands) n)]
   newClosureCommands <- return $ [
-                                   SC (NewClosure "closure" (length params)),
+                                   SC (NewClosure "closure" ((length params)+1)),
                                    SC (SetClosureFn "closure" fn)
                                  ] ++ freeVarsSetParams ++ [
                                    SC (SetClosureMissingI "closure" 1),
-                                   SC (SetClosureCountI "closure" ((length params)-1)),
+                                   SC (SetClosureCountI "closure" (length params)),
                                    SC (AssignV resp "closure")
                                  ]
-  fnBody <- return $ [SL fn] ++ getParamsCommands ++ c1 ++ [ST (Return resp)]
+  fnBody <- return $ [SL fn] ++ getParamsCommands' ++ c1 ++ [ST (Return resp)]
   return (newClosureCommands, fnBody++ bb1)
 
 
@@ -136,14 +137,16 @@ _compile (Let n t1 t2) = do
   cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
   return (cs, bb1 ++ bb2)
 
-_compile (Letrec n (Fn params t1) t2) = do
+_compile (Letrec n (Fn par params t1) t2) = do
   _ <- addKnownVars n
+  params <- return $ delete n params
   fn <- nextFnLabel
-  _ <- setClosureInfo n (fn, n, (delete n params), True)
-  params' <- return $ delete n params
+  _ <- setClosureInfo n (fn, n, params, True)
   (c1,bb1) <- _compile t1
-  setParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params' [1..])
-  fnBody <- return $ [SL fn] ++ setParamsCommands ++ c1 ++ [ST (Return resp)]
+  getParamsCommands <- return $ [SC (GetClosureParam "closure" 0 n)]
+  getParamsCommands <- return $ getParamsCommands ++ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params [1..])
+  getParamsCommands <- return $ getParamsCommands ++ [SC (GetClosureParam "closure" (length getParamsCommands) par)]
+  fnBody <- return $ [SL fn] ++ getParamsCommands ++ c1 ++ [ST (Return resp)]
   (c2,bb2) <- _compile t2
   return (c2, fnBody ++ bb1 ++ bb2)
 

@@ -24,6 +24,6 @@ data Term
   | Let Name Term Term
   | Letrec Name Term Term
   | If Term Term Term
-  | Fn [Name] Term
+  | Fn Name [Name] Term
   | Param Int
   deriving (Eq,Ord,Show,Read)
