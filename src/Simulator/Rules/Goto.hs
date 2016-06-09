@@ -18,6 +18,3 @@ goto (Acqua bb q pus i f s) = Acqua bb q (map executeGoto pus) i f s
            BB _ _ c' t' = lookupBB bb l
            pu' = pu { PU.commands = c', PU.terminator = t', locked = True }
         _ -> pu
-
-
-
