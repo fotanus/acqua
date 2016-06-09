@@ -23,8 +23,8 @@ ifRule (Acqua bb q pus i f s) = Acqua bb q (map executeIf pus) i f s
            Just cenv = Map.lookup ce env
            Just (NumberV val) = Map.lookup x cenv
            BB _ _ c' t'  = if val > 0
-                           then getBB l bb
-                           else getBB (dummy l) bb
+                           then lookupBB bb l
+                           else lookupBB bb (dummy l)
 
            pu' = pu {PU.commands = c', PU.terminator = t', locked = True }
         _ -> pu

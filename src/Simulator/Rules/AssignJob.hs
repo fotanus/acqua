@@ -33,7 +33,7 @@ assignJob acqua =
           ra = returnAddrs pu
           cc = callCount pu
 
-          BB _ _ c t = getBB l bb
+          BB _ _ c t = lookupBB bb l
 
           Job l envId pId' closure x = job
           Queue js qlck = q
