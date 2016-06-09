@@ -73,6 +73,23 @@ newPU n =
         Simulator.ProcessingUnit.locked = False
     }
 
+getVal :: ProcessingUnit -> Name -> Value
+getVal p n =
+  let
+    Just currEnv = Map.lookup (currentEnv p) (environments p)
+    Just val = Map.lookup n currEnv
+  in
+    val
+
+setVal :: ProcessingUnit -> Name -> Value -> ProcessingUnit
+setVal p n v =
+  let
+    Just currEnv = Map.lookup (currentEnv p) (environments p)
+    currEnv' = Map.insert n v currEnv
+    envs' = Map.insert (currentEnv p) currEnv' (environments p)
+  in
+    p { environments = envs' } 
+
 newProcessingUnits :: Int -> [ProcessingUnit]
 newProcessingUnits n = specialPU : (map newPU [1..n])
 

@@ -19,13 +19,8 @@ assignV (Acqua bb q pus i f s) =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((AssignV x v):cs),True) -> trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) pu'
           where
-            ce = currentEnv pu
-            env = environments pu
-            Just cenv = Map.lookup ce env
-            Just val = Map.lookup v cenv
-            cenv' = Map.insert x val cenv
-            env' = Map.insert ce cenv' env
-            puAfterAssign = pu { PU.commands = cs, environments = env', locked = True }
+            val = getVal pu v
+            puAfterAssign = (setVal pu x val) { PU.commands = cs, locked = True }
             pu' = case val of
                 PointerV pt | (V.puId pt) == (PU.puId pu) -> puAfterAssign
                             | otherwise -> error $ "getting stuff form other pu"
@@ -42,12 +37,7 @@ assignL (Acqua bb q pus i f s) =
                               then trace ((show (PU.puId pu)) ++ ": AssignL" ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
-            ce = currentEnv pu
-            env = environments pu
-            Just cenv = Map.lookup ce env
-            cenv' = Map.insert x (LabelV v) cenv
-            env' = Map.insert ce cenv' env
-            pu' = pu { PU.commands = cs, environments = env', locked = True}
+            pu' = (setVal pu x (LabelV v)) { PU.commands = cs, locked = True}
         _ -> pu
 
 assignI:: Rule
@@ -60,11 +50,6 @@ assignI (Acqua bb q pus i f s) =
                                 then trace ((show (PU.puId pu)) ++ ": AssignI " ++ (show x) ++ " " ++ (show v)) pu'
                               else pu
           where
-            ce = currentEnv pu
-            env = environments pu
-            Just cenv = Map.lookup ce env
-            cenv' = Map.insert x (NumberV v) cenv
-            env' = Map.insert ce cenv' env
-            pu' = pu { PU.commands = cs, environments = env', locked = True}
+            pu' = (setVal pu x (NumberV v)) { PU.commands = cs, locked = True}
         _ -> pu
 

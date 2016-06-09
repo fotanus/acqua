@@ -7,7 +7,7 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Heap
+import Simulator.Heap as Heap
 import Simulator.Value
 import Simulator.Closure
 
@@ -21,15 +21,8 @@ getClosureParam (Acqua bb q pus i f s) =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((GetClosureParam x i v):cs),True) -> trace ((show (PU.puId pu)) ++ ": GetClosureParam " ++ (show x) ++ " " ++ (show i) ++ " " ++ (show v)) pu'
           where
-            ce = PU.currentEnv pu
-            envs = PU.environments pu
-            hp = heap pu
-
-            Just cenv = Map.lookup ce envs
-            Just (PointerV pointer) = Map.lookup x cenv
-            Just (ClosureV closure) = Map.lookup (addr pointer) hp
+            PointerV pointer = getVal pu x
+            ClosureV closure = Heap.lookupPt pointer (heap pu)
             val = Sequence.index (params closure) i
-            cenv' = Map.insert v val cenv
-            envs' = Map.insert ce cenv' envs
-            pu' = pu { PU.commands = cs, environments = envs', locked = True }
+            pu' = (setVal pu v val) { PU.commands = cs, locked = True }
         _ -> pu

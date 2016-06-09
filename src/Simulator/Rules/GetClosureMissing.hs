@@ -6,7 +6,7 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Heap
+import Simulator.Heap as Heap
 import Simulator.Value
 import Simulator.Closure
 
@@ -20,14 +20,8 @@ getClosureMissing (Acqua bb q pus i f s) =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((GetClosureMissing x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": GetClosureMissing " ++ (show x) ++ " " ++ (show n)) pu'
           where
-            ce = PU.currentEnv pu
-            envs = PU.environments pu
-
-            Just cenv = Map.lookup ce envs
-            Just (PointerV pointer) = Map.lookup x cenv
-            Just (ClosureV closure) = Map.lookup (addr pointer) (heap pu)
+            PointerV pointer = getVal pu x
+            ClosureV closure = Heap.lookupPt pointer (heap pu)
             missing = (paramMissing closure)
-            cenv' = Map.insert n (NumberV missing) cenv
-            envs' = Map.insert ce cenv' envs
-            pu' = pu { PU.commands = cs, environments = envs', locked = True }
+            pu' = (setVal pu n (NumberV missing)) { PU.commands = cs, locked = True }
         _ -> pu
