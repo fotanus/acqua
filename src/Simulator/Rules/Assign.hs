@@ -7,7 +7,7 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
-import Simulator.Value
+import Simulator.Value as V
 
 import Simulator.Rules.Base
 
@@ -25,7 +25,11 @@ assignV (Acqua bb q pus i f s) =
             Just val = Map.lookup v cenv
             cenv' = Map.insert x val cenv
             env' = Map.insert ce cenv' env
-            pu' = pu { PU.commands = cs, environments = env', locked = True }
+            puAfterAssign = pu { PU.commands = cs, environments = env', locked = True }
+            pu' = case val of
+                PointerV pt | (V.puId pt) == (PU.puId pu) -> puAfterAssign
+                            | otherwise -> error $ "getting stuff form other pu"
+                _ -> puAfterAssign
         _ -> pu
 
 assignL:: Rule
