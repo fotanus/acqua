@@ -1,31 +1,51 @@
 module Simulator.Rules.Assign where
 
 import qualified Data.Map as Map
+import Data.Sequence as Sequence
 import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Environment
+import Simulator.Interconnection
 import Simulator.Value as V
+import Simulator.Heap as Heap
+import Simulator.Closure
 
 import Simulator.Rules.Base
 
 assignV:: Rule
 assignV (Acqua bb q pus i f s) =
-    Acqua bb q (map stepAssignV pus) i f s
+  let (pus',i') = stepAssignV pus i
+  in Acqua bb q pus' i' f s
   where
-    stepAssignV pu =
+    stepAssignV [] i = ([],i)
+    stepAssignV (pu:pus) i =
       case (PU.commands pu,PU.canExecuteCmds pu) of
-        (((AssignV x v):cs),True) -> trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) pu'
+        (((AssignV x v):cs),True) -> trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) ((pu':pus'),i'')
           where
             val = getVal pu v
             puAfterAssign = (setVal pu x val) { PU.commands = cs, locked = True }
-            pu' = case val of
-                PointerV pt | (V.puId pt) == (PU.puId pu) -> puAfterAssign
-                            | otherwise -> error $ "getting stuff form other pu"
-                _ -> puAfterAssign
-        _ -> pu
+            (pus',i'') = (stepAssignV pus i')
+            (pu',i') = case val of
+                PointerV pt | (V.puId pt) == (PU.puId pu) -> (puAfterAssign,i)
+                            | otherwise -> traceShow "AssignV from other PU, starting to copy" (pu'',i'')
+                              where
+                                hp = heap pu
+                                hpPos = Heap.nextFreePos hp
+                                pointer = Pointer (PU.puId pu) hpPos
+                                clos = Closure "" 0 0 (Sequence.replicate 2 (NumberV 0))
+                                hp' = Map.insert hpPos (ClosureV clos) hp
+                                pu'' = (setVal pu x (PointerV pointer)) { PU.commands = cs, heap = hp', enabled = False, locked = True}
+                                m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
+                                i'' = (ConstMsgReqClos m) : i
+                _ -> (puAfterAssign,i)
+        _ ->
+         let
+           (pus',i') = stepAssignV pus i
+         in
+          ((pu:pus'),i')
 
 assignL:: Rule
 assignL (Acqua bb q pus i f s) =

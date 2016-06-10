@@ -6,10 +6,14 @@ import Simulator.ProcessingUnitId
 
 data Message
  = ConstMsgUpdate  MsgUpdate
+ | ConstMsgUpdateClos  MsgUpdateClos
+ | ConstMsgUpdateMetaClos  MsgUpdateMetaClos
  | ConstMsgResponse MsgResponse
  | ConstMsgReqEnv  MsgReqEnv
+ | ConstMsgReqClos MsgReqClos
  | ConstMsgEndCopy MsgEndCopy
  deriving (Show, Eq)
+
 
 data MsgUpdate = MsgUpdate {
   puId :: PId,
@@ -17,6 +21,22 @@ data MsgUpdate = MsgUpdate {
   index :: Int,
   value :: Value
   } deriving (Show, Eq)
+
+data MsgUpdateClos = MsgUpdateClos {
+  puIdC :: PId,
+  pt :: Pointer,
+  indexC :: Int,
+  valueC :: Value
+  } deriving (Show, Eq)
+
+data MsgUpdateMetaClos = MsgUpdateMetaClos {
+  puIdMC :: PId,
+  ptM :: Pointer,
+  fnName :: String,
+  paramCount :: Int,
+  paramMissing :: Int
+  } deriving (Show, Eq)
+
 
 data MsgResponse = MsgResponse {
   puIdR :: PId,
@@ -31,6 +51,13 @@ data MsgReqEnv = MsgReqEnv {
   puIdT :: PId,
   teId  :: EnvId,
   closure :: Name
+} deriving (Show, Eq)
+
+data MsgReqClos = MsgReqClos {
+  puIdSC :: PId,
+  ptS :: Pointer,
+  puIdTC :: PId,
+  ptT :: Pointer
 } deriving (Show, Eq)
 
 

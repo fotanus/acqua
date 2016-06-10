@@ -23,7 +23,7 @@ stepSendEnvMsg (pu:pus) =
   in
     case (outgoingMessageQueue pu) of
       []     -> ((pu:pus'), i')
-      (m:ms) -> trace ((show pId) ++ ": sending message for env copy") $ ((pu':pus'), (m:i'))
+      (m:ms) -> trace ((show pId) ++ ": sending message " ++ (show m)) $ ((pu':pus'), (m:i'))
         where
           pId = PU.puId pu
           pu' = pu { outgoingMessageQueue = ms }

@@ -8,11 +8,14 @@ import Simulator.Rules.If
 import Simulator.Rules.Goto
 import Simulator.Rules.ReceiveResponse
 import Simulator.Rules.ReceiveUpdate
+import Simulator.Rules.ReceiveUpdateClos
+import Simulator.Rules.ReceiveUpdateMetaClos
 import Simulator.Rules.Resume
 import Simulator.Rules.Call
 import Simulator.Rules.Wait
 import Simulator.Rules.Op
 import Simulator.Rules.ReqEnv
+import Simulator.Rules.ReqClos
 import Simulator.Rules.SendEnvMsg
 import Simulator.Rules.EndCopy
 
@@ -35,7 +38,7 @@ rules = [
   assignV, assignL, assignI, returnTerminator, resume, wait, op, ifRule, goto,
   newClosure, setClosureFn, setClosureMissingI, setClosureCountI, setClosureParam, getClosureParam,
   setClosureParamIL, setClosureParamI, getClosureMissing, getClosureCount, setClosureCount, setClosureMissing,
-  receiveResponse, receiveUpdate, endCopy,
-  call, sendEnvMsg, reqEnv, assignJob
+  receiveResponse, receiveUpdate, receiveUpdateClos, receiveUpdateMetaClos, endCopy,
+  call, sendEnvMsg, reqEnv, reqClos, assignJob
   ]
 
