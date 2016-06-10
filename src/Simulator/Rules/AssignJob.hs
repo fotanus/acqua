@@ -48,7 +48,7 @@ assignJob acqua =
           -- add closure on heap
           hpPos = Map.size hp
           hp' = Map.insert hpPos (ClosureV (Closure "receivedClosure" 0 0 emptyParams)) hp
-          emptyParams = Seq.replicate 2 (NumberV 0)
+          emptyParams = Seq.replicate 5 (NumberV 0)
 
           -- create env with pointer to closure
           pt = PointerV $ Pointer pId hpPos

@@ -35,7 +35,7 @@ assignV (Acqua bb q pus i f s) =
                                 hp = heap pu
                                 hpPos = Heap.nextFreePos hp
                                 pointer = Pointer (PU.puId pu) hpPos
-                                clos = Closure "" 0 0 (Sequence.replicate 2 (NumberV 0))
+                                clos = Closure "" 0 0 (Sequence.replicate 5 (NumberV 0))
                                 hp' = Map.insert hpPos (ClosureV clos) hp
                                 pu'' = (setVal pu x (PointerV pointer)) { PU.commands = cs, heap = hp', enabled = False, locked = True}
                                 m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
