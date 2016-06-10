@@ -19,7 +19,7 @@ setClosureParamI (Acqua bb q pus i f s) =
   where
     stepSetClosureParamI pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
-        (((SetClosureParamI x idx v):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetClosureParamI " ++ (show x) ++ " " ++ (show i) ++ " " ++ (show v)) pu'
+        (((SetClosureParamI x idx v):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetClosureParamI " ++ (show x) ++ " " ++ (show idx) ++ " " ++ (show v)) pu'
           where
             ce = PU.currentEnv pu
             envs = PU.environments pu
@@ -28,7 +28,7 @@ setClosureParamI (Acqua bb q pus i f s) =
             Just cenv = Map.lookup ce envs
             Just (PointerV pointer) = Map.lookup x cenv
             Just (ClosureV closure) = Map.lookup (addr pointer) hp
-            Just val = Map.lookup v cenv
+            Just val = traceShow cenv $ Map.lookup v cenv
             params' = Sequence.update idx val (params closure)
             closure' = closure { params = params' }
             hp' = Map.insert (addr pointer) (ClosureV closure') hp

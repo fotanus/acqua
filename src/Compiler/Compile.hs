@@ -82,6 +82,7 @@ _compile (App t1 t2) = do
   envs <- return  [
                     SC (AssignV "param" resp),
                     SC (AssignI "one" 1),
+                    SC (AssignV closureIdent' closureIdent'),
                     SC (GetClosureMissing closureIdent' "missing"),
                     SC (GetClosureCount closureIdent' "count"),
                     SC (IR.Op "missing" IR.Sub "one"),

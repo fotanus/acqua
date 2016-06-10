@@ -19,7 +19,7 @@ receiveUpdateClos acqua  =
   let
     Acqua bb q pus i f s = acqua
   in case i of
-      ((ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val)):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateClos")  $ Acqua bb q pus' ms f s
+      ((ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val)):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateClos, now it is " ++ (show closur'))  $ Acqua bb q pus' ms f s
         where
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           hp = heap pu

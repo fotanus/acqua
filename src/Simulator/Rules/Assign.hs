@@ -30,7 +30,7 @@ assignV (Acqua bb q pus i f s) =
             (pus',i'') = (stepAssignV pus i')
             (pu',i') = case val of
                 PointerV pt | (V.puId pt) == (PU.puId pu) -> (puAfterAssign,i)
-                            | otherwise -> traceShow "AssignV from other PU, starting to copy" (pu'',i'')
+                            | otherwise -> traceShow ("AssignV from other PU, starting to copy " ++ (show pt)) (pu'',i'')
                               where
                                 hp = heap pu
                                 hpPos = Heap.nextFreePos hp

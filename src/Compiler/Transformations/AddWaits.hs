@@ -5,7 +5,7 @@ import Debug.Trace
 
 -- Function that should be called to add the waits in a program
 addWaits :: IR.Program -> IR.Program
-addWaits p = addWaitCommands p (blocksToWait p)
+addWaits p = addWaitCommands p (traceShowId $ blocksToWait p)
 
 -- Given a program, gets the basic blocks which contain at least one call command.
 -- Due to the compilation, those blocks are always a call followed by a goto.
@@ -83,19 +83,38 @@ addWaitCommands p ((l,n):bbs) =
     insertWait [] _ = []
     insertWait (c:cs) name =
         case c of
-        Wait          -> c:cs
-        AssignI n _   -> if name == n
-                         then Wait:c:cs
-                         else c:(insertWait cs name)
-        AssignL n _   -> if name == n
-                         then Wait:c:cs
-                         else c:(insertWait cs name)
-        AssignV n1 n2 -> if name == n1 || name == n2
-                         then Wait:c:cs
-                         else c:(insertWait cs name)
-        IR.Op n1 _ n2 -> if name == n1 || name == n2
-                         then Wait:c:cs
-                         else c:(insertWait cs name)
+        Wait                  -> c:cs
+        AssignI n _           -> if name == n
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+        AssignL n _           -> if name == n
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+        AssignV n1 n2         -> if name == n1 || name == n2
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+        IR.Op n1 _ n2         -> if name == n1 || name == n2
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+        GetClosureFn n _      -> if name == n
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+        GetClosureMissing n _ -> if name == n
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+        GetClosureCount n _   -> if name == n
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+        SetClosureFn n _      -> if name == n
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+        SetClosureMissing n _ -> if name == n
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+        SetClosureCount n _   -> if name == n
+                                 then Wait:c:cs
+                                 else c:(insertWait cs name)
+
         _ -> c:(insertWait cs name)
 
     -- This function assumes that the wait could not be add on a basic block with label l,

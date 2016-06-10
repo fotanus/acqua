@@ -14,18 +14,19 @@ fromL1 (L1.Op t1 op t2) = UL1.Op (fromL1 t1) (opFromL1 op) (fromL1 t2)
 fromL1 (L1.App t1 t2) = UL1.App (fromL1 t1) (fromL1 t2)
 fromL1 (L1.Let n t1 t2) = UL1.Let n (fromL1 t1) (fromL1 t2)
 fromL1 (L1.Letrec n t1 t2) = UL1.Letrec n (fromL1 t1) (fromL1 t2)
-fromL1 (L1.Fn n t) = UL1.Fn n (delete n (nub (freeVariables t))) (fromL1 t)
+fromL1 (L1.Fn n t) = UL1.Fn n (nub (freeVariables t [n])) (fromL1 t)
 
--- Given a term from L1, look for all variable names that occur inside it
-freeVariables :: L1.Term -> [L1.Name]
-freeVariables (L1.Num _) = []
-freeVariables (L1.Ident n) = [n]
-freeVariables (L1.If t1 t2 t3) = (freeVariables t1) ++ (freeVariables t2) ++ (freeVariables t3)
-freeVariables (L1.Op t1 _ t2) = (freeVariables t1) ++ (freeVariables t2)
-freeVariables (L1.App t1 t2) = (freeVariables t1) ++ (freeVariables t2)
-freeVariables (L1.Let _ t1 t2) = (freeVariables t1) ++ (freeVariables t2)
-freeVariables (L1.Letrec _ t1 t2) = (freeVariables t1) ++ (freeVariables t2)
-freeVariables (L1.Fn _ t) = (freeVariables t)
+-- Given a term from L1, look for all variable names that occur inside it, except the ones in the black list.
+-- The blacklist is there to avoid adding variables that are actually parameters for the inside functions.
+freeVariables :: L1.Term -> [L1.Name] -> [L1.Name]
+freeVariables (L1.Num _) _ = []
+freeVariables (L1.Ident n) bl = if n `elem` bl then [] else [n]
+freeVariables (L1.If t1 t2 t3) bl = (freeVariables t1 bl) ++ (freeVariables t2 bl) ++ (freeVariables t3 bl)
+freeVariables (L1.Op t1 _ t2) bl = (freeVariables t1 bl) ++ (freeVariables t2 bl)
+freeVariables (L1.App t1 t2) bl = (freeVariables t1 bl) ++ (freeVariables t2 bl)
+freeVariables (L1.Let _ t1 t2) bl = (freeVariables t1 bl) ++ (freeVariables t2 bl)
+freeVariables (L1.Letrec _ t1 t2) bl = (freeVariables t1 bl) ++ (freeVariables t2 bl)
+freeVariables (L1.Fn n t) bl = (freeVariables t (n:bl))
 
 
 -- Simple function that transforms L1 operators to UL1 operators.
