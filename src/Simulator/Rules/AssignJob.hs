@@ -19,13 +19,10 @@ import Simulator.Rules.Base
 
 assignJob :: Rule
 assignJob acqua =
-  let
-    Acqua bb q pus i ff s = acqua
-  in
-    case (getAvailable pus, firstOf (jobs q)) of
-      (Just pu, Just job) ->
-        trace ((show (PU.puId pu)) ++ ": assignJob ") $ Acqua bb q' pus' i' ff s'
+    case (getAvailable (processingUnits acqua), firstOf (jobs (queue acqua))) of
+      (Just pu, Just job) -> trace ((show (PU.puId pu)) ++ ": assignJob ") $ Acqua bb q' pus' i' ff s'
         where
+          Acqua bb q pus i ff s = acqua
           pus' = updatePU pus pu'
           pId = PU.puId pu
           env = environments pu
@@ -70,20 +67,11 @@ assignJob acqua =
             enabled = False,
             PU.locked = True
           }
-      (_,_)-> acqua
-
-
-getNextEnvId :: Map.Map String StateValue -> (EnvId, Map.Map String StateValue)
-getNextEnvId s = (nextEnvId,s')
-  where
-    Just (IntVal count) = Map.lookup "envId" s
-    s' = Map.insert "envId" (IntVal (count+1)) s
-    nextEnvId = "env_" ++ (show count)
+      (_,_) -> acqua
 
 firstOf :: [Job] -> Maybe Job
 firstOf [] = Nothing
 firstOf q = Just (head q)
-
 
 getAvailable :: [ProcessingUnit] -> Maybe ProcessingUnit
 getAvailable [] = Nothing

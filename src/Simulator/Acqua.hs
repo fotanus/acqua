@@ -14,8 +14,14 @@ data StateValue = IntVal Int
 
 type AcquaState = Map.Map String StateValue
 
-data Acqua = Acqua Program Queue [ProcessingUnit] Interconnection FinishFlag AcquaState
-  deriving (Show,Eq)
+data Acqua = Acqua {
+  program :: Program,
+  queue :: Queue,
+  processingUnits :: [ProcessingUnit],
+  interconnection :: Interconnection,
+  finishFlag :: FinishFlag,
+  acquaState :: AcquaState
+} deriving (Show,Eq)
 
 statesDefault :: AcquaState
 statesDefault = Map.fromList [
@@ -29,6 +35,13 @@ newAcqua p n = Acqua p queue processingUnits newInterconnection False statesDefa
     processingUnits = newProcessingUnits n
     specialProcessingUnit = head processingUnits
     queue = newQueue specialProcessingUnit
+
+getNextEnvId :: Map.Map String StateValue -> (EnvId, Map.Map String StateValue)
+getNextEnvId s = (nextEnvId,s')
+  where
+    Just (IntVal count) = Map.lookup "envId" s
+    s' = Map.insert "envId" (IntVal (count+1)) s
+    nextEnvId = "env_" ++ (show count)
 
 unlockAll :: Acqua -> Acqua
 unlockAll (Acqua bb q pus i ff s)
