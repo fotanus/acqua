@@ -13,9 +13,9 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 setClosureCount :: Rule
-setClosureCount (Acqua bb q pus i f s) =
-    Acqua bb q (map stepSetClosureCount pus) i f s
+setClosureCount acqua = acqua { processingUnits = newPus }
   where
+    newPus = map stepSetClosureCount (processingUnits acqua)
     stepSetClosureCount pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((SetClosureCount x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetClosureCount " ++ (show x) ++ " " ++ (show n)) pu'

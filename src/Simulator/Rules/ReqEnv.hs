@@ -18,11 +18,10 @@ import Simulator.Rules.Base
 
 reqEnv :: Rule
 reqEnv acqua  =
-  let
-    Acqua bb q pus i f s = acqua
-  in case i of
-      ((ConstMsgReqEnv (MsgReqEnv pIdS mjsId pIdT mteId closureName)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqEnv")  $ Acqua bb q pus' ms f s
+  case (interconnection acqua) of
+      ((ConstMsgReqEnv (MsgReqEnv pIdS mjsId pIdT mteId closureName)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqEnv")  $ acqua { processingUnits = pus', interconnection = ms }
         where
+          pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pIdT) pus
 
           omq = outgoingMessageQueue pu

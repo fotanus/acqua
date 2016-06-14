@@ -14,9 +14,9 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 setClosureParam :: Rule
-setClosureParam (Acqua bb q pus ic f s) =
-    Acqua bb q (map stepSetClosureParam pus) ic f s
+setClosureParam acqua = acqua { processingUnits = newPus }
   where
+    newPus = map stepSetClosureParam (processingUnits acqua)
     stepSetClosureParam pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((SetClosureParam x i v):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetClosureParam " ++ (show x) ++ " " ++ (show i) ++ " " ++ (show v)) pu'

@@ -8,12 +8,12 @@ import Simulator.Interconnection
 
 import Simulator.Rules.Base
 
-
 sendEnvMsg :: Rule
-sendEnvMsg (Acqua bb q pus i f s) =
-    Acqua bb q pus' (i++i') f s
+sendEnvMsg acqua =
+    acqua { processingUnits = pus', interconnection = i ++ i' }
   where
-    (pus', i') = stepSendEnvMsg pus
+    i = interconnection acqua
+    (pus', i') = stepSendEnvMsg (processingUnits acqua)
 
 stepSendEnvMsg :: [ProcessingUnit] -> ([ProcessingUnit], Interconnection)
 stepSendEnvMsg [] = ([],[])

@@ -15,9 +15,9 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 assignV:: Rule
-assignV (Acqua bb q processingunits ic f s) =
-  let (pus',ic') = stepAssignV processingunits ic
-  in Acqua bb q pus' ic' f s
+assignV acqua =
+  let (pus',ic') = stepAssignV (processingUnits acqua) (interconnection acqua)
+  in acqua { processingUnits = pus', interconnection = ic' }
   where
     stepAssignV [] i = ([],i)
     stepAssignV (pu:pus) i =

@@ -12,10 +12,11 @@ import Simulator.Rules.Base
 endCopy :: Rule
 endCopy acqua  =
   let
-    Acqua bb q pus i f s = acqua
+    i = interconnection acqua
   in case i of
-      ((ConstMsgEndCopy (MsgEndCopy pId)):ms) -> trace ((show (PU.puId pu)) ++ ": receive endCopy")  $ Acqua bb q pus' ms f s
+      ((ConstMsgEndCopy (MsgEndCopy pId)):ms) -> trace ((show (PU.puId pu)) ++ ": receive endCopy")  $ acqua { processingUnits = pus', interconnection = ms }
         where
+          pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           pu' = pu { enabled = True }
           pus' = updatePU pus pu'

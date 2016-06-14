@@ -18,11 +18,10 @@ import Simulator.Rules.Base
 
 reqClos :: Rule
 reqClos acqua  =
-  let
-    Acqua bb q pus i f s = acqua
-  in case i of
-      ((ConstMsgReqClos (MsgReqClos pIdS ptSrc pIdT ptTrg)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqClos")  $ Acqua bb q pus' ms f s
+  case (interconnection acqua) of
+      ((ConstMsgReqClos (MsgReqClos pIdS ptSrc pIdT ptTrg)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqClos")  $ acqua { processingUnits = pus', interconnection = ms }
         where
+          pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pIdT) pus
           omq' = (outgoingMessageQueue pu) ++ newMessages
           newMessages = updMetaMsg ++ updMsgs ++ [endMsg]

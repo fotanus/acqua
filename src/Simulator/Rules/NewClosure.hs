@@ -14,9 +14,9 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 newClosure :: Rule
-newClosure (Acqua bb q pus i f s) =
-    Acqua bb q (map stepNewClosure pus) i f s
+newClosure acqua = acqua { processingUnits = newPus }
   where
+    newPus = map stepNewClosure (processingUnits acqua)
     stepNewClosure pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((NewClosure x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": NewClosure " ++ (show x) ++ " " ++ (show n)) pu'

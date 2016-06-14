@@ -10,9 +10,9 @@ import Simulator.Value
 import Simulator.Rules.Base
 
 op :: Rule
-op (Acqua bb q pus i f s) =
-    Acqua bb q (map stepOp pus) i f s
+op acqua = acqua { processingUnits = newPus }
   where
+    newPus = map stepOp (processingUnits acqua)
     stepOp pu =
       case (PU.commands pu, PU.canExecuteCmds pu) of
         ((Op x1 opc x2):cs, True) -> trace ((show (PU.puId pu)) ++ ": OP") pu''

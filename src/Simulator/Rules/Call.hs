@@ -14,10 +14,10 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 call :: Rule
-call (Acqua bb q pus i f s) =
-    Acqua bb q' pus' i f s
+call acqua =
+    acqua { queue = q', processingUnits = pus' }
   where
-    (q', pus') = stepCall q pus s
+    (q', pus') = stepCall (queue acqua) (processingUnits acqua) (acquaState acqua)
 
 stepCall :: Queue -> [ProcessingUnit] -> Map.Map String StateValue -> (Queue, [ProcessingUnit])
 stepCall q [] _ = (q,[])

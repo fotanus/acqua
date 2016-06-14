@@ -10,9 +10,9 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Rules.Base
 
 wait :: Rule
-wait (Acqua bb q pus i f s) =
-    Acqua bb q (map stepWait pus) i f s
+wait acqua = acqua { processingUnits = newPus }
   where
+    newPus = map stepWait (processingUnits acqua)
     stepWait pu =
       case (PU.commands pu, PU.canExecuteCmds pu) of
         (Wait:cs, True) -> trace ((show (PU.puId pu)) ++ ": Wait") pu'

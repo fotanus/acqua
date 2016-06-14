@@ -11,12 +11,11 @@ import Simulator.Interconnection
 import Simulator.Rules.Base
 
 receiveResponse :: Rule
-receiveResponse acqua  =
-  let
-    Acqua bb q pus i _ s = acqua
-  in case i of
-      ((ConstMsgResponse (MsgResponse pId envId x v)):ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ Acqua bb q pus' ms f' s
+receiveResponse acqua =
+  case (interconnection acqua) of
+      ((ConstMsgResponse (MsgResponse pId envId x v)):ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ acqua { processingUnits = pus', interconnection = ms, finishFlag = f' }
         where
+          pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           env = environments pu
           cc = callCount pu

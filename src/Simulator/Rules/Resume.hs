@@ -11,9 +11,9 @@ import Simulator.Rules.Base
 
 
 resume :: Rule
-resume (Acqua bb q pus i f s) =
-    Acqua bb q (map stepResume pus) i f s
+resume acqua = acqua { processingUnits = newPus }
   where
+    newPus = map stepResume (processingUnits acqua)
     stepResume pu =
       let
         t = PU.terminator pu

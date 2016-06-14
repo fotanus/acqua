@@ -11,10 +11,10 @@ import Simulator.Interconnection
 import Simulator.Rules.Base
 
 returnTerminator :: Rule
-returnTerminator (Acqua bb q pus i f s) =
-    Acqua bb q pus' i' f s
+returnTerminator acqua =
+    acqua { processingUnits = pus', interconnection = i' }
   where
-    (i', pus') = stepReturn i pus
+    (i', pus') = stepReturn (interconnection acqua) (processingUnits acqua)
 
 stepReturn :: Interconnection -> [ProcessingUnit] -> (Interconnection, [ProcessingUnit])
 stepReturn i [] = (i,[])

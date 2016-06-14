@@ -13,9 +13,9 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 setClosureFn :: Rule
-setClosureFn (Acqua bb q pus i f s) =
-    Acqua bb q (map stepSetClosureFn pus) i f s
+setClosureFn acqua = acqua { processingUnits = newPus }
   where
+    newPus = map stepSetClosureFn (processingUnits acqua)
     stepSetClosureFn pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((SetClosureFn x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetClosureFn " ++ (show x) ++ " " ++ (show n)) pu'

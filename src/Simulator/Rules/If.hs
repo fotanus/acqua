@@ -11,8 +11,10 @@ import Simulator.Value
 import Simulator.Rules.Base
 
 ifRule :: Rule
-ifRule (Acqua bb q pus i f s) = Acqua bb q (map executeIf pus) i f s
+ifRule acqua = acqua { processingUnits = newPus }
   where
+    newPus = map executeIf (processingUnits acqua)
+    bb = program acqua
     executeIf pu =
       case (PU.commands pu,PU.terminator pu, PU.canExecuteCmds pu) of
         ([], If x l, True) -> trace ((show (PU.puId pu))++": " ++ (show (currentEnv pu)) ++ "if " ++ x ++ " goto " ++ l ++ "( x = " ++ (show val) ++ ")") pu'

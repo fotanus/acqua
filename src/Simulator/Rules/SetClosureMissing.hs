@@ -13,9 +13,9 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 setClosureMissing :: Rule
-setClosureMissing (Acqua bb q pus i f s) =
-    Acqua bb q (map stepSetClosureMissing pus) i f s
+setClosureMissing acqua = acqua { processingUnits = newPus }
   where
+    newPus = map stepSetClosureMissing (processingUnits acqua)
     stepSetClosureMissing pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((SetClosureMissing x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetClosureMissing " ++ (show x) ++ " " ++ (show n)) pu'

@@ -15,12 +15,11 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 receiveUpdateClos :: Rule
-receiveUpdateClos acqua  =
-  let
-    Acqua bb q pus i f s = acqua
-  in case i of
-      ((ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val)):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateClos, now it is " ++ (show closur'))  $ Acqua bb q pus' ms f s
+receiveUpdateClos acqua =
+  case (interconnection acqua) of
+      ((ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val)):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateClos, now it is " ++ (show closur'))  $ acqua { processingUnits = pus', interconnection = ms }
         where
+          pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           hp = heap pu
 
