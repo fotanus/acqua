@@ -21,17 +21,17 @@ reqClos acqua  =
   let
     Acqua bb q pus i f s = acqua
   in case i of
-      ((ConstMsgReqClos (MsgReqClos pIdS ptS pIdT ptT)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqClos")  $ Acqua bb q pus' ms f s
+      ((ConstMsgReqClos (MsgReqClos pIdS ptSrc pIdT ptTrg)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqClos")  $ Acqua bb q pus' ms f s
         where
           Just pu = Data.List.find (\p -> (PU.puId p) == pIdT) pus
           omq' = (outgoingMessageQueue pu) ++ newMessages
           newMessages = updMetaMsg ++ updMsgs ++ [endMsg]
           endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS))
           updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params closur)
-          updMetaMsg = [ConstMsgUpdateMetaClos (MsgUpdateMetaClos pIdS ptS (functionName closur) (Closure.paramCount closur) (Closure.paramMissing closur))]
-          Just (ClosureV closur) = Map.lookup (addr ptT) (heap pu)
+          updMetaMsg = [ConstMsgUpdateMetaClos (MsgUpdateMetaClos pIdS ptSrc (functionName closur) (Closure.paramCount closur) (Closure.paramMissing closur))]
+          Just (ClosureV closur) = Map.lookup (addr ptTrg) (heap pu)
           idxValToMsg idx val =
-              ConstMsgUpdateClos (MsgUpdateClos pIdS ptS idx val)
+              ConstMsgUpdateClos (MsgUpdateClos pIdS ptSrc idx val)
 
           pu' = pu { outgoingMessageQueue = omq', locked = True }
           pus' = updatePU pus pu'

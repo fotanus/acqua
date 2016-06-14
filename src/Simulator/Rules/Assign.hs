@@ -7,7 +7,6 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Environment
 import Simulator.Interconnection
 import Simulator.Value as V
 import Simulator.Heap as Heap
@@ -16,9 +15,9 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 assignV:: Rule
-assignV (Acqua bb q pus i f s) =
-  let (pus',i') = stepAssignV pus i
-  in Acqua bb q pus' i' f s
+assignV (Acqua bb q processingunits ic f s) =
+  let (pus',ic') = stepAssignV processingunits ic
+  in Acqua bb q pus' ic' f s
   where
     stepAssignV [] i = ([],i)
     stepAssignV (pu:pus) i =
@@ -30,7 +29,7 @@ assignV (Acqua bb q pus i f s) =
             (pus',i'') = (stepAssignV pus i')
             (pu',i') = case val of
                 PointerV pt | (V.puId pt) == (PU.puId pu) -> (puAfterAssign,i)
-                            | otherwise -> traceShow ("AssignV from other PU, starting to copy " ++ (show pt)) (pu'',i'')
+                            | otherwise -> traceShow ("AssignV from other PU, starting to copy " ++ (show pt)) (pu'',i''')
                               where
                                 hp = heap pu
                                 hpPos = Heap.nextFreePos hp
@@ -39,7 +38,7 @@ assignV (Acqua bb q pus i f s) =
                                 hp' = Map.insert hpPos (ClosureV clos) hp
                                 pu'' = (setVal pu x (PointerV pointer)) { PU.commands = cs, heap = hp', enabled = False, locked = True}
                                 m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
-                                i'' = (ConstMsgReqClos m) : i
+                                i''' = (ConstMsgReqClos m) : i
                 _ -> (puAfterAssign,i)
         _ ->
          let

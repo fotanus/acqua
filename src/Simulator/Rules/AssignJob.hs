@@ -12,7 +12,6 @@ import Simulator.Queue
 import Simulator.Interconnection
 import Simulator.Value
 import Simulator.Closure
-import Simulator.Environment
 import Simulator.Heap
 
 import Simulator.Rules.Base
@@ -32,7 +31,7 @@ assignJob acqua =
 
           BB _ _ c t = lookupBB bb l
 
-          Job l envId pId' closure x = job
+          Job l envId pId' closur x = job
           Queue js qlck = q
           jobs' = List.delete job js
 
@@ -42,7 +41,7 @@ assignJob acqua =
           cc' = Map.insert newEnvId 0 cc
 
           -- add message
-          m = MsgReqEnv pId newEnvId pId' envId closure
+          m = MsgReqEnv pId newEnvId pId' envId closur
           i' = (ConstMsgReqEnv m) : i
 
           -- add closure on heap

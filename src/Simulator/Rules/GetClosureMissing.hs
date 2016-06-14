@@ -1,6 +1,5 @@
 module Simulator.Rules.GetClosureMissing where
 
-import qualified Data.Map as Map
 import Logger
 
 import AcquaIR.Language as IR

@@ -29,7 +29,7 @@ _compile (Ident n) = do
     c <- getClosureInfo n
     return $ case c of
                Nothing -> ([SC (AssignV resp n)],[])
-               Just (fn,n,vars,False) -> ([
+               Just (fn,_,vars,False) -> ([
                            SC (NewClosure "closure" ((length vars')+1)),
                            SC (SetClosureFn "closure" fn)
                          ] ++ freeVarsSetParams ++ [
@@ -40,7 +40,7 @@ _compile (Ident n) = do
                         where
                           vars' = if null vars then [] else tail vars
                           freeVarsSetParams = map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip vars [0..])
-               Just (fn,n,vars,True) -> ([
+               Just (fn,_,vars,True) -> ([
                            SC (NewClosure "closure" ((length vars')+2)),
                            SC (SetClosureFn "closure" fn),
                            SC (SetClosureParamIL "closure" 0 fn)
@@ -141,14 +141,14 @@ _compile (Let n t1 t2) = do
 
 _compile (Letrec n (Fn par params t1) t2) = do
   _ <- addKnownVars n
-  params <- return $ delete n params
+  params' <- return $ delete n params
   fn <- nextFnLabel
-  _ <- setClosureInfo n (fn, n, params, True)
+  _ <- setClosureInfo n (fn, n, params', True)
   (c1,bb1) <- _compile t1
   getParamsCommands <- return $ [SC (GetClosureParam "closure" 0 n)]
-  getParamsCommands <- return $ getParamsCommands ++ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params [1..])
-  getParamsCommands <- return $ getParamsCommands ++ [SC (GetClosureParam "closure" (length getParamsCommands) par)]
-  fnBody <- return $ [SL fn] ++ getParamsCommands ++ c1 ++ [ST (Return resp)]
+  getParamsCommands' <- return $ getParamsCommands ++ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params' [1..])
+  getParamsCommands'' <- return $ getParamsCommands' ++ [SC (GetClosureParam "closure" (length getParamsCommands') par)]
+  fnBody <- return $ [SL fn] ++ getParamsCommands'' ++ c1 ++ [ST (Return resp)]
   (c2,bb2) <- _compile t2
   return (c2, fnBody ++ bb1 ++ bb2)
 

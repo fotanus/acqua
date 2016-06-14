@@ -11,13 +11,13 @@ addWaits p = addWaitCommands p (traceShowId $ blocksToWait p)
 -- Due to the compilation, those blocks are always a call followed by a goto.
 blocksWithCall :: IR.Program -> [BasicBlock]
 blocksWithCall [] = []
-blocksWithCall (bb:bbs) =
+blocksWithCall (bb:basicblocks) =
   let
     callFold c = (|| case c of {Call _ _ -> True; _ -> False})
   in
     if foldr callFold False (commands bb)
-    then bb:(blocksWithCall bbs)
-    else blocksWithCall bbs
+    then bb:(blocksWithCall basicblocks)
+    else blocksWithCall basicblocks
 
 
 -- for a given block which contains the call command, extract the block that will
@@ -33,15 +33,6 @@ blocksToWait prog = map extractLabelAndVar (blocksWithCall prog)
         Goto l = terminator bb
         Call v _ = last (commands bb)
 
-    getFristAssignVar l []       = error $ "Can't find label " ++ l ++ " on program"
-    getFirstAssignVar l (bb:bbs) = if (label bb) == l
-                                   then case (head (commands bb)) of
-                                        AssignV var _ -> var
-                                        _             -> error $ "Block " ++ l ++ " do not start with an assignment"
-                                   else getFirstAssignVar l bbs
-
-
-
 -- For a given program and a set of labels and names, go through the basic blocks with the given
 -- labels and add wait before the respectively variable is used. It is possible that a wait
 -- should not be add on the same basic block given, for instance, there is a if before the variable
@@ -49,23 +40,23 @@ blocksToWait prog = map extractLabelAndVar (blocksWithCall prog)
 -- blocks
 addWaitCommands :: IR.Program -> [(Label,Name)] -> IR.Program
 addWaitCommands p []          = p
-addWaitCommands p ((l,n):bbs) =
+addWaitCommands p ((lab,name):basicblocks) =
     addWaitCommands p' bbs'
   where
     hasWait [] = False
     hasWait (c:cs) = if c == Wait then True else hasWait cs
 
-    p' = addWaitOnBlock l p n
-    bbs' = if p == p' && not (hasWait (commands (lookupBB p' l)))
-           then (checkForExtraBlocks l p n) ++ bbs
-           else bbs
+    p' = addWaitOnBlock lab p name
+    bbs' = if p == p' && not (hasWait (commands (lookupBB p' lab)))
+           then (checkForExtraBlocks lab p name) ++ basicblocks
+           else basicblocks
 
 
 
     -- for a given label, finds the block and add the wait command on it.
     -- This function only goes through the basic blocks and delegate the actual
     -- work for other functions
-    addWaitOnBlock l [] n       = error "Basic block not found"
+    addWaitOnBlock _ [] _       = error "Basic block not found"
     addWaitOnBlock l (bb:bbs) n = if (label bb) == l
                                   then (addWaitCommand bb n):bbs
                                   else bb:(addWaitOnBlock l bbs n)
@@ -81,39 +72,39 @@ addWaitCommands p ((l,n):bbs) =
 
     -- insert a wait command on the command list if applicable
     insertWait [] _ = []
-    insertWait (c:cs) name =
+    insertWait (c:cs) varName =
         case c of
         Wait                  -> c:cs
-        AssignI n _           -> if name == n
+        AssignI n _           -> if varName == n
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
-        AssignL n _           -> if name == n
+                                 else c:(insertWait cs varName)
+        AssignL n _           -> if varName == n
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
-        AssignV n1 n2         -> if name == n1 || name == n2
+                                 else c:(insertWait cs varName)
+        AssignV n1 n2         -> if varName == n1 || varName == n2
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
-        IR.Op n1 _ n2         -> if name == n1 || name == n2
+                                 else c:(insertWait cs varName)
+        IR.Op n1 _ n2         -> if varName == n1 || varName == n2
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
-        GetClosureFn n _      -> if name == n
+                                 else c:(insertWait cs varName)
+        GetClosureFn n _      -> if varName == n
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
-        GetClosureMissing n _ -> if name == n
+                                 else c:(insertWait cs varName)
+        GetClosureMissing n _ -> if varName == n
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
-        GetClosureCount n _   -> if name == n
+                                 else c:(insertWait cs varName)
+        GetClosureCount n _   -> if varName == n
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
-        SetClosureFn n _      -> if name == n
+                                 else c:(insertWait cs varName)
+        SetClosureFn n _      -> if varName == n
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
-        SetClosureMissing n _ -> if name == n
+                                 else c:(insertWait cs varName)
+        SetClosureMissing n _ -> if varName == n
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
-        SetClosureCount n _   -> if name == n
+                                 else c:(insertWait cs varName)
+        SetClosureCount n _   -> if varName == n
                                  then Wait:c:cs
-                                 else c:(insertWait cs name)
+                                 else c:(insertWait cs varName)
 
         _ -> c:(insertWait cs name)
 
@@ -125,7 +116,8 @@ addWaitCommands p ((l,n):bbs) =
     checkForExtraBlocks l (bb:bbs) n = if (label bb) == l
                                        then case (terminator bb) of
                                             Return _ -> []
-                                            Goto lab -> traceShow ("Adicionando " ++ lab) $ [(lab,n)]
-                                            If _ lab -> traceShow ("Adicionando " ++ lab ++ " e " ++ (label (head bbs))) $ [(lab,n), ((label (head bbs)),n)]
+                                            Goto l' -> traceShow ("Adicionando " ++ l') $ [(l',n)]
+                                            If _ l' -> traceShow ("Adicionando " ++ l' ++ " e " ++ (label (head bbs))) $ [(l',n), ((label (head bbs)),n)]
+                                            Empty -> error "block ends with emtpy"
                                        else checkForExtraBlocks l bbs n
 

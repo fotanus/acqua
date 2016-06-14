@@ -30,11 +30,11 @@ statesDefault = Map.fromList [
   ]
 
 newAcqua :: Program -> Int -> Acqua
-newAcqua p n = Acqua p queue processingUnits newInterconnection False statesDefault
+newAcqua p n = Acqua p q pus newInterconnection False statesDefault
   where
-    processingUnits = newProcessingUnits n
-    specialProcessingUnit = head processingUnits
-    queue = newQueue specialProcessingUnit
+    pus = newProcessingUnits n
+    specialProcessingUnit = head pus
+    q = newQueue specialProcessingUnit
 
 getNextEnvId :: Map.Map String StateValue -> (EnvId, Map.Map String StateValue)
 getNextEnvId s = (nextEnvId,s')

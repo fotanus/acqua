@@ -14,7 +14,7 @@ _eliminateCallVars (bb:bbs) p =
     if null (commands bb)
       then _eliminateCallVars bbs p
       else case last (commands bb) of
-         Call resp closure -> case terminator bb of
+         Call _ closure -> case terminator bb of
                               Goto l ->
                                 let back = lookupBB p l
                                 in if null (commands back)
@@ -26,6 +26,8 @@ _eliminateCallVars (bb:bbs) p =
                                             p' = updateBB newBack $ updateBB newCall p
                                             newCall = bb { commands = (head (commands bb)):[Call var closure] }
                                             newBack = back { commands = tail (commands back) }
+                                        _ -> error "first command on call block must be 'resp ='"
+                              _ -> error "call block must end with goto"
          _ -> _eliminateCallVars bbs p
 
 eliminateVarsOnBB :: IR.Program -> IR.Program

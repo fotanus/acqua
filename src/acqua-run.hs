@@ -1,7 +1,6 @@
 module Main where
 import System.Environment
 import Logger
-import Text.Show.Pretty
 
 import L1.Grammar
 import UL1.FromL1
@@ -26,7 +25,7 @@ main = do
       putStrLn errorMsg
   where
     run :: Program -> Int -> String
-    run program pus_n = step (newAcqua program pus_n)
+    run prog pus_n = step (newAcqua prog pus_n)
 
     applyRules :: [Rule] -> Acqua -> Acqua
     applyRules [] a = a

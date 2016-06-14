@@ -1,12 +1,10 @@
 module Simulator.Rules.Op where
 
-import qualified Data.Map as Map
 import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Environment
 import Simulator.Value
 
 import Simulator.Rules.Base

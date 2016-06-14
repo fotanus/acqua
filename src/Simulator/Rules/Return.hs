@@ -2,7 +2,6 @@ module Simulator.Rules.Return where
 
 import qualified Data.Map as Map
 import Logger
-import Text.Show.Pretty
 
 import AcquaIR.Language as IR
 import Simulator.Acqua

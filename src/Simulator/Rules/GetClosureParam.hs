@@ -1,6 +1,5 @@
 module Simulator.Rules.GetClosureParam where
 
-import qualified Data.Map as Map
 import qualified Data.Sequence as Sequence
 import Logger
 
@@ -14,8 +13,8 @@ import Simulator.Closure
 import Simulator.Rules.Base
 
 getClosureParam :: Rule
-getClosureParam (Acqua bb q pus i f s) =
-    Acqua bb q (map stepGetClosureParam pus) i f s
+getClosureParam (Acqua bb q pus ic f s) =
+    Acqua bb q (map stepGetClosureParam pus) ic f s
   where
     stepGetClosureParam pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of

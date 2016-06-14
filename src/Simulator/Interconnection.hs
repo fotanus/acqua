@@ -24,7 +24,7 @@ data MsgUpdate = MsgUpdate {
 
 data MsgUpdateClos = MsgUpdateClos {
   puIdC :: PId,
-  pt :: Pointer,
+  ptC :: Pointer,
   indexC :: Int,
   valueC :: Value
   } deriving (Show, Eq)

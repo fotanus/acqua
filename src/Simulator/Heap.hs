@@ -2,7 +2,6 @@ module Simulator.Heap where
 
 import Data.Map as Map
 
-import AcquaIR.Language
 import Simulator.Value
 import Simulator.Closure
 

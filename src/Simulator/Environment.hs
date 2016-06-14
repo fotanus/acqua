@@ -3,7 +3,6 @@ module Simulator.Environment where
 import Data.Map as Map
 
 import AcquaIR.Language
-import Simulator.Heap
 import Simulator.Value
 
 type Environment = Map Name Value
