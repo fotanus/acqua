@@ -18,14 +18,6 @@ executable l1-ast
   other-modules: L1.Tokens, L1.Grammar
   ghc-options: -Wall
 
-executable ul1-ast
-  main-is: ul1-ast.hs
-  hs-source-dirs: src
-  build-depends: base ==4.*, array, containers, pretty-show, mtl
-  build-tools: alex, happy
-  other-modules: L1.Tokens, L1.Grammar
-  ghc-options: -Wall
-
 executable l1-typecheck
   main-is: l1-typeCheck.hs
   hs-source-dirs: src
@@ -62,12 +54,6 @@ test-suite parser-spec
   hs-source-dirs: spec, src
   other-modules: L1.Tokens, L1.Grammar
   main-is: parser_spec.hs
-  build-depends: base == 4.*, hspec, array
-
-test-suite fromL1-spec
-  type: exitcode-stdio-1.0
-  hs-source-dirs: spec, src
-  main-is: fromL1_spec.hs
   build-depends: base == 4.*, hspec, array
 
 test-suite acqua-run-spec

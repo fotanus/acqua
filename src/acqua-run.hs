@@ -3,7 +3,6 @@ import System.Environment
 import Logger
 
 import L1.Grammar
-import UL1.FromL1
 import AcquaIR.Language
 import Compiler.Compile
 import Simulator.Acqua
@@ -20,7 +19,7 @@ main = do
     Right ast -> do
       args <- getArgs
       n_pus <- return $ read (head args)
-      putStrLn $ run (compile (fromL1 ast)) n_pus
+      putStrLn $ run (compile ast) n_pus
     Left errorMsg ->
       putStrLn errorMsg
   where

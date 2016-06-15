@@ -64,7 +64,7 @@ Exp :
 
     -- Literals
     | var %prec NOT_APP                  { Ident $1 }
-    | fn var '=>' Exp                    { Fn $2 $4 }
+    | fn var '=>' Exp                    { Fn $2 $4 [] }
     | num                                { Num $1 }
     | '-' num %prec NEGATIVE             { Num (-$2) }
     | '(' Exp ')'                        { $2 }

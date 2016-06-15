@@ -1,29 +1,30 @@
 module Compiler.Compile where
 
+import Logger
 import Data.List
 import Control.Monad.State
 
-import UL1.Language as UL1
+import L1.Language as L1
 import AcquaIR.Language as IR
 
 import Compiler.CompileStates
 import Compiler.CompileStatement
 import Compiler.Transformations.AddWaits
 import Compiler.Transformations.EliminateRedundantVars
+import Compiler.Transformations.FillFreeVars
 
 resp :: IR.Name
 resp = "resp"
 
-compile :: UL1.Term -> IR.Program
+compile :: L1.Term -> IR.Program
 compile t =
   addWaits (eliminateRedundantVars (statementsToProgram statements))
   where
-    (c, bb) = evalState (_compile t) defaultCompileStates
+    (c, bb) = evalState (_compile (fillFreeVars t)) defaultCompileStates
     statements = [SL "main"] ++ c ++ [ST (Return resp)] ++ bb
 
 
-_compile :: UL1.Term -> State CompileStates ([Statement], [Statement])
-_compile (Param _) = error "Compiler not implemented for Param"
+_compile :: L1.Term -> State CompileStates ([Statement], [Statement])
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
 _compile (Ident n) = do
     c <- getClosureInfo n
@@ -53,18 +54,18 @@ _compile (Ident n) = do
                           vars' = if null vars then [] else tail vars
                           freeVarsSetParams = map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip vars [1..])
 
-_compile (Fn n params t1) = do
+_compile (Fn param t1 freeVars) = do
   fn <- nextFnLabel
   (c1,bb1) <- _compile t1
-  freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip params [0..])
-  getParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params [0..])
-  getParamsCommands' <- return $ getParamsCommands ++ [SC (GetClosureParam "closure" (length getParamsCommands) n)]
+  freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip freeVars [0..])
+  getParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip freeVars [0..])
+  getParamsCommands' <- return $ getParamsCommands ++ [SC (GetClosureParam "closure" (length getParamsCommands) param)]
   newClosureCommands <- return $ [
-                                   SC (NewClosure "closure" ((length params)+1)),
+                                   SC (NewClosure "closure" ((length freeVars)+1)),
                                    SC (SetClosureFn "closure" fn)
                                  ] ++ freeVarsSetParams ++ [
                                    SC (SetClosureMissingI "closure" 1),
-                                   SC (SetClosureCountI "closure" (length params)),
+                                   SC (SetClosureCountI "closure" (length freeVars)),
                                    SC (AssignV resp "closure")
                                  ]
   fnBody <- return $ [SL fn] ++ getParamsCommands' ++ c1 ++ [ST (Return resp)]
@@ -108,7 +109,7 @@ _compile (App t1 t2) = do
   cs <- return $ c1 ++ [SC (AssignV closureIdent' resp)] ++ c2 ++ envs
   return (cs, bbThen ++ bb1 ++ bb2)
 
-_compile (UL1.Op t1 op t2) = do
+_compile (L1.Op t1 op t2) = do
   (c1,bb1) <- _compile t1
   (c2,bb2) <- _compile t2
   t1Ident <- nextIdentName
@@ -118,7 +119,7 @@ _compile (UL1.Op t1 op t2) = do
   cs <- return $ t1c ++ t2c ++ [SC (IR.Op t1Ident (setOp op) t2Ident)]
   return (cs, bb1 ++ bb2)
 
-_compile (UL1.If t1 t2 t3) = do
+_compile (L1.If t1 t2 t3) = do
   (c1,bb1) <- _compile t1
   (c2,bb2) <- _compile t2
   (c3,bb3) <- _compile t3
@@ -139,15 +140,15 @@ _compile (Let n t1 t2) = do
   cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
   return (cs, bb1 ++ bb2)
 
-_compile (Letrec n (Fn par params t1) t2) = do
+_compile (Letrec n (Fn param t1 freeVars) t2) = do
   _ <- addKnownVars n
-  params' <- return $ delete n params
+  freeVars' <- return $ traceShow freeVars $ traceShow n $ traceShowId $ delete n freeVars
   fn <- nextFnLabel
-  _ <- setClosureInfo n (fn, n, params', True)
+  _ <- setClosureInfo n (fn, n, freeVars', True)
   (c1,bb1) <- _compile t1
   getParamsCommands <- return $ [SC (GetClosureParam "closure" 0 n)]
-  getParamsCommands' <- return $ getParamsCommands ++ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params' [1..])
-  getParamsCommands'' <- return $ getParamsCommands' ++ [SC (GetClosureParam "closure" (length getParamsCommands') par)]
+  getParamsCommands' <- return $ getParamsCommands ++ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip freeVars' [1..])
+  getParamsCommands'' <- return $ getParamsCommands' ++ [SC (GetClosureParam "closure" (length getParamsCommands') param)]
   fnBody <- return $ [SL fn] ++ getParamsCommands'' ++ c1 ++ [ST (Return resp)]
   (c2,bb2) <- _compile t2
   return (c2, fnBody ++ bb1 ++ bb2)
@@ -155,15 +156,15 @@ _compile (Letrec n (Fn par params t1) t2) = do
 _compile (Letrec _ _ _) = error "Letrec first term should be a function"
 
 
-setOp :: UL1.OpCode -> IR.OpCode
-setOp UL1.And = IR.And
-setOp UL1.Or = IR.Or
-setOp UL1.Add = IR.Add
-setOp UL1.Sub = IR.Sub
-setOp UL1.Mult = IR.Mult
-setOp UL1.Equal = IR.Equal
-setOp UL1.NotEqual = IR.NotEqual
-setOp UL1.Greater = IR.Greater
-setOp UL1.GreaterEqual = IR.GreaterEqual
-setOp UL1.Lesser = IR.Lesser
-setOp UL1.LesserEqual = IR.LesserEqual
+setOp :: L1.OpCode -> IR.OpCode
+setOp L1.And = IR.And
+setOp L1.Or = IR.Or
+setOp L1.Add = IR.Add
+setOp L1.Sub = IR.Sub
+setOp L1.Mult = IR.Mult
+setOp L1.Equal = IR.Equal
+setOp L1.NotEqual = IR.NotEqual
+setOp L1.Greater = IR.Greater
+setOp L1.GreaterEqual = IR.GreaterEqual
+setOp L1.Lesser = IR.Lesser
+setOp L1.LesserEqual = IR.LesserEqual

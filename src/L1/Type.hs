@@ -7,7 +7,7 @@ import L1.Language as L1
 data Type
   = IntT
   | FnT Type Type
-  | UnknownT 
+  | UnknownT
   deriving (Eq,Ord,Show,Read)
 
 -- This table lists identifiers and some data about its type. It holds the pre-calculated type for this identifier
@@ -35,7 +35,7 @@ inferType n (Op e1 _ e3) nameTypes =
     else if inferType n e1 nameTypes == UnknownT
          then inferType n e3 nameTypes
          else inferType n e1 nameTypes
-inferType n (Fn name e1) nameTypes =
+inferType n (Fn name e1 _) nameTypes =
     if name == n
     then UnknownT
     else inferType n e1 nameTypes
@@ -69,7 +69,7 @@ typeCheck (Ident n) nameTypes = case lookup n nameTypes of
                                      Just (t,_,_) -> t
                                      Nothing -> UnknownT
 
-typeCheck (Fn name e1) nameTypes = FnT (inferType name e1 nameTypes) (typeCheck e1 nameTypes)
+typeCheck (Fn name e1 _) nameTypes = FnT (inferType name e1 nameTypes) (typeCheck e1 nameTypes)
 
 typeCheck (App e1 e2) nameTypes =
   let
@@ -79,10 +79,10 @@ typeCheck (App e1 e2) nameTypes =
             Just (t,e,rec) -> if rec
                               then t
                               else case e of
-                                   Fn var _ -> typeCheck e ((var, (e2type, e2, rec)):nameTypes)
+                                   Fn var _ _ -> typeCheck e ((var, (e2type, e2, rec)):nameTypes)
                                    _        -> typeCheck e nameTypes
             _              -> error "Applying undefined identifier"
-        Fn n _  -> typeCheck e1 ((n,(e2type, e2, False)):nameTypes)
+        Fn n _ _  -> typeCheck e1 ((n,(e2type, e2, False)):nameTypes)
         App _ _ -> typeCheck e1 nameTypes
         _       -> error $ "Can't apply " ++ (show e1) ++ "to " ++ (show e2)
   in
