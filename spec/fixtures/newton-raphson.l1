@@ -1,0 +1,9 @@
+let fun = fn x => (x*x) + (2*x) - 1848 in
+let dfun = fn x => 2*x + 2 in
+let x0 = 40 in
+let newtonrapson = fn x => x - ((fun x)/(dfun x)) in
+(newtonrapson (newtonrapson (newtonrapson (newtonrapson (newtonrapson x0))))) - 1
+end
+end
+end
+end
