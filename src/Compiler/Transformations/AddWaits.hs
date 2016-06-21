@@ -116,8 +116,8 @@ addWaitCommands p ((lab,name):basicblocks) =
     checkForExtraBlocks l (bb:bbs) n = if (label bb) == l
                                        then case (terminator bb) of
                                             Return _ -> []
-                                            Goto l' -> traceShow ("Adicionando " ++ l') $ [(l',n)]
-                                            If _ l' -> traceShow ("Adicionando " ++ l' ++ " e " ++ (label (head bbs))) $ [(l',n), ((label (head bbs)),n)]
+                                            Goto l' -> [(l',n)]
+                                            If _ l' -> [(l',n), ((label (head bbs)),n)]
                                             Empty -> error "block ends with emtpy"
                                        else checkForExtraBlocks l bbs n
 
