@@ -50,6 +50,7 @@ tokens :-
   \+                            { lex' TokenAdd }
   \-                            { lex' TokenSub }
   \*                            { lex' TokenMult }
+  \/                            { lex' TokenDiv }
   \(                            { lex' TokenLParen }
   \)                            { lex' TokenRParen }
   $alpha [$alpha $digit \_ \']* { lex  TokenSym }
@@ -100,6 +101,7 @@ data TokenClass
            | TokenAdd
            | TokenSub
            | TokenMult
+           | TokenDiv
            | TokenLParen
            | TokenRParen
            | TokenEOF

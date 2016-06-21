@@ -162,6 +162,7 @@ setOp L1.Or = IR.Or
 setOp L1.Add = IR.Add
 setOp L1.Sub = IR.Sub
 setOp L1.Mult = IR.Mult
+setOp L1.Div = IR.Div
 setOp L1.Equal = IR.Equal
 setOp L1.NotEqual = IR.NotEqual
 setOp L1.Greater = IR.Greater

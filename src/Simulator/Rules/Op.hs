@@ -25,6 +25,7 @@ op acqua = acqua { processingUnits = newPus }
               Add -> v1 + v2
               Sub -> v1 - v2
               Mult -> v1 * v2
+              Div -> v1 `div` v2
               Equal -> v1 - v2
               NotEqual -> v1 - v2
               Greater -> v1 - v2

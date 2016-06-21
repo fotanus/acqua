@@ -29,6 +29,7 @@ import L1.Language
     '+'    { Token _ TokenAdd }
     '-'    { Token _ TokenSub }
     '*'    { Token _ TokenMult }
+    '/'    { Token _ TokenDiv }
     '('    { Token _ TokenLParen }
     ')'    { Token _ TokenRParen }
     '=>'   { Token _ TokenDoubleArrow }
@@ -61,6 +62,7 @@ Exp :
     | Exp '+' Exp                        { Op $1 Add $3 }
     | Exp '-' Exp                        { Op $1 Sub $3 }
     | Exp '*' Exp                        { Op $1 Mult $3 }
+    | Exp '/' Exp                        { Op $1 Div $3 }
 
     -- Literals
     | var %prec NOT_APP                  { Ident $1 }

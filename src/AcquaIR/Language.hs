@@ -50,6 +50,7 @@ data OpCode
   | Add
   | Sub
   | Mult
+  | Div
   | Equal
   | NotEqual
   | Greater
@@ -119,6 +120,7 @@ printOpCode Or = "||"
 printOpCode Add = "+"
 printOpCode Sub = "-"
 printOpCode Mult = "*"
+printOpCode Div = "/"
 printOpCode Equal = "=="
 printOpCode NotEqual = "!="
 printOpCode Greater = ">"

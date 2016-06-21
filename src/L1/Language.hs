@@ -8,6 +8,7 @@ data OpCode
   | Add
   | Sub
   | Mult
+  | Div
   | Equal
   | NotEqual
   | Greater
