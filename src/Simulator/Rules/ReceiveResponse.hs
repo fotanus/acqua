@@ -26,7 +26,7 @@ receiveResponse acqua =
           cc' = Map.insert envId (nCalls-1) cc
           pu' = pu { environments = env', callCount = cc', locked = True }
           pus' = updatePU pus pu'
-          f' = if pId == 0
+          f' = if pId == 0 && (nCalls-1) == 0
                  then True
                  else False
       _ -> acqua
