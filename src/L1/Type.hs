@@ -1,12 +1,13 @@
 module L1.Type where
 
 import L1.Language as L1
+import Logger
 
 -- There are three types: Integer, function and Unknown. Unknown is a type used when we don't have enough information on the
 -- program to determine the type, and might be used as a placeholder while determining the type of a program.
 data Type
   = IntT
-  | FnT Type Type
+  | FnT [Type] Type
   | UnknownT
   deriving (Eq,Ord,Show,Read)
 
@@ -19,7 +20,7 @@ type IdentifierTypeTable = [(Name, (Type, Term, Bool))]
 -- internal function to test if two types are the same or one of them is unknown
 isTypeOrUnknown :: Type -> Type -> Bool
 isTypeOrUnknown t1 t2 = case (t1,t2) of
-                        ((FnT t11 t12),(FnT t21 t22)) -> (isTypeOrUnknown t11 t21) && (isTypeOrUnknown t12 t22)
+                        ((FnT t11 t12),(FnT t21 t22)) -> foldr (&&) True (map (\par-> isTypeOrUnknown (fst par) (snd par)) (zip t11 t21)) && (isTypeOrUnknown t12 t22)
                         _                             -> t1 == t2 || t1 == UnknownT || t2 == UnknownT
 
 
@@ -35,13 +36,13 @@ inferType n (Op e1 _ e3) nameTypes =
     else if inferType n e1 nameTypes == UnknownT
          then inferType n e3 nameTypes
          else inferType n e1 nameTypes
-inferType n (Fn name e1 _) nameTypes =
-    if name == n
+inferType n (Fn names e1 _) nameTypes =
+    if n `elem` names
     then UnknownT
     else inferType n e1 nameTypes
 inferType n (App e1 e2) nameTypes =
     if e1 == (Ident n)
-    then (FnT (typeCheck e2 nameTypes) UnknownT)
+    then FnT [(typeCheck e2 nameTypes)] UnknownT
     else if inferType n e1 nameTypes == UnknownT
          then inferType n e2 nameTypes
          else inferType n e1 nameTypes
@@ -69,25 +70,25 @@ typeCheck (Ident n) nameTypes = case lookup n nameTypes of
                                      Just (t,_,_) -> t
                                      Nothing -> UnknownT
 
-typeCheck (Fn name e1 _) nameTypes = FnT (inferType name e1 nameTypes) (typeCheck e1 nameTypes)
+typeCheck (Fn names e1 _) nameTypes = FnT (map (\n-> inferType n e1 nameTypes) names) (typeCheck e1 nameTypes)
 
 typeCheck (App e1 e2) nameTypes =
   let
     e2type = typeCheck e2 nameTypes
-    (FnT t1 t2) = case e1 of
+    (FnT t1 t2) = traceShowId $ case e1 of
         Ident n -> case lookup n nameTypes of
             Just (t,e,rec) -> if rec
                               then t
                               else case e of
-                                   Fn var _ _ -> typeCheck e ((var, (e2type, e2, rec)):nameTypes)
+                                   Fn names _ _ -> typeCheck e ((map (\nam-> (nam, (e2type, e2, rec))) names) ++ nameTypes)
                                    _        -> typeCheck e nameTypes
             _              -> error "Applying undefined identifier"
-        Fn n _ _  -> typeCheck e1 ((n,(e2type, e2, False)):nameTypes)
+        Fn names _ _  -> typeCheck e1 ((map (\n-> (n,(e2type, e2, False))) names) ++ nameTypes)
         App _ _ -> typeCheck e1 nameTypes
         _       -> error $ "Can't apply " ++ (show e1) ++ "to " ++ (show e2)
   in
-    if isTypeOrUnknown e2type t1
-    then t2
+    if isTypeOrUnknown e2type (head t1)
+    then if null (tail t1) then t2 else FnT (tail t1) t2
     else error $ "Argument " ++ (show e2) ++ " type " ++ (show (typeCheck e2 nameTypes)) ++ " does not match type " ++ (show t1)
 
 
@@ -113,7 +114,7 @@ typeCheck (Let n e1 e2) nameTypes =
 
 typeCheck (Letrec n e1 e2) nameTypes =
   let
-    tempNameTypes = (n,(FnT UnknownT UnknownT,e1,True)):nameTypes
+    tempNameTypes = (n,(FnT [UnknownT] UnknownT,e1,True)):nameTypes
     nameTypes' = (n,(typeCheck e1 tempNameTypes,e1,True)):nameTypes
   in
     typeCheck e2 nameTypes'

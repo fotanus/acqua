@@ -26,6 +26,7 @@ tokens :-
   in                            { lex' TokenIn }
   \\                            { lex' TokenLambda }
   \.                            { lex' TokenDot }
+  \,                            { lex' TokenComma }
   if                            { lex' TokenIf }
   then                          { lex' TokenThen }
   else                          { lex' TokenElse }
@@ -79,6 +80,7 @@ data TokenClass
            | TokenIn
            | TokenLambda
            | TokenDot
+           | TokenComma
            | TokenIf
            | TokenThen
            | TokenElse

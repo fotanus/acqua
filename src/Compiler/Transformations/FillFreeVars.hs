@@ -4,7 +4,7 @@ import Data.List
 import L1.Language
 
 fillFreeVars :: Term -> Term
-fillFreeVars (Fn n t _) = Fn n (fillFreeVars t) (nub (findFreeVars t [n]))
+fillFreeVars (Fn ns t _) = Fn ns (fillFreeVars t) (nub (findFreeVars t ns))
 fillFreeVars (If t1 t2 t3) = If (fillFreeVars t1) (fillFreeVars t2) (fillFreeVars t3)
 fillFreeVars (Op t1 op t2) = Op (fillFreeVars t1) op (fillFreeVars t2)
 fillFreeVars (App t1 t2) = App (fillFreeVars t1) (fillFreeVars t2)
@@ -23,4 +23,4 @@ findFreeVars (Op t1 _ t2) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
 findFreeVars (App t1 t2) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
 findFreeVars (Let _ t1 t2) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
 findFreeVars (Letrec _ t1 t2) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
-findFreeVars (Fn n t _) bl = (findFreeVars t (n:bl))
+findFreeVars (Fn ns t _) bl = (findFreeVars t (ns++bl))

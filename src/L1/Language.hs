@@ -25,5 +25,5 @@ data Term
   | Let Name Term Term
   | Letrec Name Term Term
   | If Term Term Term
-  | Fn Name Term [Name]
+  | Fn [Name] Term [Name]
   deriving (Eq,Ord,Show,Read)

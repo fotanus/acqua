@@ -14,20 +14,23 @@ _eliminateCallVars (bb:bbs) p =
     if null (commands bb)
       then _eliminateCallVars bbs p
       else case last (commands bb) of
-         Call _ closure -> case terminator bb of
-                              Goto l ->
-                                let back = lookupBB p l
-                                in if null (commands back)
-                                   then _eliminateCallVars bbs p
-                                   else case head (commands back) of
-                                        AssignV var "resp" ->
-                                            _eliminateCallVars bbs p'
-                                          where 
-                                            p' = updateBB newBack $ updateBB newCall p
-                                            newCall = bb { commands = (head (commands bb)):[Call var closure] }
-                                            newBack = back { commands = tail (commands back) }
-                                        _ -> error "first command on call block must be 'resp ='"
-                              _ -> error "call block must end with goto"
+         Call _ closure ->
+             let
+                labelNum = last (label bb)
+                back = lookupBB p ("back" ++ [labelNum])
+                origBB = lookupBBWithIfForCall p (label bb)
+             in if null (commands back)
+                then _eliminateCallVars bbs p
+                else case head (commands back) of
+                     AssignV var "resp" ->
+                         _eliminateCallVars bbs p'
+                       where 
+                         p' = updateBB newBack $ updateBB newCall $ updateBB newOrig p
+                         newCall = bb { commands = (head (commands bb)):[Call var closure] }
+                         newBack = back { commands = tail (commands back) }
+                         newOrig = origBB { commands = ((commands origBB) ++ [AssignV var origClosName]) }
+                         SetClosureParam origClosName _ _ = (reverse (commands origBB))!!1
+                     _ -> error "first command on call block must be 'resp ='"
          _ -> _eliminateCallVars bbs p
 
 eliminateVarsOnBB :: IR.Program -> IR.Program

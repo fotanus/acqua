@@ -65,6 +65,14 @@ lookupBB (bb:bbs) l = if (label bb) == l
                       then bb
                       else lookupBB bbs l
 
+lookupBBWithIfForCall :: Program -> Label -> BasicBlock
+lookupBBWithIfForCall [] n = error $ "lookup bb that originates call to " ++ (show n) ++ " not found"
+lookupBBWithIfForCall (bb:bbs) l = case terminator bb of
+                            If _ lab -> if lab == l
+                                        then bb
+                                        else lookupBBWithIfForCall bbs l
+                            _ -> lookupBBWithIfForCall bbs l
+
 updateBB :: BasicBlock -> Program -> Program
 updateBB _ [] = error $ "Could not find basic block to be updated"
 updateBB newBB (bb:bbs) = if (label bb) == (label newBB)

@@ -36,7 +36,7 @@ spec = do
   it "fn" $ do
     parse "fn x => 1"
     `shouldBe`
-    Right (Fn "x" (Num 1) [])
+    Right (Fn ["x"] (Num 1) [])
 
   it "if" $ do
     parse "if x < 4 then 5 else x"
@@ -46,7 +46,7 @@ spec = do
   it "let rec" $ do
     parse "letrec zero = fn x => 1 in 4 end"
     `shouldBe`
-    Right (Letrec "zero" (Fn "x" (Num 1) []) (Num 4))
+    Right (Letrec "zero" (Fn ["x"] (Num 1) []) (Num 4))
 
   it "var minus number" $ do
     parse "x - 4"
@@ -56,12 +56,12 @@ spec = do
   it "fn subtracting number" $ do
     parse "fn x => 1 - 4"
     `shouldBe`
-    Right (Fn "x" (Op (Num 1) Sub (Num 4)) [])
+    Right (Fn ["x"] (Op (Num 1) Sub (Num 4)) [])
 
   it "application" $ do
     parse "(fn x => x) 1"
     `shouldBe`
-    Right (App (Fn "x" (Ident "x") []) (Num 1))
+    Right (App (Fn ["x"] (Ident "x") []) (Num 1))
 
   it "var application" $ do
     parse "x 1"
@@ -71,12 +71,12 @@ spec = do
   it "currying" $ do
     parse "fn x => fn y => fn z => 1"
     `shouldBe`
-    Right (Fn "x" (Fn "y" (Fn "z" (Num 1) []) []) [])
+    Right (Fn ["x"] (Fn ["y"] (Fn ["z"] (Num 1) []) []) [])
 
   it "high order function" $ do
     parse "fn x => fn y => x y"
     `shouldBe`
-    Right (Fn "x" (Fn "y" (App (Ident "x") (Ident "y")) []) [])
+    Right (Fn ["x"] (Fn ["y"] (App (Ident "x") (Ident "y")) []) [])
 
   it "nested if on then" $ do
     parse "if x > 10 then if y > 11 then 1 else 2 else 3"
@@ -96,5 +96,7 @@ spec = do
             (If (Op (Ident "y") Greater (Num 11)) (Num 1) (Num 2))
           )
 
-
-
+  it "multi paramater function" $ do
+    parse "fn x, y, z => x "
+    `shouldBe`
+    Right (Fn ["x", "y", "z"] (Ident "x") [] )

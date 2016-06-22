@@ -26,6 +26,7 @@ import L1.Language
     'or'   { Token _ TokenOr }
     '='    { Token _ TokenEQ }
     '=='   { Token _ TokenEQ }
+    ','    { Token _ TokenComma }
     '+'    { Token _ TokenAdd }
     '-'    { Token _ TokenSub }
     '*'    { Token _ TokenMult }
@@ -39,6 +40,7 @@ import L1.Language
     '<'    { Token _ TokenLT }
 
 %left '=>'
+%left ','
 %left if then else
 %left '<' '>' '!=' '==' '<=' '>=' '=' 'and' 'or'
 %left '+' '-'
@@ -66,7 +68,7 @@ Exp :
 
     -- Literals
     | var %prec NOT_APP                  { Ident $1 }
-    | fn var '=>' Exp                    { Fn $2 $4 [] }
+    | fn vars '=>' Exp                   { Fn $2 $4 [] }
     | num                                { Num $1 }
     | '-' num %prec NEGATIVE             { Num (-$2) }
     | '(' Exp ')'                        { $2 }
@@ -74,6 +76,9 @@ Exp :
     -- Application
     | var Exp   %prec APP                          { App (Ident $1) $2 }
     | '(' Exp ')' Exp %prec APP                    { App $2 $4 }
+
+vars : var ',' vars   { [$1] ++ $3 }
+     | var            { [$1] }
 
 
 BoolExp : Exp '==' Exp          { Op $1 Equal $3 }
