@@ -1,0 +1,18 @@
+language: sh
+
+before_install:
+  - sudo mkdir -p /app
+  - sudo chown $USER /app
+  - git clone https://github.com/mietek/halcyon.git /app/halcyon
+
+install:
+  - /app/halcyon/halcyon build
+  - /app/halcyon/halcyon paths > halcyon-env
+  - ln -sf /app/sandbox/cabal.sandbox.config cabal.sandbox.config
+
+script:
+  - source halcyon-env
+  - cabal install --only-dependencies --enable-tests
+  - cabal configure --enable-tests
+  - cabal build
+  - cabal test
