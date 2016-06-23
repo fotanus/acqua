@@ -1,6 +1,7 @@
 module Simulator.ProcessingUnit where
 
 import qualified Data.Map as Map
+import qualified Data.List as List
 
 import AcquaIR.Language
 import Simulator.Value
@@ -36,8 +37,8 @@ data ProcessingUnit = PU {
   locked :: Bool
 } deriving (Show,Eq)
 
-specialPU :: ProcessingUnit
-specialPU =
+emptySpecialPU :: ProcessingUnit
+emptySpecialPU =
   let
     environmentZero = Map.fromList [("0", PointerV (Pointer 0 0))]
   in
@@ -50,6 +51,28 @@ specialPU =
         Simulator.ProcessingUnit.heap = Map.fromList [(0, ClosureV emptyClosure)],
         Simulator.ProcessingUnit.returnAddrs = Map.fromList [],
         Simulator.ProcessingUnit.callCount = Map.fromList [("0",1)],
+        Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
+        Simulator.ProcessingUnit.outgoingMessageQueue = [],
+        Simulator.ProcessingUnit.enabled = False,
+        Simulator.ProcessingUnit.locked = False
+    }
+
+specialPU :: [Int] -> ProcessingUnit
+specialPU pars =
+  let
+    env = Map.fromList (List.map (\i -> ((show i), PointerV (Pointer 0 i))) [0..(length pars)])
+    envs = Map.fromList [("0", env)]
+    hp = Map.fromList (List.map (\a -> ((snd a), ClosureV (closureWithParam (fst a)))) (zip pars [0..]))
+  in
+    PU {
+        Simulator.ProcessingUnit.puId=0,
+        Simulator.ProcessingUnit.commands = [],
+        Simulator.ProcessingUnit.terminator = Empty,
+        Simulator.ProcessingUnit.currentEnv = "0",
+        Simulator.ProcessingUnit.environments = envs,
+        Simulator.ProcessingUnit.heap = hp,
+        Simulator.ProcessingUnit.returnAddrs = Map.fromList [],
+        Simulator.ProcessingUnit.callCount = Map.fromList [("0",(length pars))],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
         Simulator.ProcessingUnit.enabled = False,
@@ -91,7 +114,7 @@ setVal p n v =
     p { environments = envs' } 
 
 newProcessingUnits :: Int -> [ProcessingUnit]
-newProcessingUnits n = specialPU : (map newPU [1..n])
+newProcessingUnits n = (map newPU [1..n])
 
 unlock :: ProcessingUnit -> ProcessingUnit
 unlock pu = pu { locked = False }
@@ -114,4 +137,16 @@ acquaResult pus =
     Just response = Map.lookup "result" env
   in
     "response: " ++ (show response)
+
+acquaResultMap :: [ProcessingUnit] -> [Char]
+acquaResultMap pus =
+  let
+    specialPu = (head pus)
+    Just env = Map.lookup "0" (environments specialPu)
+    responses n = case response n of
+                    Just (NumberV resp) -> (show resp) ++ ", " ++ (responses (n+1))
+                    Nothing -> ""
+    response n = Map.lookup ("result" ++ (show n)) env
+  in
+    "response: " ++ (responses 0)
 

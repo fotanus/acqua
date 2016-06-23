@@ -14,3 +14,6 @@ data Closure = Closure {
 
 emptyClosure :: Closure
 emptyClosure = Closure "" 0 0 (fromList [])
+
+closureWithParam :: Int -> Closure
+closureWithParam param = Closure "" 0 0 (fromList [(NumberV param)])

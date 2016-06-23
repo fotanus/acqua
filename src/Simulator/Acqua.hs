@@ -2,7 +2,7 @@ module Simulator.Acqua where
 
 import qualified Data.Map as Map
 
-import AcquaIR.Language
+import AcquaIR.Language as IR
 import Simulator.ProcessingUnit
 import Simulator.Interconnection
 import Simulator.Queue
@@ -32,9 +32,18 @@ statesDefault = Map.fromList [
 newAcqua :: Program -> Int -> Acqua
 newAcqua p n = Acqua p q pus newInterconnection False statesDefault
   where
-    pus = newProcessingUnits n
-    specialProcessingUnit = head pus
+    specialProcessingUnit = emptySpecialPU
+    pus = specialProcessingUnit:(newProcessingUnits n)
     q = newQueue specialProcessingUnit
+
+newAcquaMap :: Program -> Int -> String -> [String] -> Acqua
+newAcquaMap p n var params = Acqua p' q pus newInterconnection False statesDefault
+  where
+    specialProcessingUnit = specialPU (map read params)
+    pus = specialProcessingUnit:(newProcessingUnits n)
+    q = newQueueForMap specialProcessingUnit (map read params)
+    p' = ((addGetVar (head p)):(tail p))
+    addGetVar bb = bb { IR.commands = ((GetClosureParam "closure" 0 var):(IR.commands bb)) }
 
 getNextEnvId :: Map.Map String StateValue -> (EnvId, Map.Map String StateValue)
 getNextEnvId s = (nextEnvId,s')

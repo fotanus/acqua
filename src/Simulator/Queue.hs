@@ -1,5 +1,7 @@
 module Simulator.Queue where
 
+import qualified Data.List as List
+
 import AcquaIR.Language
 import Simulator.ProcessingUnitId
 import Simulator.ProcessingUnit as PU
@@ -24,3 +26,11 @@ newQueue pu =
     startingJob = Job "main" envId (PU.puId pu) envId "result"
   in
     Queue [startingJob] False
+
+newQueueForMap :: ProcessingUnit -> [Int] -> Queue
+newQueueForMap pu pars =
+  let
+    envId = currentEnv pu
+    startingJobs = List.map (\x-> Job "main" envId (PU.puId pu) (show x) ("result"++(show x))) [0..((length pars)-1)]
+  in
+    Queue startingJobs False
