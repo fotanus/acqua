@@ -12,18 +12,19 @@ fixturesDir = "spec/fixtures/map/"
 main :: IO ()
 main = do
   files <- getDirectoryContents fixturesDir
-  let fixtures = (filter (\f -> not (elem f [".", ".."])) files)
-  hspec (spec fixtures)
+  let cases =
+            [
+              ((fixturesDir++"sum.l1"), ["1", "2", "3"], "2, 3, 4"),
+              ((fixturesDir++"fat.l1"), ["1", "2", "3", "4"], "1, 2, 6, 24")
+            ]
+  hspec (spec cases)
 
-spec :: [String] -> Spec
+spec :: [(String,[String],String)] -> Spec
 spec [] = do return ()
-
-spec (s:ss) = do
-  it s $ do (runFile (fixturesDir ++ s)) `shouldReturn` "2, 3, 4, "
+spec ((file,args,correctResult):ss) = do
+  it file $ do
+    fileContents <- readFile file
+    output <- readProcess "./acqua-run-map" (["10","x"] ++ args) fileContents
+    result <- return $ drop (length "response: ") (output =~ "response: ([0-9]+, )+" :: String)
+    result `shouldBe` (correctResult ++ ", ")
   spec ss
-
-runFile file = do
-  fileContents <- readFile file
-  output <- readProcess "./acqua-run-map" ["10","x","1","2","3"] fileContents
-  return $ last $ (splitOn " " (output =~ "response: [0-9, ]+" :: String))
-  return $  drop (length "response: ") (output =~ "response: ([0-9]+, )+" :: String)
