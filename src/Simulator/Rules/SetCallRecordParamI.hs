@@ -28,7 +28,7 @@ setCallRecordParamI acqua = acqua { processingUnits = newPus }
             Just cenv = Map.lookup ce envs
             Just (PointerV pointer) = Map.lookup x cenv
             Just (CallRecordV callRecord) = Map.lookup (addr pointer) crseg
-            Just val = traceShow cenv $ Map.lookup v cenv
+            Just val = Map.lookup v cenv
             params' = Sequence.update idx val (params callRecord)
             callRecord' = callRecord { params = params' }
             crseg' = Map.insert (addr pointer) (CallRecordV callRecord') crseg
