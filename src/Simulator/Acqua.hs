@@ -43,16 +43,33 @@ unlockAll (Acqua bb q pus i ff s)
   where
     pus' = map (\p -> unlock p) pus
 
-showAcquaResult :: [ProcessingUnit] -> String
-showAcquaResult pus = 
+showAcquaResult :: Acqua -> String
+showAcquaResult acqua =
   let
-    specialPu = (head pus)
+    specialPu = (head (processingUnits acqua))
     Just responseEnv = Map.lookup "0" (environments specialPu)
+    stats = showStats acqua
+    result = case Map.lookup "resultType" responseEnv of
+        Just (NumberV 0) -> acquaResultRun responseEnv
+        Just (NumberV 1) -> acquaResultMap responseEnv
+        _ -> error "Can't show this result type"
   in
-    case Map.lookup "resultType" responseEnv of
-      Just (NumberV 0) -> acquaResultRun responseEnv
-      Just (NumberV 1) -> acquaResultMap responseEnv
-      _ -> error "Can't show this result type"
+    result ++ "\n\n" ++ stats
+
+showStats :: Acqua -> String
+showStats acqua =
+  let
+    statsAndFormat = [
+        ("occupiedPUPerCycle", (\(MapIntInt v) -> maximum (Map.elems v))),
+        ("maxQueueSize",       (\(IntVal v)    -> v)),
+        ("maxCallRec",         (\(IntVal v)    -> v)),
+        ("maxLocalCallRec",    (\(IntVal v)    -> v)),
+        ("maxMsg",             (\(IntVal v)    -> v))
+        ]
+    statLineFormat s val = s ++ ": " ++ val ++ "\n"
+    statLines = map (\(s,f) -> statLineFormat s (show (f ((acquaState acqua) Map.! s)))) statsAndFormat
+  in
+    foldr (++) "----stats----\n" statLines
 
 acquaResultRun :: Environment -> [Char]
 acquaResultRun env =

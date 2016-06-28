@@ -11,9 +11,10 @@ type AcquaState = Map.Map String StateValue
 statesDefault :: AcquaState
 statesDefault = Map.fromList [
     ("envId",IntVal 0),
-    ("OccupiedPUPerCycle", MapIntInt (Map.fromList [])),
-    ("maxJobQueue", IntVal 0),
-    ("maxNCallRec", IntVal 0),
+    ("occupiedPUPerCycle", MapIntInt (Map.fromList [])),
+    ("maxQueueSize", IntVal 0),
+    ("maxCallRec", IntVal 0),
+    ("maxLocalCallRec", IntVal 0),
     ("maxMsg", IntVal 0)
   ]
 
@@ -23,4 +24,5 @@ getNextEnvId s = (nextEnvId,s')
     Just (IntVal count) = Map.lookup "envId" s
     s' = Map.insert "envId" (IntVal (count+1)) s
     nextEnvId = "env_" ++ (show count)
+
 

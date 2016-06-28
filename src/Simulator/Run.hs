@@ -3,6 +3,7 @@ module Simulator.Run where
 import Logger
 import AcquaIR.Language
 import Simulator.Acqua
+import Simulator.Stats
 import Simulator.Rules
 import Simulator.Rules.Base
 
@@ -20,8 +21,8 @@ step :: Acqua -> String
 step acqua = _step (applyRules rules acqua) acqua
 
 _step :: Acqua -> Acqua -> String
-_step (Acqua _ _ pus _ True _) _ = "Finished!\n" ++ (showAcquaResult pus)
+_step acqua _ | (finishFlag acqua) == True = "Finished!\n" ++ (showAcquaResult acqua)
 _step acqua acqua'= -- traceAcqua acqua $
   if acqua == acqua'
     then error $ traceAcqua acqua "Cannot give a step!\n"
-    else trace ("----") $ _step (applyRules rules (unlockAll acqua)) acqua
+    else trace ("----") $ _step (trackStats (applyRules rules (unlockAll acqua))) acqua
