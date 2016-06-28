@@ -47,8 +47,8 @@ assignV acqua =
           ((pu:pus'),i')
 
 assignL:: Rule
-assignL (Acqua bb q pus i f s) =
-    Acqua bb q (map stepAssignL pus) i f s
+assignL acqua =
+    acqua { processingUnits = map stepAssignL (processingUnits acqua) }
   where
     stepAssignL pu =
       case PU.commands pu of
@@ -60,8 +60,8 @@ assignL (Acqua bb q pus i f s) =
         _ -> pu
 
 assignI:: Rule
-assignI (Acqua bb q pus i f s) =
-    Acqua bb q (map stepAssignI pus) i f s
+assignI acqua =
+    acqua { processingUnits = map stepAssignI (processingUnits acqua) }
   where
     stepAssignI pu =
       case PU.commands pu of

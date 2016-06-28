@@ -17,15 +17,15 @@ call :: Rule
 call acqua =
     acqua { queue = q', processingUnits = pus' }
   where
-    (q', pus') = stepCall (queue acqua) (processingUnits acqua) (acquaState acqua)
+    (q', pus') = stepCall (queue acqua) (processingUnits acqua)
 
-stepCall :: Queue -> [ProcessingUnit] -> Map.Map String StateValue -> (Queue, [ProcessingUnit])
-stepCall q [] _ = (q,[])
-stepCall q (pu:pus) s =
+stepCall :: Queue -> [ProcessingUnit] -> (Queue, [ProcessingUnit])
+stepCall q [] = (q,[])
+stepCall q (pu:pus) =
   case (PU.commands pu,PU.canExecuteCmds pu,Q.locked q) of
     ((Call x1 x2):cs,True,False) -> trace ((show (PU.puId pu)) ++  ": call" ) (q'', pu':pus')
       where
-        (q'', pus') = stepCall q' pus s
+        (q'', pus') = stepCall q' pus
 
         -- set job on queue
         ce = PU.currentEnv pu
@@ -46,4 +46,4 @@ stepCall q (pu:pus) s =
         pu' = pu { PU.commands = cs, PU.callCount = cc', PU.locked = True }
 
     _ -> (q', pu:pus')
-      where (q', pus') = stepCall q pus s
+      where (q', pus') = stepCall q pus

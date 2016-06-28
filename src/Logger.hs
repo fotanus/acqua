@@ -27,14 +27,11 @@ traceShowId ret = if doTrace
 
 traceAcqua :: Acqua -> a -> a
 traceAcqua acqua ret =
-  let
-    Acqua _ q pus i _ _ = acqua
-  in
     if doTrace
     then T.traceShow "====Queue===" $
-         T.trace (ppShow q) $
+         T.trace (ppShow (queue acqua)) $
          T.traceShow "====Interconnection====" $
-         T.trace (ppShow i) $
+         T.trace (ppShow (interconnection acqua)) $
          T.traceShow "====Processing Units====" $
-         T.trace (ppShow pus) ret
+         T.trace (ppShow (processingUnits acqua)) ret
     else ret
