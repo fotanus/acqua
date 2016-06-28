@@ -15,7 +15,8 @@ main = do
   let cases =
             [
               ((fixturesDir++"sum.l1"), ["1", "2", "3"], "2, 3, 4"),
-              ((fixturesDir++"fat.l1"), ["1", "2", "3", "4"], "1, 2, 6, 24")
+              ((fixturesDir++"fat.l1"), ["1", "2", "3", "4"], "1, 2, 6, 24"),
+              ((fixturesDir++"fibo.l1"), ["1", "2", "3", "4"], "1, 2, 3, 5")
             ]
   hspec (spec cases)
 
