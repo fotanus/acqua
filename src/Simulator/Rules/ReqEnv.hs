@@ -19,7 +19,7 @@ import Simulator.Rules.Base
 reqEnv :: Rule
 reqEnv acqua  =
   case (interconnection acqua) of
-      ((ConstMsgReqEnv (MsgReqEnv pIdS mjsId pIdT mteId callRecordName)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqEnv")  $ acqua { processingUnits = pus', interconnection = ms }
+      ((ConstMsgReqEnv (MsgReqEnv pIdS mjsId pIdT mteId callRecordName)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqEnv for" ++ callRecordName)  $ acqua { processingUnits = pus', interconnection = ms }
         where
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pIdT) pus
@@ -34,10 +34,11 @@ reqEnv acqua  =
           Just tenv = Map.lookup mteId env
           Just (PointerV pointer) = Map.lookup callRecordName tenv
           Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
+          crseg' = Map.delete (addr pointer) crseg
           idxValToMsg idx val =
               ConstMsgUpdate (MsgUpdate pIdS mjsId idx val)
 
-          pu' = pu { outgoingMessageQueue = omq', locked = True }
+          pu' = pu { outgoingMessageQueue = omq', locked = True, callRecordSeg = crseg' }
           pus' = updatePU pus pu'
 
       _ -> acqua
