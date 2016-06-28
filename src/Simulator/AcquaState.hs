@@ -3,14 +3,18 @@ module Simulator.AcquaState where
 import qualified Data.Map as Map
 
 data StateValue = IntVal Int
-                | NewEnvIds (Map.Map (Int,String) String)
+                | MapIntInt (Map.Map Int Int)
                 deriving (Eq,Show)
 
 type AcquaState = Map.Map String StateValue
 
 statesDefault :: AcquaState
 statesDefault = Map.fromList [
-    ("envId",IntVal 0)
+    ("envId",IntVal 0),
+    ("OccupiedPUPerCycle", MapIntInt (Map.fromList [])),
+    ("maxJobQueue", IntVal 0),
+    ("maxNCallRec", IntVal 0),
+    ("maxMsg", IntVal 0)
   ]
 
 getNextEnvId :: Map.Map String StateValue -> (String, Map.Map String StateValue)

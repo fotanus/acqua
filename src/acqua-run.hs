@@ -1,14 +1,9 @@
 module Main where
-import System.Environment
-import Logger
 
+import System.Environment
 import L1.Grammar
-import AcquaIR.Language
 import Compiler.Compile
-import Simulator.Acqua
-import Simulator.ProcessingUnit
-import Simulator.Rules
-import Simulator.Rules.Base
+import Simulator.Run
 
 -- Run a L1 program in a simulation
 main :: IO ()
@@ -22,20 +17,3 @@ main = do
       putStrLn $ run (compile ast) n_pus
     Left errorMsg ->
       putStrLn errorMsg
-  where
-    run :: Program -> Int -> String
-    run prog pus_n = step (newAcqua prog pus_n)
-
-    applyRules :: [Rule] -> Acqua -> Acqua
-    applyRules [] a = a
-    applyRules (f:fs) a = applyRules fs (f a)
-
-    step :: Acqua -> String
-    step acqua = _step (applyRules rules acqua) acqua
-
-    _step :: Acqua -> Acqua -> String
-    _step (Acqua _ _ pus _ True _) _ = "Finished!\n" ++ (acquaResult pus)
-    _step acqua acqua'= -- traceAcqua acqua $
-      if acqua == acqua'
-        then error $ traceAcqua acqua "Cannot give a step!\n"
-        else trace ("----") $ _step (applyRules rules (unlockAll acqua)) acqua

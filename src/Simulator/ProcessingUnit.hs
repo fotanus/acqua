@@ -40,7 +40,7 @@ data ProcessingUnit = PU {
 emptySpecialPU :: ProcessingUnit
 emptySpecialPU =
   let
-    environmentZero = Map.fromList [("0", PointerV (Pointer 0 0))]
+    environmentZero = Map.fromList $ [("0", PointerV (Pointer 0 0))] ++ [("resultType", (NumberV 0))]
   in
     PU {
         Simulator.ProcessingUnit.puId=0,
@@ -60,7 +60,7 @@ emptySpecialPU =
 specialPU :: [Int] -> ProcessingUnit
 specialPU pars =
   let
-    env = Map.fromList (List.map (\i -> ((show i), PointerV (Pointer 0 i))) [0..(length pars)])
+    env = Map.fromList $ (List.map (\i -> ((show i), PointerV (Pointer 0 i))) [0..(length pars)]) ++ [("resultType", NumberV 1)]
     envs = Map.fromList [("0", env)]
     crseg = Map.fromList (List.map (\a -> ((snd a), CallRecordV (callRecordWithParam (fst a)))) (zip pars [0..]))
   in
@@ -152,3 +152,13 @@ acquaResultMap pus =
   in
     "response: " ++ (responses 0)
 
+showAcquaResult :: [ProcessingUnit] -> String
+showAcquaResult pus = 
+  let
+    specialPu = (head pus)
+    Just responseEnv = Map.lookup "0" (environments specialPu)
+  in
+    case Map.lookup "resultType" responseEnv of
+      Just (NumberV 0) -> acquaResult pus
+      Just (NumberV 1) -> acquaResultMap pus
+      _ -> error "Can't show this result type"
