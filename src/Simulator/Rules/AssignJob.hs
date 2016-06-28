@@ -7,6 +7,7 @@ import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
+import Simulator.AcquaState
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue
 import Simulator.Interconnection

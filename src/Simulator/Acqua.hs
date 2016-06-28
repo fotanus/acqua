@@ -1,18 +1,13 @@
 module Simulator.Acqua where
 
-import qualified Data.Map as Map
 
 import AcquaIR.Language as IR
+import Simulator.AcquaState
 import Simulator.ProcessingUnit
 import Simulator.Interconnection
 import Simulator.Queue
 
 type FinishFlag = Bool
-data StateValue = IntVal Int
-                | NewEnvIds (Map.Map (Int,String) String)
-                deriving (Eq,Show)
-
-type AcquaState = Map.Map String StateValue
 
 data Acqua = Acqua {
   program :: Program,
@@ -22,12 +17,6 @@ data Acqua = Acqua {
   finishFlag :: FinishFlag,
   acquaState :: AcquaState
 } deriving (Show,Eq)
-
-statesDefault :: AcquaState
-statesDefault = Map.fromList [
-    ("newEnvIds", (NewEnvIds (Map.fromList []))),
-    ("envId",IntVal 0)
-  ]
 
 newAcqua :: Program -> Int -> Acqua
 newAcqua p n = Acqua p q pus newInterconnection False statesDefault
@@ -44,13 +33,6 @@ newAcquaMap p n var params = Acqua p' q pus newInterconnection False statesDefau
     q = newQueueForMap specialProcessingUnit (map read params)
     p' = ((addGetVar (head p)):(tail p))
     addGetVar bb = bb { IR.commands = ((GetCallRecordParam "callRecord" 0 var):(IR.commands bb)) }
-
-getNextEnvId :: Map.Map String StateValue -> (EnvId, Map.Map String StateValue)
-getNextEnvId s = (nextEnvId,s')
-  where
-    Just (IntVal count) = Map.lookup "envId" s
-    s' = Map.insert "envId" (IntVal (count+1)) s
-    nextEnvId = "env_" ++ (show count)
 
 unlockAll :: Acqua -> Acqua
 unlockAll (Acqua bb q pus i ff s)
