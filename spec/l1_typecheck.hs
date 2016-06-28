@@ -6,7 +6,7 @@ import Data.List.Split (splitOn)
 
 
 fixturesDir :: String
-fixturesDir = "spec/fixtures/"
+fixturesDir = "spec/fixtures/run/"
 
 main :: IO ()
 main = do
