@@ -8,7 +8,7 @@ import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Value
-import Simulator.Heap as Heap
+import Simulator.CallRecordSeg as CallRecordSeg
 import Simulator.CallRecord
 
 import Simulator.Rules.Base
@@ -21,10 +21,10 @@ newCallRecord acqua = acqua { processingUnits = newPus }
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((NewCallRecord x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": NewCallRecord " ++ (show x) ++ " " ++ (show n)) pu'
           where
-            hp = heap pu
-            hpPos = Heap.nextFreePos hp
-            pointer = Pointer (PU.puId pu) hpPos
+            crseg = callRecordSeg pu
+            crsegPos = CallRecordSeg.nextFreePos crseg
+            pointer = Pointer (PU.puId pu) crsegPos
             clos = CallRecord "" 0 0 (Sequence.replicate n (NumberV 0))
-            hp' = Map.insert hpPos (CallRecordV clos) hp
-            pu' = (setVal pu x (PointerV pointer)) { PU.commands = cs, heap = hp', locked = True }
+            crseg' = Map.insert crsegPos (CallRecordV clos) crseg
+            pu' = (setVal pu x (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', locked = True }
         _ -> pu

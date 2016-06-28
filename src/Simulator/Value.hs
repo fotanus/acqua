@@ -3,11 +3,11 @@ module Simulator.Value where
 import AcquaIR.Language
 import Simulator.ProcessingUnitId
 
-type HeapAddr = Int
+type CallRecordSegAddr = Int
 
 data Pointer = Pointer {
   puId :: PId,
-  addr :: HeapAddr
+  addr :: CallRecordSegAddr
 } deriving (Show, Eq)
 
 data Value

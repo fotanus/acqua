@@ -6,7 +6,7 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Heap
+import Simulator.CallRecordSeg
 import Simulator.Value
 import Simulator.CallRecord
 
@@ -22,13 +22,13 @@ setCallRecordFn acqua = acqua { processingUnits = newPus }
           where
             ce = PU.currentEnv pu
             envs = PU.environments pu
-            hp = heap pu
+            crseg = callRecordSeg pu
 
             Just cenv = Map.lookup ce envs
             Just (PointerV pointer) = Map.lookup x cenv
-            Just (CallRecordV callRec) = Map.lookup (addr pointer) hp
+            Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
 
             callRec' = callRec { functionName = n }
-            hp' = Map.insert (addr pointer) (CallRecordV callRec') hp
-            pu' = pu { PU.commands = cs, heap = hp', locked = True }
+            crseg' = Map.insert (addr pointer) (CallRecordV callRec') crseg
+            pu' = pu { PU.commands = cs, callRecordSeg = crseg', locked = True }
         _ -> pu

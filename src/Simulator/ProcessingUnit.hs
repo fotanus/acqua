@@ -6,7 +6,7 @@ import qualified Data.List as List
 import AcquaIR.Language
 import Simulator.Value
 import Simulator.Environment
-import Simulator.Heap
+import Simulator.CallRecordSeg
 import Simulator.Interconnection
 import Simulator.CallRecord
 import Simulator.ProcessingUnitId
@@ -28,7 +28,7 @@ data ProcessingUnit = PU {
   terminator :: Terminator,
   currentEnv :: EnvId,
   environments :: Map.Map EnvId Environment,
-  heap :: Heap,
+  callRecordSeg :: CallRecordSeg,
   returnAddrs :: Map.Map EnvId ReturnAddr,
   callCount :: Map.Map EnvId Int,
   sleepingExecution :: Map.Map EnvId ExecutionContext,
@@ -48,7 +48,7 @@ emptySpecialPU =
         Simulator.ProcessingUnit.terminator = Empty,
         Simulator.ProcessingUnit.currentEnv = "0",
         Simulator.ProcessingUnit.environments = Map.fromList [("0", environmentZero)],
-        Simulator.ProcessingUnit.heap = Map.fromList [(0, CallRecordV emptyCallRecord)],
+        Simulator.ProcessingUnit.callRecordSeg = Map.fromList [(0, CallRecordV emptyCallRecord)],
         Simulator.ProcessingUnit.returnAddrs = Map.fromList [],
         Simulator.ProcessingUnit.callCount = Map.fromList [("0",1)],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
@@ -62,7 +62,7 @@ specialPU pars =
   let
     env = Map.fromList (List.map (\i -> ((show i), PointerV (Pointer 0 i))) [0..(length pars)])
     envs = Map.fromList [("0", env)]
-    hp = Map.fromList (List.map (\a -> ((snd a), CallRecordV (callRecordWithParam (fst a)))) (zip pars [0..]))
+    crseg = Map.fromList (List.map (\a -> ((snd a), CallRecordV (callRecordWithParam (fst a)))) (zip pars [0..]))
   in
     PU {
         Simulator.ProcessingUnit.puId=0,
@@ -70,7 +70,7 @@ specialPU pars =
         Simulator.ProcessingUnit.terminator = Empty,
         Simulator.ProcessingUnit.currentEnv = "0",
         Simulator.ProcessingUnit.environments = envs,
-        Simulator.ProcessingUnit.heap = hp,
+        Simulator.ProcessingUnit.callRecordSeg = crseg,
         Simulator.ProcessingUnit.returnAddrs = Map.fromList [],
         Simulator.ProcessingUnit.callCount = Map.fromList [("0",(length pars))],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
@@ -87,7 +87,7 @@ newPU n =
         Simulator.ProcessingUnit.terminator = Empty,
         Simulator.ProcessingUnit.currentEnv = "",
         Simulator.ProcessingUnit.environments = Map.fromList [],
-        Simulator.ProcessingUnit.heap = Map.fromList [],
+        Simulator.ProcessingUnit.callRecordSeg = Map.fromList [],
         Simulator.ProcessingUnit.returnAddrs = Map.fromList [],
         Simulator.ProcessingUnit.callCount = Map.fromList [],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [],

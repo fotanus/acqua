@@ -10,7 +10,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Value
-import Simulator.Heap
+import Simulator.CallRecordSeg
 import Simulator.CallRecord as CallRecord
 
 
@@ -28,7 +28,7 @@ reqClos acqua  =
           endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS))
           updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params callRec)
           updMetaMsg = [ConstMsgUpdateMetaClos (MsgUpdateMetaClos pIdS ptSrc (functionName callRec) (CallRecord.paramCount callRec) (CallRecord.paramMissing callRec))]
-          Just (CallRecordV callRec) = Map.lookup (addr ptTrg) (heap pu)
+          Just (CallRecordV callRec) = Map.lookup (addr ptTrg) (callRecordSeg pu)
           idxValToMsg idx val =
               ConstMsgUpdateClos (MsgUpdateClos pIdS ptSrc idx val)
 

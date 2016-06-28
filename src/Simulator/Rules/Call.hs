@@ -8,7 +8,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue as Q
 import Simulator.Value
-import Simulator.Heap
+import Simulator.CallRecordSeg
 import Simulator.CallRecord
 
 import Simulator.Rules.Base
@@ -31,10 +31,10 @@ stepCall q (pu:pus) s =
         ce = PU.currentEnv pu
         pId = PU.puId pu
         envs = PU.environments pu
-        hp = PU.heap pu
+        crseg = PU.callRecordSeg pu
         Just cenv = Map.lookup ce envs
         Just (PointerV pointer) = Map.lookup x2 cenv
-        Just (CallRecordV callRec) = Map.lookup (addr pointer) hp
+        Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
         l = functionName callRec
         j = Job l ce pId x2 x1
         q' = q { jobs = j:(jobs q) }

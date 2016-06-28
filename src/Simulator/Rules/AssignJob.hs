@@ -12,7 +12,7 @@ import Simulator.Queue
 import Simulator.Interconnection
 import Simulator.Value
 import Simulator.CallRecord
-import Simulator.Heap
+import Simulator.CallRecordSeg
 
 import Simulator.Rules.Base
 
@@ -25,7 +25,7 @@ assignJob acqua =
           pus' = updatePU pus pu'
           pId = PU.puId pu
           env = environments pu
-          hp = heap pu
+          crseg = callRecordSeg pu
           ra = returnAddrs pu
           cc = callCount pu
 
@@ -44,13 +44,13 @@ assignJob acqua =
           m = MsgReqEnv pId newEnvId pId' envId callRec
           i' = (ConstMsgReqEnv m) : i
 
-          -- add callRecord on heap
-          hpPos = Map.size hp
-          hp' = Map.insert hpPos (CallRecordV (CallRecord "receivedCallRecord" 0 0 emptyParams)) hp
+          -- add callRecord on callRecordSeg
+          crsegPos = Map.size crseg
+          crseg' = Map.insert crsegPos (CallRecordV (CallRecord "receivedCallRecord" 0 0 emptyParams)) crseg
           emptyParams = Seq.replicate 5 (NumberV 0)
 
           -- create env with pointer to callRecord
-          pt = PointerV $ Pointer pId hpPos
+          pt = PointerV $ Pointer pId crsegPos
           nenv = Map.fromList [("callRecord", pt)]
           env' = Map.insert newEnvId nenv env
 
@@ -60,7 +60,7 @@ assignJob acqua =
             PU.terminator = t,
             currentEnv = newEnvId,
             environments = env',
-            heap = hp',
+            callRecordSeg = crseg',
             returnAddrs = ra',
             callCount = cc',
             enabled = False,

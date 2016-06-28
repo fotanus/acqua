@@ -10,7 +10,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Value
-import Simulator.Heap
+import Simulator.CallRecordSeg
 import Simulator.CallRecord
 
 
@@ -26,14 +26,14 @@ reqEnv acqua  =
 
           omq = outgoingMessageQueue pu
           env = environments pu
-          hp = heap pu
+          crseg = callRecordSeg pu
           omq' = omq ++ newMessages
           newMessages = updMsgs ++ [endMsg]
           endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS))
           updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params callRec)
           Just tenv = Map.lookup mteId env
           Just (PointerV pointer) = Map.lookup callRecordName tenv
-          Just (CallRecordV callRec) = Map.lookup (addr pointer) hp
+          Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
           idxValToMsg idx val =
               ConstMsgUpdate (MsgUpdate pIdS mjsId idx val)
 

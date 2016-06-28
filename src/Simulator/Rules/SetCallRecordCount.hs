@@ -6,7 +6,7 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Heap as Heap
+import Simulator.CallRecordSeg as CallRecordSeg
 import Simulator.Value
 import Simulator.CallRecord
 
@@ -20,11 +20,11 @@ setCallRecordCount acqua = acqua { processingUnits = newPus }
       case (PU.commands pu,PU.canExecuteCmds pu) of
         (((SetCallRecordCount x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetCallRecordCount " ++ (show x) ++ " " ++ (show n)) pu'
           where
-            hp = heap pu
+            crseg = callRecordSeg pu
             PointerV pointer = getVal pu x
             NumberV num = getVal pu n
-            CallRecordV callRec = Heap.lookupPt pointer hp
+            CallRecordV callRec = CallRecordSeg.lookupPt pointer crseg
             callRec' = callRec { paramCount = num }
-            hp' = Map.insert (addr pointer) (CallRecordV callRec') hp
-            pu' = pu { PU.commands = cs, heap = hp', locked = True }
+            crseg' = Map.insert (addr pointer) (CallRecordV callRec') crseg
+            pu' = pu { PU.commands = cs, callRecordSeg = crseg', locked = True }
         _ -> pu

@@ -8,7 +8,7 @@ import Logger
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
-import Simulator.Heap
+import Simulator.CallRecordSeg
 import Simulator.Value
 import Simulator.CallRecord
 
@@ -22,17 +22,17 @@ receiveUpdate acqua  =
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           env = environments pu
-          hp = heap pu
+          crseg = callRecordSeg pu
 
           Just cenv  = Map.lookup envId env
           Just (PointerV pointer) = Map.lookup "callRecord" cenv
-          Just (CallRecordV callRec) = Map.lookup (addr pointer) hp
+          Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
 
           newParams = Seq.update idx val (params callRec)
           callRec' = callRec { params = newParams }
 
-          hp' = Map.insert (addr pointer) (CallRecordV callRec') hp
-          pu' = pu { heap = hp', locked = True }
+          crseg' = Map.insert (addr pointer) (CallRecordV callRec') crseg
+          pu' = pu { callRecordSeg = crseg', locked = True }
 
           pus' = updatePU pus pu'
           f' = if pId == 0

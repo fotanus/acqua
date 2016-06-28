@@ -6,7 +6,7 @@ import Logger
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Heap as Heap
+import Simulator.CallRecordSeg as CallRecordSeg
 import Simulator.Value
 import Simulator.CallRecord
 
@@ -22,7 +22,7 @@ getCallRecordParam acqua =
         (((GetCallRecordParam x i v):cs),True) -> trace ((show (PU.puId pu)) ++ ": GetCallRecordParam " ++ (show x) ++ " " ++ (show i) ++ " " ++ (show v)) pu'
           where
             PointerV pointer = getVal pu x
-            CallRecordV callRecord = Heap.lookupPt pointer (heap pu)
+            CallRecordV callRecord = CallRecordSeg.lookupPt pointer (callRecordSeg pu)
             val = Sequence.index (params callRecord) i
             pu' = (setVal pu v val) { PU.commands = cs, locked = True }
         _ -> pu

@@ -9,7 +9,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Value as V
-import Simulator.Heap as Heap
+import Simulator.CallRecordSeg as CallRecordSeg
 import Simulator.CallRecord
 
 import Simulator.Rules.Base
@@ -31,12 +31,12 @@ assignV acqua =
                 PointerV pt | (V.puId pt) == (PU.puId pu) -> (puAfterAssign,i)
                             | otherwise -> traceShow ("AssignV from other PU, starting to copy " ++ (show pt)) (pu'',i''')
                               where
-                                hp = heap pu
-                                hpPos = Heap.nextFreePos hp
-                                pointer = Pointer (PU.puId pu) hpPos
+                                crseg = callRecordSeg pu
+                                crsegPos = CallRecordSeg.nextFreePos crseg
+                                pointer = Pointer (PU.puId pu) crsegPos
                                 clos = CallRecord "" 0 0 (Sequence.replicate 5 (NumberV 0))
-                                hp' = Map.insert hpPos (CallRecordV clos) hp
-                                pu'' = (setVal pu x (PointerV pointer)) { PU.commands = cs, heap = hp', enabled = False, locked = True}
+                                crseg' = Map.insert crsegPos (CallRecordV clos) crseg
+                                pu'' = (setVal pu x (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', enabled = False, locked = True}
                                 m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
                                 i''' = (ConstMsgReqClos m) : i
                 _ -> (puAfterAssign,i)
