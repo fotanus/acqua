@@ -128,37 +128,3 @@ currentPuEnv pu =
     Just cenv = Map.lookup (currentEnv pu) (environments pu)
   in
     cenv
-
-acquaResult :: [ProcessingUnit] -> [Char]
-acquaResult pus =
-  let
-    specialPu = (head pus)
-    Just env = Map.lookup "0" (environments specialPu)
-    Just response = Map.lookup "result" env
-  in
-    "response: " ++ (show response)
-
-acquaResultMap :: [ProcessingUnit] -> [Char]
-acquaResultMap pus =
-  let
-    specialPu = (head pus)
-    Just env = Map.lookup "0" (environments specialPu)
-    responses :: Int -> String
-    responses n = case response n of
-                    Just (NumberV resp) -> (show resp) ++ ", " ++ (responses (n+1))
-                    Just _ -> error "Result should be a number"
-                    Nothing -> ""
-    response n = Map.lookup ("result" ++ (show n)) env
-  in
-    "response: " ++ (responses 0)
-
-showAcquaResult :: [ProcessingUnit] -> String
-showAcquaResult pus = 
-  let
-    specialPu = (head pus)
-    Just responseEnv = Map.lookup "0" (environments specialPu)
-  in
-    case Map.lookup "resultType" responseEnv of
-      Just (NumberV 0) -> acquaResult pus
-      Just (NumberV 1) -> acquaResultMap pus
-      _ -> error "Can't show this result type"

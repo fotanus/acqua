@@ -1,11 +1,14 @@
 module Simulator.Acqua where
 
+import qualified Data.Map as Map
 
 import AcquaIR.Language as IR
 import Simulator.AcquaState
 import Simulator.ProcessingUnit
 import Simulator.Interconnection
+import Simulator.Environment
 import Simulator.Queue
+import Simulator.Value
 
 type FinishFlag = Bool
 
@@ -39,3 +42,33 @@ unlockAll (Acqua bb q pus i ff s)
   = Acqua bb q pus' i ff s
   where
     pus' = map (\p -> unlock p) pus
+
+showAcquaResult :: [ProcessingUnit] -> String
+showAcquaResult pus = 
+  let
+    specialPu = (head pus)
+    Just responseEnv = Map.lookup "0" (environments specialPu)
+  in
+    case Map.lookup "resultType" responseEnv of
+      Just (NumberV 0) -> acquaResultRun responseEnv
+      Just (NumberV 1) -> acquaResultMap responseEnv
+      _ -> error "Can't show this result type"
+
+acquaResultRun :: Environment -> [Char]
+acquaResultRun env =
+  let
+    Just response = Map.lookup "result" env
+  in
+    "response: " ++ (show response)
+
+acquaResultMap :: Environment -> [Char]
+acquaResultMap env =
+  let
+    responses :: Int -> String
+    responses n = case response n of
+                    Just (NumberV resp) -> (show resp) ++ ", " ++ (responses (n+1))
+                    Just _ -> error "Result should be a number"
+                    Nothing -> ""
+    response n = Map.lookup ("result" ++ (show n)) env
+  in
+    "response: " ++ (responses 0)

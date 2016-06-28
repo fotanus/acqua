@@ -3,7 +3,6 @@ module Simulator.Run where
 import Logger
 import AcquaIR.Language
 import Simulator.Acqua
-import Simulator.ProcessingUnit
 import Simulator.Rules
 import Simulator.Rules.Base
 
