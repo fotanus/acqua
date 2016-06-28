@@ -21,19 +21,19 @@ data Command
   | AssignI Name Int
   | AssignL Name Label
   | AssignV Name Name
-  | NewClosure Name Int
-  | SetClosureFn Name Label
-  | GetClosureFn Name Label
-  | SetClosureMissing Name Name
-  | SetClosureMissingI Name Int
-  | GetClosureMissing Name Name
-  | SetClosureCount Name Name
-  | SetClosureCountI Name Int
-  | GetClosureCount Name Name
-  | SetClosureParam Name Name Name
-  | SetClosureParamI Name Int Name
-  | SetClosureParamIL Name Int Name
-  | GetClosureParam Name Int Name
+  | NewCallRecord Name Int
+  | SetCallRecordFn Name Label
+  | GetCallRecordFn Name Label
+  | SetCallRecordMissing Name Name
+  | SetCallRecordMissingI Name Int
+  | GetCallRecordMissing Name Name
+  | SetCallRecordCount Name Name
+  | SetCallRecordCountI Name Int
+  | GetCallRecordCount Name Name
+  | SetCallRecordParam Name Name Name
+  | SetCallRecordParamI Name Int Name
+  | SetCallRecordParamIL Name Int Name
+  | GetCallRecordParam Name Int Name
   | Wait
   deriving (Eq,Ord,Show,Read)
 
@@ -102,19 +102,19 @@ printCommand (AssignI name n) = ident ++ name ++ " = " ++ (show n) ++ "\n"
 printCommand (AssignL name l) = ident ++ name ++ " = \"" ++ l ++ "\"\n"
 printCommand (AssignV name1 name2) = ident ++ name1 ++ " = " ++ name2 ++ "\n"
 printCommand (Wait) = ident ++ (blue "Wait") ++ "\n"
-printCommand (NewClosure n1 i) = ident ++ n1 ++  " = " ++ (red "NewClosure ") ++ (show i) ++ "\n"
-printCommand (SetClosureFn n1 l) = ident ++ "SetClosureFn " ++ n1 ++ " " ++ l ++ "\n"
-printCommand (GetClosureFn n1 l) = ident ++ l ++ " = GetClosureFn " ++ n1 ++ "\n"
-printCommand (SetClosureMissing n1 n2) = ident ++ "SetClosureMissing " ++ n1 ++ " " ++ n2 ++ "\n"
-printCommand (SetClosureMissingI n1 i) = ident ++ "SetClosureMissingI " ++ n1 ++ " " ++ (show i) ++ "\n"
-printCommand (GetClosureMissing n1 n2) = ident ++ n2 ++ " = GetClosureMissing " ++ n1 ++ "\n"
-printCommand (SetClosureCount n1 n2) = ident ++ "SetClosureCount " ++ n1 ++ " " ++ n2 ++ "\n"
-printCommand (SetClosureCountI n1 i) = ident ++ "SetClosureCountI " ++ n1 ++ " " ++ (show i) ++ "\n"
-printCommand (GetClosureCount n1 n2) = ident ++ n2 ++ " = GetClosureCount " ++ n1 ++ "\n"
-printCommand (SetClosureParam n1 n2 n3) = ident ++ (red "SetClosureParam ") ++ n1 ++ " " ++ n2 ++ " " ++ n3 ++  "\n"
-printCommand (SetClosureParamIL n1 n2 n3) = ident ++ "SetClosureParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
-printCommand (SetClosureParamI n1 n2 n3) = ident ++ "SetClosureParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
-printCommand (GetClosureParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetClosureParam ") ++ n1 ++ " " ++ (show n2) ++ "\n"
+printCommand (NewCallRecord n1 i) = ident ++ n1 ++  " = " ++ (red "NewCallRecord ") ++ (show i) ++ "\n"
+printCommand (SetCallRecordFn n1 l) = ident ++ "SetCallRecordFn " ++ n1 ++ " " ++ l ++ "\n"
+printCommand (GetCallRecordFn n1 l) = ident ++ l ++ " = GetCallRecordFn " ++ n1 ++ "\n"
+printCommand (SetCallRecordMissing n1 n2) = ident ++ "SetCallRecordMissing " ++ n1 ++ " " ++ n2 ++ "\n"
+printCommand (SetCallRecordMissingI n1 i) = ident ++ "SetCallRecordMissingI " ++ n1 ++ " " ++ (show i) ++ "\n"
+printCommand (GetCallRecordMissing n1 n2) = ident ++ n2 ++ " = GetCallRecordMissing " ++ n1 ++ "\n"
+printCommand (SetCallRecordCount n1 n2) = ident ++ "SetCallRecordCount " ++ n1 ++ " " ++ n2 ++ "\n"
+printCommand (SetCallRecordCountI n1 i) = ident ++ "SetCallRecordCountI " ++ n1 ++ " " ++ (show i) ++ "\n"
+printCommand (GetCallRecordCount n1 n2) = ident ++ n2 ++ " = GetCallRecordCount " ++ n1 ++ "\n"
+printCommand (SetCallRecordParam n1 n2 n3) = ident ++ (red "SetCallRecordParam ") ++ n1 ++ " " ++ n2 ++ " " ++ n3 ++  "\n"
+printCommand (SetCallRecordParamIL n1 n2 n3) = ident ++ "SetCallRecordParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
+printCommand (SetCallRecordParamI n1 n2 n3) = ident ++ "SetCallRecordParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
+printCommand (GetCallRecordParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetCallRecordParam ") ++ n1 ++ " " ++ (show n2) ++ "\n"
 
 printTerminator :: Terminator -> String
 printTerminator (Goto l) = ident ++ (green ("goto " ++ l)) ++ "\n"

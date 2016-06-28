@@ -19,25 +19,25 @@ import Simulator.Rules.ReqClos
 import Simulator.Rules.SendEnvMsg
 import Simulator.Rules.EndCopy
 
-import Simulator.Rules.NewClosure
-import Simulator.Rules.SetClosureFn
-import Simulator.Rules.SetClosureMissing
-import Simulator.Rules.SetClosureMissingI
-import Simulator.Rules.SetClosureCount
-import Simulator.Rules.SetClosureCountI
-import Simulator.Rules.GetClosureParam
-import Simulator.Rules.SetClosureParam
-import Simulator.Rules.SetClosureParamI
-import Simulator.Rules.SetClosureParamIL
-import Simulator.Rules.GetClosureMissing
-import Simulator.Rules.GetClosureCount
+import Simulator.Rules.NewCallRecord
+import Simulator.Rules.SetCallRecordFn
+import Simulator.Rules.SetCallRecordMissing
+import Simulator.Rules.SetCallRecordMissingI
+import Simulator.Rules.SetCallRecordCount
+import Simulator.Rules.SetCallRecordCountI
+import Simulator.Rules.GetCallRecordParam
+import Simulator.Rules.SetCallRecordParam
+import Simulator.Rules.SetCallRecordParamI
+import Simulator.Rules.SetCallRecordParamIL
+import Simulator.Rules.GetCallRecordMissing
+import Simulator.Rules.GetCallRecordCount
 
 
 rules :: [Rule]
 rules = [
   assignV, assignL, assignI, returnTerminator, resume, wait, op, ifRule, goto,
-  newClosure, setClosureFn, setClosureMissingI, setClosureCountI, setClosureParam, getClosureParam,
-  setClosureParamIL, setClosureParamI, getClosureMissing, getClosureCount, setClosureCount, setClosureMissing,
+  newCallRecord, setCallRecordFn, setCallRecordMissingI, setCallRecordCountI, setCallRecordParam, getCallRecordParam,
+  setCallRecordParamIL, setCallRecordParamI, getCallRecordMissing, getCallRecordCount, setCallRecordCount, setCallRecordMissing,
   receiveResponse, receiveUpdate, receiveUpdateClos, receiveUpdateMetaClos, endCopy,
   call, sendEnvMsg, reqEnv, reqClos, assignJob
   ]

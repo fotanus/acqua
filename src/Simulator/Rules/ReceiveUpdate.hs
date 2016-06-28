@@ -10,7 +10,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Heap
 import Simulator.Value
-import Simulator.Closure
+import Simulator.CallRecord
 
 import Simulator.Rules.Base
 
@@ -25,13 +25,13 @@ receiveUpdate acqua  =
           hp = heap pu
 
           Just cenv  = Map.lookup envId env
-          Just (PointerV pointer) = Map.lookup "closure" cenv
-          Just (ClosureV closur) = Map.lookup (addr pointer) hp
+          Just (PointerV pointer) = Map.lookup "callRecord" cenv
+          Just (CallRecordV callRec) = Map.lookup (addr pointer) hp
 
-          newParams = Seq.update idx val (params closur)
-          closur' = closur { params = newParams }
+          newParams = Seq.update idx val (params callRec)
+          callRec' = callRec { params = newParams }
 
-          hp' = Map.insert (addr pointer) (ClosureV closur') hp
+          hp' = Map.insert (addr pointer) (CallRecordV callRec') hp
           pu' = pu { heap = hp', locked = True }
 
           pus' = updatePU pus pu'

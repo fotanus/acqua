@@ -5,7 +5,7 @@ import AcquaIR.Language as IR
 import Control.Monad.State
 
 
-type ClosureInfoT = (String,String,[String],[String],Bool)
+type CallRecordInfoT = (String,String,[String],[String],Bool)
 
 data CompileStates = CompileStates {
   thenLabelNum :: Int,
@@ -13,7 +13,7 @@ data CompileStates = CompileStates {
   dummyLabelNum :: Int,
   fnLabelNum :: Int,
   identNum :: Int,
-  closureInfo :: [(String,ClosureInfoT)],
+  callRecordInfo :: [(String,CallRecordInfoT)],
   fnLabelNames :: [(String,String)],
   knownVarsList :: [String]
   }
@@ -51,17 +51,17 @@ nextIdentName = do
   put (CompileStates thenN backN dummyN fnN (identN+1) closInfo fnLabels kvs)
   return $ "var" ++ (show identN)
 
-setClosureInfo :: String -> ClosureInfoT -> State CompileStates IR.Name
-setClosureInfo a b = do
+setCallRecordInfo :: String -> CallRecordInfoT -> State CompileStates IR.Name
+setCallRecordInfo a b = do
   CompileStates thenN backN dummyN fnN identN closInfo fnLabels kvs <- get
   closInfo' <- return $ (a,b) : (closInfo)
   put (CompileStates thenN backN dummyN fnN identN closInfo' fnLabels kvs)
   return $ "var" ++ (show identN)
 
-getClosureInfo :: String -> State CompileStates (Maybe ClosureInfoT)
-getClosureInfo a = do
+getCallRecordInfo :: String -> State CompileStates (Maybe CallRecordInfoT)
+getCallRecordInfo a = do
   s <- get
-  return $ lookup a (closureInfo s)
+  return $ lookup a (callRecordInfo s)
 
 setFnLabelName :: String -> String -> State CompileStates IR.Name
 setFnLabelName a b = do

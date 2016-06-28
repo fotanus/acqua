@@ -50,7 +50,7 @@ data MsgReqEnv = MsgReqEnv {
   jsId  :: EnvId,
   puIdT :: PId,
   teId  :: EnvId,
-  closure :: Name
+  callRecord :: Name
 } deriving (Show, Eq)
 
 data MsgReqClos = MsgReqClos {

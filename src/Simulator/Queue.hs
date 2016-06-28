@@ -15,7 +15,7 @@ data Job = Job {
   label :: Label,
   environment :: EnvId,
   puId :: PId,
-  closure :: Name,
+  callRecord :: Name,
   variable :: Name
 } deriving(Show, Eq)
 

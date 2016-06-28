@@ -87,22 +87,22 @@ addWaitCommands p ((lab,name):basicblocks) =
         IR.Op n1 _ n2         -> if varName == n1 || varName == n2
                                  then Wait:c:cs
                                  else c:(insertWait cs varName)
-        GetClosureFn n _      -> if varName == n
+        GetCallRecordFn n _      -> if varName == n
                                  then Wait:c:cs
                                  else c:(insertWait cs varName)
-        GetClosureMissing n _ -> if varName == n
+        GetCallRecordMissing n _ -> if varName == n
                                  then Wait:c:cs
                                  else c:(insertWait cs varName)
-        GetClosureCount n _   -> if varName == n
+        GetCallRecordCount n _   -> if varName == n
                                  then Wait:c:cs
                                  else c:(insertWait cs varName)
-        SetClosureFn n _      -> if varName == n
+        SetCallRecordFn n _      -> if varName == n
                                  then Wait:c:cs
                                  else c:(insertWait cs varName)
-        SetClosureMissing n _ -> if varName == n
+        SetCallRecordMissing n _ -> if varName == n
                                  then Wait:c:cs
                                  else c:(insertWait cs varName)
-        SetClosureCount n _   -> if varName == n
+        SetCallRecordCount n _   -> if varName == n
                                  then Wait:c:cs
                                  else c:(insertWait cs varName)
 

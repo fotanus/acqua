@@ -9,7 +9,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Heap
 import Simulator.Value
-import Simulator.Closure as Closure
+import Simulator.CallRecord as CallRecord
 
 import Simulator.Rules.Base
 
@@ -22,11 +22,11 @@ receiveUpdateMetaClos acqua  =
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           hp = heap pu
 
-          Just (ClosureV closur) = Map.lookup (addr pointer) hp
+          Just (CallRecordV callRec) = Map.lookup (addr pointer) hp
 
-          closur' = closur { functionName = fnN, Closure.paramCount = count, Closure.paramMissing = missing }
+          callRec' = callRec { functionName = fnN, CallRecord.paramCount = count, CallRecord.paramMissing = missing }
 
-          hp' = Map.insert (addr pointer) (ClosureV closur') hp
+          hp' = Map.insert (addr pointer) (CallRecordV callRec') hp
           pu' = pu { heap = hp', locked = True }
 
           pus' = updatePU pus pu'

@@ -11,7 +11,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Value
 import Simulator.Heap
-import Simulator.Closure
+import Simulator.CallRecord
 
 
 import Simulator.Rules.Base
@@ -19,7 +19,7 @@ import Simulator.Rules.Base
 reqEnv :: Rule
 reqEnv acqua  =
   case (interconnection acqua) of
-      ((ConstMsgReqEnv (MsgReqEnv pIdS mjsId pIdT mteId closureName)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqEnv")  $ acqua { processingUnits = pus', interconnection = ms }
+      ((ConstMsgReqEnv (MsgReqEnv pIdS mjsId pIdT mteId callRecordName)):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqEnv")  $ acqua { processingUnits = pus', interconnection = ms }
         where
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pIdT) pus
@@ -30,10 +30,10 @@ reqEnv acqua  =
           omq' = omq ++ newMessages
           newMessages = updMsgs ++ [endMsg]
           endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS))
-          updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params closur)
+          updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params callRec)
           Just tenv = Map.lookup mteId env
-          Just (PointerV pointer) = Map.lookup closureName tenv
-          Just (ClosureV closur) = Map.lookup (addr pointer) hp
+          Just (PointerV pointer) = Map.lookup callRecordName tenv
+          Just (CallRecordV callRec) = Map.lookup (addr pointer) hp
           idxValToMsg idx val =
               ConstMsgUpdate (MsgUpdate pIdS mjsId idx val)
 

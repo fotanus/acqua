@@ -11,7 +11,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Value
 import Simulator.Heap
-import Simulator.Closure as Closure
+import Simulator.CallRecord as CallRecord
 
 
 import Simulator.Rules.Base
@@ -26,9 +26,9 @@ reqClos acqua  =
           omq' = (outgoingMessageQueue pu) ++ newMessages
           newMessages = updMetaMsg ++ updMsgs ++ [endMsg]
           endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS))
-          updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params closur)
-          updMetaMsg = [ConstMsgUpdateMetaClos (MsgUpdateMetaClos pIdS ptSrc (functionName closur) (Closure.paramCount closur) (Closure.paramMissing closur))]
-          Just (ClosureV closur) = Map.lookup (addr ptTrg) (heap pu)
+          updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params callRec)
+          updMetaMsg = [ConstMsgUpdateMetaClos (MsgUpdateMetaClos pIdS ptSrc (functionName callRec) (CallRecord.paramCount callRec) (CallRecord.paramMissing callRec))]
+          Just (CallRecordV callRec) = Map.lookup (addr ptTrg) (heap pu)
           idxValToMsg idx val =
               ConstMsgUpdateClos (MsgUpdateClos pIdS ptSrc idx val)
 

@@ -43,7 +43,7 @@ newAcquaMap p n var params = Acqua p' q pus newInterconnection False statesDefau
     pus = specialProcessingUnit:(newProcessingUnits n)
     q = newQueueForMap specialProcessingUnit (map read params)
     p' = ((addGetVar (head p)):(tail p))
-    addGetVar bb = bb { IR.commands = ((GetClosureParam "closure" 0 var):(IR.commands bb)) }
+    addGetVar bb = bb { IR.commands = ((GetCallRecordParam "callRecord" 0 var):(IR.commands bb)) }
 
 getNextEnvId :: Map.Map String StateValue -> (EnvId, Map.Map String StateValue)
 getNextEnvId s = (nextEnvId,s')

@@ -8,7 +8,7 @@ import Simulator.Value
 import Simulator.Environment
 import Simulator.Heap
 import Simulator.Interconnection
-import Simulator.Closure
+import Simulator.CallRecord
 import Simulator.ProcessingUnitId
 
 data ReturnAddr = ReturnAddr {
@@ -48,7 +48,7 @@ emptySpecialPU =
         Simulator.ProcessingUnit.terminator = Empty,
         Simulator.ProcessingUnit.currentEnv = "0",
         Simulator.ProcessingUnit.environments = Map.fromList [("0", environmentZero)],
-        Simulator.ProcessingUnit.heap = Map.fromList [(0, ClosureV emptyClosure)],
+        Simulator.ProcessingUnit.heap = Map.fromList [(0, CallRecordV emptyCallRecord)],
         Simulator.ProcessingUnit.returnAddrs = Map.fromList [],
         Simulator.ProcessingUnit.callCount = Map.fromList [("0",1)],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
@@ -62,7 +62,7 @@ specialPU pars =
   let
     env = Map.fromList (List.map (\i -> ((show i), PointerV (Pointer 0 i))) [0..(length pars)])
     envs = Map.fromList [("0", env)]
-    hp = Map.fromList (List.map (\a -> ((snd a), ClosureV (closureWithParam (fst a)))) (zip pars [0..]))
+    hp = Map.fromList (List.map (\a -> ((snd a), CallRecordV (callRecordWithParam (fst a)))) (zip pars [0..]))
   in
     PU {
         Simulator.ProcessingUnit.puId=0,

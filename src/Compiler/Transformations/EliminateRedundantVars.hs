@@ -14,7 +14,7 @@ _eliminateCallVars (bb:bbs) p =
     if null (commands bb)
       then _eliminateCallVars bbs p
       else case last (commands bb) of
-         Call _ closure ->
+         Call _ callRecord ->
              let
                 labelNum = last (label bb)
                 back = lookupBB p ("back" ++ [labelNum])
@@ -26,10 +26,10 @@ _eliminateCallVars (bb:bbs) p =
                          _eliminateCallVars bbs p'
                        where 
                          p' = updateBB newBack $ updateBB newCall $ updateBB newOrig p
-                         newCall = bb { commands = (head (commands bb)):[Call var closure] }
+                         newCall = bb { commands = (head (commands bb)):[Call var callRecord] }
                          newBack = back { commands = tail (commands back) }
                          newOrig = origBB { commands = ((commands origBB) ++ [AssignV var origClosName]) }
-                         SetClosureParam origClosName _ _ = (reverse (commands origBB))!!1
+                         SetCallRecordParam origClosName _ _ = (reverse (commands origBB))!!1
                      _ -> error "first command on call block must be 'resp ='"
          _ -> _eliminateCallVars bbs p
 

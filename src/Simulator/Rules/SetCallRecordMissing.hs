@@ -1,4 +1,4 @@
-module Simulator.Rules.SetClosureMissing where
+module Simulator.Rules.SetCallRecordMissing where
 
 import qualified Data.Map as Map
 import Logger
@@ -8,17 +8,17 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Heap
 import Simulator.Value
-import Simulator.Closure
+import Simulator.CallRecord
 
 import Simulator.Rules.Base
 
-setClosureMissing :: Rule
-setClosureMissing acqua = acqua { processingUnits = newPus }
+setCallRecordMissing :: Rule
+setCallRecordMissing acqua = acqua { processingUnits = newPus }
   where
-    newPus = map stepSetClosureMissing (processingUnits acqua)
-    stepSetClosureMissing pu =
+    newPus = map stepSetCallRecordMissing (processingUnits acqua)
+    stepSetCallRecordMissing pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
-        (((SetClosureMissing x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetClosureMissing " ++ (show x) ++ " " ++ (show n)) pu'
+        (((SetCallRecordMissing x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetCallRecordMissing " ++ (show x) ++ " " ++ (show n)) pu'
           where
             ce = PU.currentEnv pu
             envs = PU.environments pu
@@ -26,9 +26,9 @@ setClosureMissing acqua = acqua { processingUnits = newPus }
 
             Just cenv = Map.lookup ce envs
             Just (PointerV pointer) = Map.lookup x cenv
-            Just (ClosureV closur) = Map.lookup (addr pointer) hp
+            Just (CallRecordV callRec) = Map.lookup (addr pointer) hp
             Just (NumberV num) = Map.lookup n cenv
-            closur' = closur { paramMissing = num }
-            hp' = Map.insert (addr pointer) (ClosureV closur') hp
+            callRec' = callRec { paramMissing = num }
+            hp' = Map.insert (addr pointer) (CallRecordV callRec') hp
             pu' = pu { PU.commands = cs, heap = hp', locked = True }
         _ -> pu

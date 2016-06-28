@@ -27,49 +27,49 @@ compile t =
 _compile :: L1.Term -> State CompileStates ([Statement], [Statement])
 _compile (Num n)   = return ([SC (AssignI resp n)],[])
 _compile (Ident n) = do
-    c <- getClosureInfo n
+    c <- getCallRecordInfo n
     return $ case c of
                Nothing -> ([SC (AssignV resp n)],[])
                Just (fn,_,params,vars,False) -> ([
-                           SC (NewClosure "closure" ((length vars')+(length params))),
-                           SC (SetClosureFn "closure" fn)
+                           SC (NewCallRecord "callRecord" ((length vars')+(length params))),
+                           SC (SetCallRecordFn "callRecord" fn)
                          ] ++ freeVarsSetParams ++ [
-                           SC (SetClosureMissingI "closure" (length params)),
-                           SC (SetClosureCountI "closure" ((length vars'))),
-                           SC (AssignV resp "closure")
+                           SC (SetCallRecordMissingI "callRecord" (length params)),
+                           SC (SetCallRecordCountI "callRecord" ((length vars'))),
+                           SC (AssignV resp "callRecord")
                          ],[])
                         where
                           vars' = if null vars then [] else tail vars
-                          freeVarsSetParams = map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip vars [0..])
+                          freeVarsSetParams = map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip vars [0..])
                Just (fn,_,params,vars,True) -> ([
-                           SC (NewClosure "closure" ((length vars')+(length params)+1)),
-                           SC (SetClosureFn "closure" fn),
-                           SC (SetClosureParamIL "closure" 0 fn)
+                           SC (NewCallRecord "callRecord" ((length vars')+(length params)+1)),
+                           SC (SetCallRecordFn "callRecord" fn),
+                           SC (SetCallRecordParamIL "callRecord" 0 fn)
                          ] ++ freeVarsSetParams ++ [
-                           SC (SetClosureMissingI "closure" 1),
-                           SC (SetClosureCountI "closure" ((length vars')+(length params))),
-                           SC (AssignV resp "closure")
+                           SC (SetCallRecordMissingI "callRecord" 1),
+                           SC (SetCallRecordCountI "callRecord" ((length vars')+(length params))),
+                           SC (AssignV resp "callRecord")
                          ],[])
                         where
                           vars' = if null vars then [] else tail vars
-                          freeVarsSetParams = map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip vars [1..])
+                          freeVarsSetParams = map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip vars [1..])
 
 _compile (Fn params t1 freeVars) = do
   fn <- nextFnLabel
   (c1,bb1) <- _compile t1
-  freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetClosureParamI "closure" idx v)) (zip freeVars [0..])
-  getParamsCommands <- return $ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip freeVars [0..])
-  getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
-  newClosureCommands <- return $ [
-                                   SC (NewClosure "closure" ((length freeVars)+(length params))),
-                                   SC (SetClosureFn "closure" fn)
+  freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip freeVars [0..])
+  getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
+  getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
+  newCallRecordCommands <- return $ [
+                                   SC (NewCallRecord "callRecord" ((length freeVars)+(length params))),
+                                   SC (SetCallRecordFn "callRecord" fn)
                                  ] ++ freeVarsSetParams ++ [
-                                   SC (SetClosureMissingI "closure" (length params)),
-                                   SC (SetClosureCountI "closure" (length freeVars)),
-                                   SC (AssignV resp "closure")
+                                   SC (SetCallRecordMissingI "callRecord" (length params)),
+                                   SC (SetCallRecordCountI "callRecord" (length freeVars)),
+                                   SC (AssignV resp "callRecord")
                                  ]
   fnBody <- return $ [SL fn] ++ getParamsCommands' ++ c1 ++ [ST (Return resp)]
-  return (newClosureCommands, fnBody++ bb1)
+  return (newCallRecordCommands, fnBody++ bb1)
 
 
 _compile (App t1 t2) = do
@@ -78,35 +78,35 @@ _compile (App t1 t2) = do
   thenLabel <- nextThenLabel
   backLabel <- nextBackLabel
   dummyLabel <- nextDummyLabel
-  closureIdent <- nextIdentName
-  closureIdent' <- nextIdentName
+  callRecordIdent <- nextIdentName
+  callRecordIdent' <- nextIdentName
   envs <- return  [
                     SC (AssignV "param" resp),
                     SC (AssignI "one" 1),
-                    SC (AssignV closureIdent' closureIdent'),
-                    SC (GetClosureMissing closureIdent' "missing"),
-                    SC (GetClosureCount closureIdent' "count"),
+                    SC (AssignV callRecordIdent' callRecordIdent'),
+                    SC (GetCallRecordMissing callRecordIdent' "missing"),
+                    SC (GetCallRecordCount callRecordIdent' "count"),
                     SC (IR.Op "missing" IR.Sub "one"),
                     SC (AssignV "new_missing" resp),
                     SC (IR.Op "count" IR.Add "one"),
                     SC (AssignV "new_count" resp),
-                    SC (SetClosureCount closureIdent' "new_count"),
-                    SC (SetClosureMissing closureIdent' "new_missing"),
-                    SC (SetClosureParam closureIdent' "count" "param"),
+                    SC (SetCallRecordCount callRecordIdent' "new_count"),
+                    SC (SetCallRecordMissing callRecordIdent' "new_missing"),
+                    SC (SetCallRecordParam callRecordIdent' "count" "param"),
                     SC (IR.Op "new_missing" IR.Lesser "one"),
                     ST (IR.If resp thenLabel),
                     SL dummyLabel,
-                    SC (AssignV "resp" closureIdent'),
+                    SC (AssignV "resp" callRecordIdent'),
                     ST (Goto backLabel),
                     SL backLabel
                   ]
   bbThen <- return $ [
                        SL thenLabel,
-                       SC ( AssignV closureIdent closureIdent'),
-                       SC (Call "resp" closureIdent),
+                       SC ( AssignV callRecordIdent callRecordIdent'),
+                       SC (Call "resp" callRecordIdent),
                        ST (Goto backLabel)
                      ]
-  cs <- return $ c1 ++ [SC (AssignV closureIdent' resp)] ++ c2 ++ envs
+  cs <- return $ c1 ++ [SC (AssignV callRecordIdent' resp)] ++ c2 ++ envs
   return (cs, bbThen ++ bb1 ++ bb2)
 
 _compile (L1.Op t1 op t2) = do
@@ -144,11 +144,11 @@ _compile (Letrec n (Fn params t1 freeVars) t2) = do
   _ <- addKnownVars n
   freeVars' <- return $ traceShow freeVars $ traceShow n $ traceShowId $ delete n freeVars
   fn <- nextFnLabel
-  _ <- setClosureInfo n (fn, n, params, freeVars', True)
+  _ <- setCallRecordInfo n (fn, n, params, freeVars', True)
   (c1,bb1) <- _compile t1
-  getParamsCommands <- return $ [SC (GetClosureParam "closure" 0 n)]
-  getParamsCommands' <- return $ getParamsCommands ++ map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip freeVars' [1..])
-  getParamsCommands'' <- return $ getParamsCommands' ++ (map (\p-> SC (GetClosureParam "closure" (snd p) (fst p))) (zip params [(length getParamsCommands')..] ))
+  getParamsCommands <- return $ [SC (GetCallRecordParam "callRecord" 0 n)]
+  getParamsCommands' <- return $ getParamsCommands ++ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars' [1..])
+  getParamsCommands'' <- return $ getParamsCommands' ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands')..] ))
   fnBody <- return $ [SL fn] ++ getParamsCommands'' ++ c1 ++ [ST (Return resp)]
   (c2,bb2) <- _compile t2
   return (c2, fnBody ++ bb1 ++ bb2)

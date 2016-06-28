@@ -9,7 +9,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Queue as Q
 import Simulator.Value
 import Simulator.Heap
-import Simulator.Closure
+import Simulator.CallRecord
 
 import Simulator.Rules.Base
 
@@ -34,8 +34,8 @@ stepCall q (pu:pus) s =
         hp = PU.heap pu
         Just cenv = Map.lookup ce envs
         Just (PointerV pointer) = Map.lookup x2 cenv
-        Just (ClosureV closur) = Map.lookup (addr pointer) hp
-        l = functionName closur
+        Just (CallRecordV callRec) = Map.lookup (addr pointer) hp
+        l = functionName callRec
         j = Job l ce pId x2 x1
         q' = q { jobs = j:(jobs q) }
 

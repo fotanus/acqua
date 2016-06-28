@@ -1,4 +1,4 @@
-module Simulator.Rules.NewClosure where
+module Simulator.Rules.NewCallRecord where
 
 import qualified Data.Map as Map
 import qualified Data.Sequence as Sequence
@@ -9,22 +9,22 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Value
 import Simulator.Heap as Heap
-import Simulator.Closure
+import Simulator.CallRecord
 
 import Simulator.Rules.Base
 
-newClosure :: Rule
-newClosure acqua = acqua { processingUnits = newPus }
+newCallRecord :: Rule
+newCallRecord acqua = acqua { processingUnits = newPus }
   where
-    newPus = map stepNewClosure (processingUnits acqua)
-    stepNewClosure pu =
+    newPus = map stepNewCallRecord (processingUnits acqua)
+    stepNewCallRecord pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
-        (((NewClosure x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": NewClosure " ++ (show x) ++ " " ++ (show n)) pu'
+        (((NewCallRecord x n):cs),True) -> trace ((show (PU.puId pu)) ++ ": NewCallRecord " ++ (show x) ++ " " ++ (show n)) pu'
           where
             hp = heap pu
             hpPos = Heap.nextFreePos hp
             pointer = Pointer (PU.puId pu) hpPos
-            clos = Closure "" 0 0 (Sequence.replicate n (NumberV 0))
-            hp' = Map.insert hpPos (ClosureV clos) hp
+            clos = CallRecord "" 0 0 (Sequence.replicate n (NumberV 0))
+            hp' = Map.insert hpPos (CallRecordV clos) hp
             pu' = (setVal pu x (PointerV pointer)) { PU.commands = cs, heap = hp', locked = True }
         _ -> pu

@@ -11,7 +11,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Queue
 import Simulator.Interconnection
 import Simulator.Value
-import Simulator.Closure
+import Simulator.CallRecord
 import Simulator.Heap
 
 import Simulator.Rules.Base
@@ -31,7 +31,7 @@ assignJob acqua =
 
           BB _ _ c t = lookupBB bb l
 
-          Job l envId pId' closur x = job
+          Job l envId pId' callRec x = job
           Queue js qlck = q
           jobs' = List.delete job js
 
@@ -41,17 +41,17 @@ assignJob acqua =
           cc' = Map.insert newEnvId 0 cc
 
           -- add message
-          m = MsgReqEnv pId newEnvId pId' envId closur
+          m = MsgReqEnv pId newEnvId pId' envId callRec
           i' = (ConstMsgReqEnv m) : i
 
-          -- add closure on heap
+          -- add callRecord on heap
           hpPos = Map.size hp
-          hp' = Map.insert hpPos (ClosureV (Closure "receivedClosure" 0 0 emptyParams)) hp
+          hp' = Map.insert hpPos (CallRecordV (CallRecord "receivedCallRecord" 0 0 emptyParams)) hp
           emptyParams = Seq.replicate 5 (NumberV 0)
 
-          -- create env with pointer to closure
+          -- create env with pointer to callRecord
           pt = PointerV $ Pointer pId hpPos
-          nenv = Map.fromList [("closure", pt)]
+          nenv = Map.fromList [("callRecord", pt)]
           env' = Map.insert newEnvId nenv env
 
           q' = Queue jobs' qlck

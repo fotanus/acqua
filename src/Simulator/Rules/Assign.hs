@@ -10,7 +10,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Value as V
 import Simulator.Heap as Heap
-import Simulator.Closure
+import Simulator.CallRecord
 
 import Simulator.Rules.Base
 
@@ -34,8 +34,8 @@ assignV acqua =
                                 hp = heap pu
                                 hpPos = Heap.nextFreePos hp
                                 pointer = Pointer (PU.puId pu) hpPos
-                                clos = Closure "" 0 0 (Sequence.replicate 5 (NumberV 0))
-                                hp' = Map.insert hpPos (ClosureV clos) hp
+                                clos = CallRecord "" 0 0 (Sequence.replicate 5 (NumberV 0))
+                                hp' = Map.insert hpPos (CallRecordV clos) hp
                                 pu'' = (setVal pu x (PointerV pointer)) { PU.commands = cs, heap = hp', enabled = False, locked = True}
                                 m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
                                 i''' = (ConstMsgReqClos m) : i

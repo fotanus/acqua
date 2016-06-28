@@ -3,12 +3,12 @@ module Simulator.Heap where
 import Data.Map as Map
 
 import Simulator.Value
-import Simulator.Closure
+import Simulator.CallRecord
 
 type Heap = Map HeapAddr HeapValue
 
 data HeapValue
-  = ClosureV Closure
+  = CallRecordV CallRecord
   deriving (Show,Eq)
 
 nextFreePos :: Heap -> HeapAddr
