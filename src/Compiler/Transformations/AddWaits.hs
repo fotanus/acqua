@@ -74,37 +74,40 @@ addWaitCommands p ((lab,name):basicblocks) =
     insertWait [] _ = []
     insertWait (c:cs) varName =
         case c of
-        Wait                  -> c:cs
-        AssignI n _           -> if varName == n
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
-        AssignL n _           -> if varName == n
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
-        AssignV n1 n2         -> if varName == n1 || varName == n2
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
-        IR.Op n1 _ n2         -> if varName == n1 || varName == n2
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
-        GetCallRecordFn n _      -> if varName == n
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
-        GetCallRecordMissing n _ -> if varName == n
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
-        GetCallRecordCount n _   -> if varName == n
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
-        SetCallRecordFn n _      -> if varName == n
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
-        SetCallRecordMissing n _ -> if varName == n
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
-        SetCallRecordCount n _   -> if varName == n
-                                 then Wait:c:cs
-                                 else c:(insertWait cs varName)
+        Wait                  ->  c:cs
+        AssignI n _           ->  if varName == n
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        AssignL n _           ->  if varName == n
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        AssignV n1 n2         ->  if varName == n1 || varName == n2
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        IR.Op n1 _ n2         ->  if varName == n1 || varName == n2
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        GetCallRecordFn n _       -> if varName == n
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        GetCallRecordMissing n _  -> if varName == n
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        GetCallRecordCount n _    -> if varName == n
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        SetCallRecordFn n _       -> if varName == n
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        SetCallRecordMissing n _  -> if varName == n
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        SetCallRecordCount n _    -> if varName == n
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        SetCallRecordParam n _ n' -> if varName == n || varName == n'
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
 
         _ -> c:(insertWait cs name)
 

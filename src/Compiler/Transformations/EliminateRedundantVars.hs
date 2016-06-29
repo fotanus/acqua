@@ -22,15 +22,15 @@ _eliminateCallVars (bb:bbs) p =
              in if null (commands back)
                 then _eliminateCallVars bbs p
                 else case head (commands back) of
-                     AssignV var "resp" ->
+                     AssignV var _ ->
                          _eliminateCallVars bbs p'
-                       where 
+                       where
                          p' = updateBB newBack $ updateBB newCall $ updateBB newOrig p
                          newCall = bb { commands = (head (commands bb)):[Call var callRecord] }
                          newBack = back { commands = tail (commands back) }
                          newOrig = origBB { commands = ((commands origBB) ++ [AssignV var origClosName]) }
                          SetCallRecordParam origClosName _ _ = (reverse (commands origBB))!!1
-                     _ -> error "first command on call block must be 'resp ='"
+                     _ -> error $ "first command on call block must be assignv"
          _ -> _eliminateCallVars bbs p
 
 eliminateVarsOnBB :: IR.Program -> IR.Program

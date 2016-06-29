@@ -1,6 +1,5 @@
 module Compiler.Compile where
 
-import Logger
 import Data.List
 import Control.Monad.State
 
@@ -31,15 +30,14 @@ _compile (Ident n) = do
     return $ case c of
                Nothing -> ([SC (AssignV resp n)],[])
                Just (fn,_,params,vars,False) -> ([
-                           SC (NewCallRecord "callRecord" ((length vars')+(length params))),
+                           SC (NewCallRecord "callRecord" ((length vars)+(length params))),
                            SC (SetCallRecordFn "callRecord" fn)
                          ] ++ freeVarsSetParams ++ [
                            SC (SetCallRecordMissingI "callRecord" (length params)),
-                           SC (SetCallRecordCountI "callRecord" ((length vars'))),
+                           SC (SetCallRecordCountI "callRecord" ((length vars))),
                            SC (AssignV resp "callRecord")
                          ],[])
                         where
-                          vars' = if null vars then [] else tail vars
                           freeVarsSetParams = map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip vars [0..])
                Just (fn,_,params,vars,True) -> ([
                            SC (NewCallRecord "callRecord" ((length vars')+(length params)+1)),
@@ -133,6 +131,15 @@ _compile (L1.If t1 t2 t3) = do
   bbs <- return $ bbThen ++ bb1 ++ bb2 ++ bb3
   return (cs, bbs)
 
+_compile (Let n (Fn params t1 freevars) t2) = do
+  (c1,bb1) <- _compile (Fn params t1 freevars)
+  _ <- addKnownVars n
+  let SL fn = head bb1
+  _ <- setCallRecordInfo n (fn, n, params, freevars, False)
+  (c2,bb2) <- _compile t2
+  cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
+  return (cs, bb1 ++ bb2)
+
 _compile (Let n t1 t2) = do
   _ <- addKnownVars n
   (c1,bb1) <- _compile t1
@@ -142,7 +149,7 @@ _compile (Let n t1 t2) = do
 
 _compile (Letrec n (Fn params t1 freeVars) t2) = do
   _ <- addKnownVars n
-  freeVars' <- return $ traceShow freeVars $ traceShow n $ traceShowId $ delete n freeVars
+  freeVars' <- return $ delete n freeVars
   fn <- nextFnLabel
   _ <- setCallRecordInfo n (fn, n, params, freeVars', True)
   (c1,bb1) <- _compile t1
