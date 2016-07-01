@@ -69,7 +69,7 @@ showStats acqua =
     statLineFormat s val = s ++ ": " ++ val ++ "\n"
     statLines = map (\(s,f) -> statLineFormat s (show (f ((acquaState acqua) Map.! s)))) statsAndFormat
   in
-    foldr (++) "----stats----\n" statLines
+    foldl (++) "----stats----\n" statLines
 
 acquaResultRun :: Environment -> [Char]
 acquaResultRun env =
