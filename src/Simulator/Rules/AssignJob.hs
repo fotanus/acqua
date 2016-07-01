@@ -46,7 +46,7 @@ assignJob acqua =
           i' = (ConstMsgReqEnv m) : i
 
           -- add callRecord on callRecordSeg
-          crsegPos = Map.size crseg
+          crsegPos = nextFreePos crseg
           crseg' = Map.insert crsegPos (CallRecordV (CallRecord "receivedCallRecord" 0 0 emptyParams)) crseg
           emptyParams = Seq.replicate 5 (NumberV 0)
 

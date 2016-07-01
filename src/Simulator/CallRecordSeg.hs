@@ -12,7 +12,11 @@ data CallRecordSegValue
   deriving (Show,Eq)
 
 nextFreePos :: CallRecordSeg -> CallRecordSegAddr
-nextFreePos callRecordSeg = Map.size callRecordSeg
+nextFreePos callRecordSeg = nextPos 0
+  where
+    nextPos n = case Map.lookup n callRecordSeg of
+                Nothing -> n
+                _ -> nextPos (n+1)
 
 lookup :: CallRecordSegAddr -> CallRecordSeg -> CallRecordSegValue
 lookup ad crseg =
