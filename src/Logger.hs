@@ -3,9 +3,13 @@
 module Logger where
 
 import Debug.Trace as T
-import Text.Show.Pretty
+import Text.Show.Pretty as P
 
 import Simulator.Acqua
+
+
+ppShow :: Show a => a -> String
+ppShow = P.ppShow
 
 doTrace :: Bool
 doTrace = True
@@ -29,9 +33,9 @@ traceAcqua :: Acqua -> a -> a
 traceAcqua acqua ret =
     if doTrace
     then T.traceShow "====Queue===" $
-         T.trace (ppShow (queue acqua)) $
+         T.trace (P.ppShow (queue acqua)) $
          T.traceShow "====Interconnection====" $
-         T.trace (ppShow (interconnection acqua)) $
+         T.trace (P.ppShow (interconnection acqua)) $
          T.traceShow "====Processing Units====" $
-         T.trace (ppShow (processingUnits acqua)) ret
+         T.trace (P.ppShow (processingUnits acqua)) ret
     else ret
