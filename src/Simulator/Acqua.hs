@@ -64,7 +64,8 @@ showStats acqua =
         ("maxQueueSize",       (\(IntVal v)    -> v)),
         ("maxCallRec",         (\(IntVal v)    -> v)),
         ("maxLocalCallRec",    (\(IntVal v)    -> v)),
-        ("maxMsg",             (\(IntVal v)    -> v))
+        ("maxMsg",             (\(IntVal v)    -> v)),
+        ("steps",              (\(IntVal v)    -> v))
         ]
     statLineFormat s val = s ++ ": " ++ val ++ "\n"
     statLines = map (\(s,f) -> statLineFormat s (show (f ((acquaState acqua) Map.! s)))) statsAndFormat

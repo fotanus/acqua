@@ -11,7 +11,16 @@ import Simulator.ProcessingUnit as PU
 
 trackStats :: Acqua -> Acqua
 trackStats acqua =
-  trackOccupiedPUs $ updateMaxQueueSize $ updateMaxLocalCallRec $ updateMaxCallRec $ updateMaxMsg acqua
+  trackSteps $ trackOccupiedPUs $ updateMaxQueueSize $ updateMaxLocalCallRec $ updateMaxCallRec $ updateMaxMsg acqua
+
+trackSteps :: Acqua -> Acqua
+trackSteps acqua =
+  let
+    Just (IntVal steps) = Map.lookup "steps" (acquaState acqua)
+    state' = Map.insert "steps" (IntVal (steps+1)) (acquaState acqua)
+  in
+    acqua { acquaState = state' }
+
 
 trackOccupiedPUs :: Acqua -> Acqua
 trackOccupiedPUs acqua =

@@ -15,7 +15,8 @@ statesDefault = Map.fromList [
     ("maxQueueSize", IntVal 0),
     ("maxCallRec", IntVal 0),
     ("maxLocalCallRec", IntVal 0),
-    ("maxMsg", IntVal 0)
+    ("maxMsg", IntVal 0),
+    ("steps", IntVal 0)
   ]
 
 getNextEnvId :: Map.Map String StateValue -> (String, Map.Map String StateValue)
@@ -24,5 +25,4 @@ getNextEnvId s = (nextEnvId,s')
     Just (IntVal count) = Map.lookup "envId" s
     s' = Map.insert "envId" (IntVal (count+1)) s
     nextEnvId = "env_" ++ (show count)
-
 
