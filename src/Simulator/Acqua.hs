@@ -60,15 +60,15 @@ showStats :: Acqua -> String
 showStats acqua =
   let
     statsAndFormat = [
-        ("occupiedPUPerCycle", (\(MapIntInt v) -> maximum (Map.elems v))),
-        ("maxQueueSize",       (\(IntVal v)    -> v)),
-        ("maxCallRec",         (\(IntVal v)    -> v)),
-        ("maxLocalCallRec",    (\(IntVal v)    -> v)),
-        ("maxMsg",             (\(IntVal v)    -> v)),
-        ("steps",              (\(IntVal v)    -> v))
+        ("occupiedPUPerCycle",  "occupiedPUPerCycle",  (\(MapIntInt v) -> (show (maximum (Map.elems v))))),
+        ("meanPUPerCycle",      "occupiedPUPerCycle",  (\(MapIntInt v) -> (show ((fromIntegral (sum (Map.elems v)) :: Float) / (fromIntegral (length (Map.elems v)) :: Float))))),
+        ("maxQueueSize",        "maxQueueSize",        (\(IntVal v)    -> (show v))),
+        ("maxCallRec",          "maxCallRec",          (\(IntVal v)    -> (show v))),
+        ("maxMsg",              "maxMsg",              (\(IntVal v)    -> (show v))),
+        ("steps",               "steps",               (\(IntVal v)    -> (show v)))
         ]
-    statLineFormat s val = s ++ ": " ++ val ++ "\n"
-    statLines = map (\(s,f) -> statLineFormat s (show (f ((acquaState acqua) Map.! s)))) statsAndFormat
+    statLineFormat l val = l ++ ": " ++ val ++ "\n"
+    statLines = map (\(l,s,f) -> statLineFormat l (f ((acquaState acqua) Map.! s))) statsAndFormat
   in
     foldl (++) "----stats----\n" statLines
 
