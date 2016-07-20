@@ -39,6 +39,6 @@ rules = [
   newCallRecord, setCallRecordFn, setCallRecordMissingI, setCallRecordCountI, setCallRecordParam, getCallRecordParam,
   setCallRecordParamIL, setCallRecordParamI, getCallRecordMissing, getCallRecordCount, setCallRecordCount, setCallRecordMissing,
   receiveResponse, receiveUpdate, receiveUpdateClos, receiveUpdateMetaClos, endCopy,
-  call, sendEnvMsg, reqEnv, reqClos, assignJob
+  sendEnvMsg, reqEnv, reqClos, assignJob, call
   ]
 
