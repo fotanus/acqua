@@ -16,7 +16,7 @@ import Simulator.Rules.Base
 receiveUpdateMetaClos :: Rule
 receiveUpdateMetaClos acqua  =
   case (interconnection acqua) of
-      ((ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing)):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateMetaClos") $ acqua { processingUnits = pus', interconnection = ms }
+      ((ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateMetaClos") $ acqua { processingUnits = pus', interconnection = ms }
         where
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus

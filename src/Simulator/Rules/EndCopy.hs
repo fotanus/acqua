@@ -14,7 +14,7 @@ endCopy acqua  =
   let
     i = interconnection acqua
   in case i of
-      ((ConstMsgEndCopy (MsgEndCopy pId)):ms) -> trace ((show (PU.puId pu)) ++ ": receive endCopy")  $ acqua { processingUnits = pus', interconnection = ms }
+      ((ConstMsgEndCopy (MsgEndCopy pId) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive endCopy")  $ acqua { processingUnits = pus', interconnection = ms }
         where
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus

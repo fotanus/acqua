@@ -17,7 +17,7 @@ import Simulator.Rules.Base
 receiveUpdateClos :: Rule
 receiveUpdateClos acqua =
   case (interconnection acqua) of
-      ((ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val)):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateClos, now it is " ++ (show callRec'))  $ acqua { processingUnits = pus', interconnection = ms }
+      ((ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateClos, now it is " ++ (show callRec'))  $ acqua { processingUnits = pus', interconnection = ms }
         where
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus

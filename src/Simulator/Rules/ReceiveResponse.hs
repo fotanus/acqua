@@ -13,7 +13,7 @@ import Simulator.Rules.Base
 receiveResponse :: Rule
 receiveResponse acqua =
   case (interconnection acqua) of
-      ((ConstMsgResponse (MsgResponse pId envId x v)):ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ acqua { processingUnits = pus', interconnection = ms, finishFlag = f' }
+      ((ConstMsgResponse (MsgResponse pId envId x v) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ acqua { processingUnits = pus', interconnection = ms, finishFlag = f' }
         where
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus

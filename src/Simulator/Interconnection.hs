@@ -5,13 +5,13 @@ import Simulator.Value
 import Simulator.ProcessingUnitId
 
 data Message
- = ConstMsgUpdate  MsgUpdate
- | ConstMsgUpdateClos  MsgUpdateClos
- | ConstMsgUpdateMetaClos  MsgUpdateMetaClos
- | ConstMsgResponse MsgResponse
- | ConstMsgReqEnv  MsgReqEnv
- | ConstMsgReqClos MsgReqClos
- | ConstMsgEndCopy MsgEndCopy
+ = ConstMsgUpdate  MsgUpdate Int
+ | ConstMsgUpdateClos  MsgUpdateClos Int
+ | ConstMsgUpdateMetaClos  MsgUpdateMetaClos Int
+ | ConstMsgResponse MsgResponse Int
+ | ConstMsgReqEnv  MsgReqEnv Int
+ | ConstMsgReqClos MsgReqClos Int
+ | ConstMsgEndCopy MsgEndCopy Int
  deriving (Show, Eq)
 
 

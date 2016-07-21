@@ -20,9 +20,14 @@ import Simulator.Rules.Base
 assignJob :: Rule
 assignJob acqua =
     case (getAvailable (processingUnits acqua), firstOf (jobs (queue acqua))) of
-      (Just pu, Just job) -> trace ((show (PU.puId pu)) ++ ": assignJob ") $ Acqua bb q' pus' i' ff s'
+      (Just pu, Just job) -> trace ((show (PU.puId pu)) ++ ": assignJob ") $ acqua { queue = q', processingUnits = pus', interconnection =  i', acquaState = s' }
         where
-          Acqua bb q pus i ff s = acqua
+          pus = processingUnits acqua
+          bb = program acqua
+          i = interconnection acqua
+          s = acquaState acqua
+          q = queue acqua
+
           pus' = updatePU pus pu'
           pId = PU.puId pu
           env = environments pu
@@ -43,7 +48,7 @@ assignJob acqua =
 
           -- add message
           m = MsgReqEnv pId newEnvId pId' envId callRec
-          i' = (ConstMsgReqEnv m) : i
+          i' = (ConstMsgReqEnv m (msgStepsToPropagate acqua)) : i
 
           -- add callRecord on callRecordSeg
           crsegPos = nextFreePos crseg

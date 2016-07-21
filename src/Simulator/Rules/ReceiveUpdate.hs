@@ -17,7 +17,7 @@ import Simulator.Rules.Base
 receiveUpdate :: Rule
 receiveUpdate acqua  =
   case (interconnection acqua) of
-      ((ConstMsgUpdate (MsgUpdate pId envId idx val)):ms) -> trace ((show (PU.puId pu)) ++ ": receive update")  $ acqua { processingUnits = pus', interconnection = ms, finishFlag = f' }
+      ((ConstMsgUpdate (MsgUpdate pId envId idx val) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive update")  $ acqua { processingUnits = pus', interconnection = ms, finishFlag = f' }
         where
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus

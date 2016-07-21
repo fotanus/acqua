@@ -12,8 +12,8 @@ import Simulator.CallRecord
 import Simulator.Rules.Base
 
 getCallRecordCount :: Rule
-getCallRecordCount (Acqua bb q pus i f s) =
-    Acqua bb q (map stepGetCallRecordCount pus) i f s
+getCallRecordCount acqua =
+    acqua { processingUnits = map stepGetCallRecordCount (processingUnits acqua) }
   where
     stepGetCallRecordCount pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of

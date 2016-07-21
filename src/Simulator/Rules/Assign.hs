@@ -38,7 +38,7 @@ assignV acqua =
                                 crseg' = Map.insert crsegPos (CallRecordV clos) crseg
                                 pu'' = (setVal pu x (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', enabled = False, locked = True}
                                 m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
-                                i''' = (ConstMsgReqClos m) : i
+                                i''' = (ConstMsgReqClos m (msgStepsToPropagate acqua)) : i
                 _ -> (puAfterAssign,i)
         _ ->
          let

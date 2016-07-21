@@ -10,8 +10,8 @@ import Simulator.Rules.Base
 run :: Program -> Int -> String
 run prog pus_n = step (newAcqua prog pus_n)
 
-runMap :: Program -> Int -> String -> [String] -> String
-runMap prog pus_n varName params = step (newAcquaMap prog pus_n varName params)
+runMap :: Program -> Int -> Int -> String -> [String] -> String
+runMap prog pus_n steps_to_propagate varName params = step (newAcquaMap prog pus_n steps_to_propagate varName params)
 
 applyRules :: [Rule] -> Acqua -> Acqua
 applyRules [] a = a
