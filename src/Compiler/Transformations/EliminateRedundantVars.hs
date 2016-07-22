@@ -50,4 +50,6 @@ eliminateVarsOnCmds (c:cs) = case (c,cs) of
                                     (AssignI n2 n1):(eliminateVarsOnCmds cs')
                                   ((AssignL "resp" n1),(AssignV n2 "resp"):cs') ->
                                     (AssignL n2 n1):(eliminateVarsOnCmds cs')
+                                  ((Op "resp" n1 opc n2),(AssignV n3 "resp"):cs') ->
+                                    (Op n3 n1 opc n2):(eliminateVarsOnCmds cs')
                                   (_,_) -> c:(eliminateVarsOnCmds cs)
