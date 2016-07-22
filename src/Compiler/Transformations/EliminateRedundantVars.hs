@@ -16,8 +16,8 @@ _eliminateCallVars (bb:bbs) p =
       else case last (commands bb) of
          Call _ callRecord ->
              let
-                labelNum = last (label bb)
-                back = lookupBB p ("back" ++ [labelNum])
+                labelNum = drop (length "then") (label bb)
+                back = lookupBB p ("back" ++ labelNum)
                 origBB = lookupBBWithIfForCall p (label bb)
              in if null (commands back)
                 then _eliminateCallVars bbs p
