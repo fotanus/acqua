@@ -84,7 +84,7 @@ addWaitCommands p ((lab,name):basicblocks) =
         AssignV n1 n2         ->  if varName == n1 || varName == n2
                                   then Wait:c:cs
                                   else c:(insertWait cs varName)
-        IR.Op n1 _ n2         ->  if varName == n1 || varName == n2
+        IR.Op r n1 _ n2       ->  if varName == n1 || varName == n2
                                   then Wait:c:cs
                                   else c:(insertWait cs varName)
         GetCallRecordFn n _       -> if varName == n

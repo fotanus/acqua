@@ -84,14 +84,14 @@ _compile (App t1 t2) = do
                     SC (AssignV callRecordIdent' callRecordIdent'),
                     SC (GetCallRecordMissing callRecordIdent' "missing"),
                     SC (GetCallRecordCount callRecordIdent' "count"),
-                    SC (IR.Op "missing" IR.Sub "one"),
+                    SC (IR.Op "resp" "missing" IR.Sub "one"),
                     SC (AssignV "new_missing" resp),
-                    SC (IR.Op "count" IR.Add "one"),
+                    SC (IR.Op "resp" "count" IR.Add "one"),
                     SC (AssignV "new_count" resp),
                     SC (SetCallRecordCount callRecordIdent' "new_count"),
                     SC (SetCallRecordMissing callRecordIdent' "new_missing"),
                     SC (SetCallRecordParam callRecordIdent' "count" "param"),
-                    SC (IR.Op "new_missing" IR.Lesser "one"),
+                    SC (IR.Op "resp" "new_missing" IR.Lesser "one"),
                     ST (IR.If resp thenLabel),
                     SL dummyLabel,
                     SC (AssignV "resp" callRecordIdent'),
@@ -114,7 +114,7 @@ _compile (L1.Op t1 op t2) = do
   t2Ident <- nextIdentName
   t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
   t2c <- return $ c2 ++ [SC (AssignV t2Ident resp)]
-  cs <- return $ t1c ++ t2c ++ [SC (IR.Op t1Ident (setOp op) t2Ident)]
+  cs <- return $ t1c ++ t2c ++ [SC (IR.Op "resp" t1Ident (setOp op) t2Ident)]
   return (cs, bb1 ++ bb2)
 
 _compile (L1.If t1 t2 t3) = do

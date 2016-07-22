@@ -17,7 +17,7 @@ data BasicBlock = BB {
 
 data Command
   = Call Name Name
-  | Op Name OpCode Name
+  | Op Name Name OpCode Name
   | AssignI Name Int
   | AssignL Name Label
   | AssignV Name Name
@@ -97,7 +97,7 @@ printCommands cs = foldr (++) "" (map printCommand cs)
 
 printCommand :: Command -> String
 printCommand (Call name1 name2) = ident ++ (blue (name1 ++ " = Call " ++ name2)) ++ "\n"
-printCommand (Op name1 op name2) = ident ++ "resp = " ++ name1 ++ " " ++ (printOpCode op) ++ " " ++ name2 ++ "\n"
+printCommand (Op res name1 op name2) = ident ++ res ++ " = " ++ name1 ++ " " ++ (printOpCode op) ++ " " ++ name2 ++ "\n"
 printCommand (AssignI name n) = ident ++ name ++ " = " ++ (show n) ++ "\n"
 printCommand (AssignL name l) = ident ++ name ++ " = \"" ++ l ++ "\"\n"
 printCommand (AssignV name1 name2) = ident ++ name1 ++ " = " ++ name2 ++ "\n"
