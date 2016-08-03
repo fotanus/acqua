@@ -14,11 +14,22 @@ import Simulator.CallRecord
 
 import Simulator.Rules.Base
 
+getNextUpdateMessage :: Interconnection -> Maybe Message
+getNextUpdateMessage [] = Nothing
+getNextUpdateMessage (m:ms) =
+   case m of
+       ConstMsgUpdate  _ 0 -> Just m
+       _ -> getNextUpdateMessage ms
+
+
 receiveUpdate :: Rule
 receiveUpdate acqua  =
-  case (interconnection acqua) of
-      ((ConstMsgUpdate (MsgUpdate pId envId idx val) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive update")  $ acqua { processingUnits = pus', interconnection = ms, finishFlag = f' }
+  let m = getNextUpdateMessage (interconnection acqua)
+  in case m of
+      Just (ConstMsgUpdate (MsgUpdate pId envId idx val) 0) -> trace ((show (PU.puId pu)) ++ ": receive update")  $ receiveUpdate (acqua { processingUnits = pus', interconnection = iret, finishFlag = f' })
         where
+          Just m' = m
+          i = interconnection acqua
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           env = environments pu
@@ -32,8 +43,12 @@ receiveUpdate acqua  =
           callRec' = callRec { params = newParams }
 
           crseg' = Map.insert (addr pointer) (CallRecordV callRec') crseg
-          pu' = pu { callRecordSeg = crseg', locked = True }
 
+          (iret, pu') = if (lockedMsg pu)
+                      then (i'', pu)
+                      else (i',  pu { callRecordSeg = crseg', lockedMsg = True })
+          i' = delete m' i
+          i'' = (ConstMsgUpdate (MsgUpdate pId envId idx val) 1):i'
           pus' = updatePU pus pu'
           f' = if pId == 0
                  then True

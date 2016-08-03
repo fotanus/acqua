@@ -34,7 +34,8 @@ data ProcessingUnit = PU {
   sleepingExecution :: Map.Map EnvId ExecutionContext,
   outgoingMessageQueue :: [Message],
   enabled :: Bool,
-  locked :: Bool
+  locked :: Bool,
+  lockedMsg :: Bool
 } deriving (Show,Eq)
 
 emptySpecialPU :: ProcessingUnit
@@ -54,7 +55,8 @@ emptySpecialPU =
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
         Simulator.ProcessingUnit.enabled = False,
-        Simulator.ProcessingUnit.locked = False
+        Simulator.ProcessingUnit.locked = False,
+        Simulator.ProcessingUnit.lockedMsg = False
     }
 
 specialPU :: [Int] -> ProcessingUnit
@@ -76,7 +78,8 @@ specialPU pars =
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
         Simulator.ProcessingUnit.enabled = False,
-        Simulator.ProcessingUnit.locked = False
+        Simulator.ProcessingUnit.locked = False,
+        Simulator.ProcessingUnit.lockedMsg = False
     }
 
 newPU :: Int -> ProcessingUnit
@@ -93,7 +96,8 @@ newPU n =
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
         Simulator.ProcessingUnit.enabled = False,
-        Simulator.ProcessingUnit.locked = False
+        Simulator.ProcessingUnit.locked = False,
+        Simulator.ProcessingUnit.lockedMsg = False
     }
 
 getVal :: ProcessingUnit -> Name -> Value
@@ -111,13 +115,13 @@ setVal p n v =
     currEnv' = Map.insert n v currEnv
     envs' = Map.insert (currentEnv p) currEnv' (environments p)
   in
-    p { environments = envs' } 
+    p { environments = envs' }
 
 newProcessingUnits :: Int -> [ProcessingUnit]
 newProcessingUnits n = (map newPU [1..n])
 
 unlock :: ProcessingUnit -> ProcessingUnit
-unlock pu = pu { locked = False }
+unlock pu = pu { locked = False, lockedMsg = False }
 
 canExecuteCmds :: ProcessingUnit -> Bool
 canExecuteCmds pu = (enabled pu) && (not (locked pu))

@@ -10,12 +10,21 @@ import Simulator.Interconnection
 
 import Simulator.Rules.Base
 
+getNextUpdateMessage :: Interconnection -> Maybe Message
+getNextUpdateMessage [] = Nothing
+getNextUpdateMessage (m:ms) =
+   case m of
+       ConstMsgResponse _ 0 -> Just m
+       _ -> getNextUpdateMessage ms
+
 receiveResponse :: Rule
 receiveResponse acqua =
-  case (interconnection acqua) of
-      ((ConstMsgResponse (MsgResponse pId envId x v) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ acqua { processingUnits = pus', interconnection = ms, finishFlag = f' }
+  let m = getNextUpdateMessage (interconnection acqua)
+  in case m of
+      Just (ConstMsgResponse (MsgResponse pId envId x v) 0) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ receiveResponse (acqua { processingUnits = pus', interconnection = iret, finishFlag = f' })
         where
           pus = processingUnits acqua
+          i = interconnection acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           env = environments pu
           cc = callCount pu
@@ -24,7 +33,12 @@ receiveResponse acqua =
           env' = Map.insert envId cenv' env
           Just nCalls = Map.lookup envId cc
           cc' = Map.insert envId (nCalls-1) cc
-          pu' = pu { environments = env', callCount = cc', locked = True }
+          (iret, pu') = if (lockedMsg pu)
+                      then (i'', pu)
+                      else (i', pu { environments = env', callCount = cc', lockedMsg = True})
+          Just m' = m
+          i' = delete m' i
+          i'' = (ConstMsgResponse (MsgResponse pId envId x v) 1):i'
           pus' = updatePU pus pu'
           f' = if pId == 0 && (nCalls-1) == 0
                  then True

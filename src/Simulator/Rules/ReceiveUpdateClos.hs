@@ -14,11 +14,22 @@ import Simulator.CallRecord
 
 import Simulator.Rules.Base
 
+getNextUpdateMessage :: Interconnection -> Maybe Message
+getNextUpdateMessage [] = Nothing
+getNextUpdateMessage (m:ms) =
+   case m of
+       ConstMsgUpdateClos  _ 0 -> Just m
+       _ -> getNextUpdateMessage ms
+
 receiveUpdateClos :: Rule
 receiveUpdateClos acqua =
-  case (interconnection acqua) of
-      ((ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateClos, now it is " ++ (show callRec'))  $ acqua { processingUnits = pus', interconnection = ms }
+  let m = getNextUpdateMessage (interconnection acqua)
+  in case m of
+      Just (ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val) 0) -> trace ((show (PU.puId pu)) ++ ": receive updateClos, now it is " ++ (show callRec')) $ receiveUpdateClos (acqua { processingUnits = pus', interconnection = iret })
         where
+          Just m' = m
+          i = interconnection acqua
+
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           crseg = callRecordSeg pu
@@ -29,7 +40,11 @@ receiveUpdateClos acqua =
           callRec' = callRec { params = newParams }
 
           crseg' = Map.insert (addr pointer) (CallRecordV callRec') crseg
-          pu' = pu { callRecordSeg = crseg', locked = True }
+          (iret, pu') = if (lockedMsg pu)
+                      then (i'', pu)
+                      else (i',  pu { callRecordSeg = crseg', lockedMsg = True })
 
+          i' = delete m' i
+          i'' = (ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val) 1):i'
           pus' = updatePU pus pu'
       _ -> acqua

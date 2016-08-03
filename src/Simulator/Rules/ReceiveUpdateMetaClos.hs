@@ -13,11 +13,22 @@ import Simulator.CallRecord as CallRecord
 
 import Simulator.Rules.Base
 
+getNextUpdateMessage :: Interconnection -> Maybe Message
+getNextUpdateMessage [] = Nothing
+getNextUpdateMessage (m:ms) =
+   case m of
+       ConstMsgUpdateMetaClos  _ 0 -> Just m
+       _ -> getNextUpdateMessage ms
+
+
 receiveUpdateMetaClos :: Rule
 receiveUpdateMetaClos acqua  =
-  case (interconnection acqua) of
-      ((ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive updateMetaClos") $ acqua { processingUnits = pus', interconnection = ms }
+  let m = getNextUpdateMessage (interconnection acqua)
+  in case m of
+      Just (ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing) 0) -> trace ((show (PU.puId pu)) ++ ": receive updateMetaClos") $ receiveUpdateMetaClos $ acqua { processingUnits = pus', interconnection = iret}
         where
+          Just m' = m
+          i = interconnection acqua
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           crseg = callRecordSeg pu
@@ -27,7 +38,11 @@ receiveUpdateMetaClos acqua  =
           callRec' = callRec { functionName = fnN, CallRecord.paramCount = count, CallRecord.paramMissing = missing }
 
           crseg' = Map.insert (addr pointer) (CallRecordV callRec') crseg
-          pu' = pu { callRecordSeg = crseg', locked = True }
+          (iret, pu') = if (lockedMsg pu)
+                      then (i'', pu)
+                      else (i',  pu { callRecordSeg = crseg', lockedMsg = True })
+          i' = delete m' i
+          i'' = (ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing) 1):i'
 
           pus' = updatePU pus pu'
       _ -> acqua
