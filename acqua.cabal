@@ -43,14 +43,6 @@ executable acqua-run
   other-modules: L1.Tokens, L1.Grammar
   ghc-options: -Wall
 
-executable acqua-run-map
-  main-is: acqua-run-map.hs
-  hs-source-dirs: src
-  build-depends: base ==4.*, array, containers, pretty-show, mtl, containers
-  build-tools: alex, happy
-  other-modules: L1.Tokens, L1.Grammar
-  ghc-options: -Wall
-
 --library
 --  build-depends: base ==4.*, array, pretty-show
 --  hs-source-dirs: src
@@ -64,16 +56,16 @@ test-suite parser-spec
   main-is: parser_spec.hs
   build-depends: base == 4.*, hspec, array
 
-test-suite acqua-run-spec
+test-suite acqua-run-complete-spec
   type: exitcode-stdio-1.0
   hs-source-dirs: spec
-  main-is: acqua_run.hs
+  main-is: acqua_run_complete.hs
   build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
 
-test-suite acqua-run-map-spec
+test-suite acqua-run-fn-spec
   type: exitcode-stdio-1.0
   hs-source-dirs: spec
-  main-is: acqua_run_map.hs
+  main-is: acqua_run_fn.hs
   build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
 
 test-suite l1-typecheck-spec

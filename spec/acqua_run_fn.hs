@@ -25,13 +25,13 @@ spec [] = do return ()
 spec ((file,args,correctResult):ss) = do
   it file $ do
     fileContents <- readFile file
-    output <- readProcess "./acqua-run-map" (["10", "0", "x"] ++ args) fileContents
+    output <- readProcess "./acqua-run" (["10", "0", "x"] ++ args) fileContents
     result <- return $ drop (length "response: ") (output =~ "response: ([0-9]+, )+" :: String)
     result `shouldBe` (correctResult ++ ", ")
 
   it (file ++ " with hierarchical crossbar") $ do
     fileContents <- readFile file
-    output <- readProcess "./acqua-run-map" (["8", "4", "x"] ++ args) fileContents
+    output <- readProcess "./acqua-run" (["8", "4", "x"] ++ args) fileContents
     result <- return $ drop (length "response: ") (output =~ "response: ([0-9]+, )+" :: String)
     result `shouldBe` (correctResult ++ ", ")
   spec ss

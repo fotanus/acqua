@@ -19,10 +19,10 @@ spec :: [String] -> Spec
 spec [] = do return ()
 
 spec (s:ss) = do
-  it s $ do (runFile (fixturesDir ++ s)) `shouldReturn` "42"
+  it s $ do (runFile (fixturesDir ++ s)) `shouldReturn` "42, "
   spec ss
 
 runFile file = do
   fileContents <- readFile file
-  output <- readProcess "./acqua-run" ["10"] fileContents
-  return $ last $ (splitOn " " (output =~ "response: NumberV [0-9]+" :: String))
+  output <- readProcess "./acqua-run" ["10", "0", "foovar", "0"] fileContents
+  return $ drop (length "response: ") (output =~ "response: ([0-9]+, )+" :: String)
