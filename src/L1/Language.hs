@@ -30,4 +30,6 @@ data Term
   | Head Term
   | Tail Term
   | Last Term
+  | Length Term
+  | Concat Term Term
   deriving (Eq,Ord,Show,Read)

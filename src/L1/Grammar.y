@@ -24,6 +24,8 @@ import L1.Language
     head   { Token _ TokenHead }
     tail   { Token _ TokenTail }
     last   { Token _ TokenLast }
+    length { Token _ TokenLength }
+    concat { Token _ TokenConcat }
     '!='   { Token _ TokenNEQ }
     'and'  { Token _ TokenAnd }
     'or'   { Token _ TokenOr }
@@ -84,6 +86,8 @@ Exp :
     | head Exp                           { Head $2 }
     | tail Exp                           { Tail $2 }
     | last Exp                           { Last $2 }
+    | length Exp                         { Length $2 }
+    | concat '(' Exp ',' Exp ')'             { Concat $3 $5 }
 
     -- Application
     | var Exp   %prec APP                          { App (Ident $1) $2 }

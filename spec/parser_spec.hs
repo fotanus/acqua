@@ -115,3 +115,8 @@ spec = do
     parse "[300]"
     `shouldBe`
     Right (List [300])
+
+  it "length" $ do
+    parse "length [300]"
+    `shouldBe`
+    Right (Length (List [300]))

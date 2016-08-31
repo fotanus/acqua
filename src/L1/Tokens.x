@@ -38,6 +38,8 @@ tokens :-
   head                          { lex' TokenHead }
   tail                          { lex' TokenTail }
   last                          { lex' TokenLast }
+  length                        { lex' TokenLength }
+  concat                        { lex' TokenConcat }
   $digit+                       { lex  (TokenNum . read) }
   \&\&		                  		{ lex' TokenAnd }
   \|\|		                  		{ lex' TokenOr }
@@ -96,6 +98,8 @@ data TokenClass
            | TokenHead
            | TokenTail
            | TokenLast
+           | TokenLength
+           | TokenConcat
            | TokenSym String
            | TokenEQ
            | TokenNEQ

@@ -74,6 +74,14 @@ inferType n (Last e1) _ =
     if e1 == (Ident n)
     then ListT
     else UnknownT
+inferType n (Length e1) _ =
+    if e1 == (Ident n)
+    then ListT
+    else UnknownT
+inferType n (Concat e1 e2) _ =
+    if (e1 == (Ident n)) || (e2 == (Ident n))
+    then ListT
+    else UnknownT
 
 
 -- typeCheck takes a term and a table and returns the type of the term. It might infer
@@ -95,6 +103,17 @@ typeCheck (Tail e1) nameTypes =
   if isTypeOrUnknown (typeCheck e1 nameTypes) ListT
     then ListT
     else error "Tail on something that is not a list"
+
+typeCheck (Length e1) nameTypes =
+  if isTypeOrUnknown (typeCheck e1 nameTypes) ListT
+    then IntT
+    else error "Tail on something that is not a list"
+
+typeCheck (Concat e1 e2) nameTypes =
+  if (isTypeOrUnknown (typeCheck e1 nameTypes) ListT) && (isTypeOrUnknown (typeCheck e2 nameTypes) ListT)
+    then ListT
+    else error "Concating something that is not a list"
+
 
 
 typeCheck (Ident n) nameTypes = case lookup n nameTypes of

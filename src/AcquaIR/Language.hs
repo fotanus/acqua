@@ -28,6 +28,8 @@ data Command
   | Head Name Name
   | Last Name Name
   | Tail Name Name
+  | Concat Name Name Name
+  | Length Name Name
   -- call record
   | NewCallRecord Name Int
   | SetCallRecordFn Name Label
@@ -127,6 +129,8 @@ printCommand (ListSet n1 i1 i2) = ident ++ "ListSet " ++ n1 ++ " " ++ (show i1) 
 printCommand (Head n1 n2) = ident ++ n1 ++ " = " ++ "head " ++ n2 ++ "\n"
 printCommand (Tail n1 n2) = ident ++ n1 ++ " = " ++ "tail " ++ n2 ++ "\n"
 printCommand (Last n1 n2) = ident ++ n1 ++ " = " ++ "last " ++ n2 ++ "\n"
+printCommand (Concat res name1 name2) = ident ++ res ++ " = Concat " ++ name1 ++ " " ++ name2 ++ "\n"
+printCommand (Length res name1) = ident ++ res ++ " = Length " ++ name1 ++ "\n"
 
 printTerminator :: Terminator -> String
 printTerminator (Goto l) = ident ++ (green ("goto " ++ l)) ++ "\n"
