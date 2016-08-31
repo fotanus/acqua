@@ -17,10 +17,18 @@ data BasicBlock = BB {
 
 data Command
   = Call Name Name
+  | Wait
   | Op Name Name OpCode Name
   | AssignI Name Int
   | AssignL Name Label
   | AssignV Name Name
+  -- lists
+  | NewList Name Int
+  | ListSet Name Int Int
+  | Head Name Name
+  | Last Name Name
+  | Tail Name Name
+  -- call record
   | NewCallRecord Name Int
   | SetCallRecordFn Name Label
   | GetCallRecordFn Name Label
@@ -34,7 +42,6 @@ data Command
   | SetCallRecordParamI Name Int Name
   | SetCallRecordParamIL Name Int Name
   | GetCallRecordParam Name Int Name
-  | Wait
   deriving (Eq,Ord,Show,Read)
 
 data Terminator
@@ -115,6 +122,11 @@ printCommand (SetCallRecordParam n1 n2 n3) = ident ++ (red "SetCallRecordParam "
 printCommand (SetCallRecordParamIL n1 n2 n3) = ident ++ "SetCallRecordParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
 printCommand (SetCallRecordParamI n1 n2 n3) = ident ++ "SetCallRecordParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
 printCommand (GetCallRecordParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetCallRecordParam ") ++ n1 ++ " " ++ (show n2) ++ "\n"
+printCommand (NewList n1 i) = ident ++ n1 ++  " = " ++ "NewList " ++ (show i) ++ "\n"
+printCommand (ListSet n1 i1 i2) = ident ++ "ListSet " ++ n1 ++ " " ++ (show i1) ++ " " ++ (show i2) ++ "\n"
+printCommand (Head n1 n2) = ident ++ n1 ++ " = " ++ "head " ++ n2 ++ "\n"
+printCommand (Tail n1 n2) = ident ++ n1 ++ " = " ++ "tail " ++ n2 ++ "\n"
+printCommand (Last n1 n2) = ident ++ n1 ++ " = " ++ "last " ++ n2 ++ "\n"
 
 printTerminator :: Terminator -> String
 printTerminator (Goto l) = ident ++ (green ("goto " ++ l)) ++ "\n"

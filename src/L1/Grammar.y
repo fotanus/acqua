@@ -21,6 +21,9 @@ import L1.Language
     else   { Token _ TokenElse }
     num    { Token _ (TokenNum $$) }
     var    { Token _ (TokenSym $$) }
+    head   { Token _ TokenHead }
+    tail   { Token _ TokenTail }
+    last   { Token _ TokenLast }
     '!='   { Token _ TokenNEQ }
     'and'  { Token _ TokenAnd }
     'or'   { Token _ TokenOr }
@@ -33,6 +36,8 @@ import L1.Language
     '/'    { Token _ TokenDiv }
     '('    { Token _ TokenLParen }
     ')'    { Token _ TokenRParen }
+    '['    { Token _ TokenLBracket }
+    ']'    { Token _ TokenRBracket }
     '=>'   { Token _ TokenDoubleArrow }
     '>='   { Token _ TokenGE }
     '<='   { Token _ TokenLE }
@@ -73,6 +78,13 @@ Exp :
     | '-' num %prec NEGATIVE             { Num (-$2) }
     | '(' Exp ')'                        { $2 }
 
+    -- Lists
+    | '[' ']'                            { List [] }
+    | '[' nums ']'                       { List $2 }
+    | head Exp                           { Head $2 }
+    | tail Exp                           { Tail $2 }
+    | last Exp                           { Last $2 }
+
     -- Application
     | var Exp   %prec APP                          { App (Ident $1) $2 }
     | '(' Exp ')' Exp %prec APP                    { App $2 $4 }
@@ -80,6 +92,8 @@ Exp :
 vars : var ',' vars   { [$1] ++ $3 }
      | var            { [$1] }
 
+nums : num ',' nums   { [$1] ++ $3 }
+     | num            { [$1] }
 
 BoolExp : Exp '==' Exp          { Op $1 Equal $3 }
         | Exp '!=' Exp          { Op $1 NotEqual $3 }

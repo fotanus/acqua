@@ -112,6 +112,22 @@ _compile (App t1 t2) = do
   cs <- return $ c1 ++ [SC (AssignV callRecordIdent' resp)] ++ c2 ++ envs
   return cs
 
+_compile (L1.List elements) = do
+  return $ [ SC (NewList resp (length elements)) ] ++
+           map (\(e,idx)-> SC (ListSet resp idx e)) (zip elements [0..])
+
+_compile (L1.Head t1) = do
+  c1 <- _compile t1
+  return $ c1 ++ [SC (IR.Head resp resp)]
+
+_compile (L1.Tail t1) = do
+  c1 <- _compile t1
+  return $ c1 ++ [SC (IR.Tail resp resp)]
+
+_compile (L1.Last t1) = do
+  c1 <- _compile t1
+  return $ c1 ++ [SC (IR.Last resp resp)]
+
 _compile (L1.Op t1 op t2) = do
   c1 <- _compile t1
   c2 <- _compile t2

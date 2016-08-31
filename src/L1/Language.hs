@@ -26,4 +26,8 @@ data Term
   | Letrec Name Term Term
   | If Term Term Term
   | Fn [Name] Term [Name]
+  | List [Int]
+  | Head Term
+  | Tail Term
+  | Last Term
   deriving (Eq,Ord,Show,Read)

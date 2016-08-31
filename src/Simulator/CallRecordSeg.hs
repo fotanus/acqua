@@ -4,11 +4,13 @@ import Data.Map as Map
 
 import Simulator.Value
 import Simulator.CallRecord
+import Simulator.List
 
 type CallRecordSeg = Map CallRecordSegAddr CallRecordSegValue
 
 data CallRecordSegValue
   = CallRecordV CallRecord
+  | ListV List
   deriving (Show,Eq)
 
 nextFreePos :: CallRecordSeg -> CallRecordSegAddr

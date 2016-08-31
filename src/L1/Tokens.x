@@ -35,6 +35,9 @@ tokens :-
   and	  	                  		{ lex' TokenAnd }
   or	  	                  		{ lex' TokenOr }
   int                           { lex' TokenInt }
+  head                          { lex' TokenHead }
+  tail                          { lex' TokenTail }
+  last                          { lex' TokenLast }
   $digit+                       { lex  (TokenNum . read) }
   \&\&		                  		{ lex' TokenAnd }
   \|\|		                  		{ lex' TokenOr }
@@ -54,6 +57,8 @@ tokens :-
   \/                            { lex' TokenDiv }
   \(                            { lex' TokenLParen }
   \)                            { lex' TokenRParen }
+  \[                            { lex' TokenLBracket }
+  \]                            { lex' TokenRBracket }
   $alpha [$alpha $digit \_ \']* { lex  TokenSym }
 
 {
@@ -88,6 +93,9 @@ data TokenClass
            | TokenEnd
            | TokenInt
            | TokenNum Int
+           | TokenHead
+           | TokenTail
+           | TokenLast
            | TokenSym String
            | TokenEQ
            | TokenNEQ
@@ -106,6 +114,8 @@ data TokenClass
            | TokenDiv
            | TokenLParen
            | TokenRParen
+           | TokenLBracket
+           | TokenRBracket
            | TokenEOF
            deriving (Eq,Show)
 

@@ -100,3 +100,18 @@ spec = do
     parse "fn x, y, z => x "
     `shouldBe`
     Right (Fn ["x", "y", "z"] (Ident "x") [] )
+
+  it "list" $ do
+    parse "[1,2,3]"
+    `shouldBe`
+    Right (List [1,2,3])
+
+  it "empty list" $ do
+    parse "[]"
+    `shouldBe`
+    Right (List [])
+
+  it "one element list" $ do
+    parse "[300]"
+    `shouldBe`
+    Right (List [300])

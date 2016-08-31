@@ -8,6 +8,7 @@ import Logger
 data Type
   = IntT
   | FnT [Type] Type
+  | ListT
   | UnknownT
   deriving (Eq,Ord,Show,Read)
 
@@ -30,6 +31,7 @@ isTypeOrUnknown t1 t2 = case (t1,t2) of
 inferType :: Name -> Term -> IdentifierTypeTable  -> Type
 inferType _ (Num _) _ = UnknownT
 inferType _ (Ident _) _ = UnknownT
+inferType _ (List _) _ = UnknownT
 inferType n (Op e1 _ e3) nameTypes =
     if e1 == (Ident n) || e3 == (Ident n)
     then IntT
@@ -60,12 +62,41 @@ inferType n (Letrec _ e1 e2) nameTypes =
     if inferType n e1 nameTypes == UnknownT
     then inferType n e2 nameTypes
     else inferType n e1 nameTypes
+inferType n (Head e1) _ =
+    if e1 == (Ident n)
+    then ListT
+    else UnknownT
+inferType n (Tail e1) _ =
+    if e1 == (Ident n)
+    then ListT
+    else UnknownT
+inferType n (Last e1) _ =
+    if e1 == (Ident n)
+    then ListT
+    else UnknownT
 
 
 -- typeCheck takes a term and a table and returns the type of the term. It might infer
 -- the free variable types in the body.
 typeCheck :: Term -> IdentifierTypeTable -> Type
 typeCheck (Num _) _ = IntT
+typeCheck (List _) _ = ListT
+typeCheck (Head e1) nameTypes =
+  if isTypeOrUnknown (typeCheck e1 nameTypes) ListT
+    then IntT
+    else error "Head on something that is not a list"
+
+typeCheck (Last e1) nameTypes =
+  if isTypeOrUnknown (typeCheck e1 nameTypes) ListT
+    then IntT
+    else error "Tail on something that is not a list"
+
+typeCheck (Tail e1) nameTypes =
+  if isTypeOrUnknown (typeCheck e1 nameTypes) ListT
+    then ListT
+    else error "Tail on something that is not a list"
+
+
 typeCheck (Ident n) nameTypes = case lookup n nameTypes of
                                      Just (t,_,_) -> t
                                      Nothing -> UnknownT
