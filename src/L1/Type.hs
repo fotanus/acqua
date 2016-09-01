@@ -1,7 +1,6 @@
 module L1.Type where
 
 import L1.Language as L1
-import Logger
 
 -- There are three types: Integer, function and Unknown. Unknown is a type used when we don't have enough information on the
 -- program to determine the type, and might be used as a placeholder while determining the type of a program.
@@ -82,6 +81,14 @@ inferType n (Concat e1 e2) _ =
     if (e1 == (Ident n)) || (e2 == (Ident n))
     then ListT
     else UnknownT
+inferType n (Map e1 e2) nameTypes =
+    if e1 == (Ident n)
+    then FnT [(typeCheck e2 nameTypes)] UnknownT
+    else inferType n e2 nameTypes
+inferType n (Filter e1 e2) nameTypes =
+    if e1 == (Ident n)
+    then FnT [(typeCheck e2 nameTypes)] UnknownT
+    else inferType n e2 nameTypes
 
 
 -- typeCheck takes a term and a table and returns the type of the term. It might infer
@@ -114,7 +121,23 @@ typeCheck (Concat e1 e2) nameTypes =
     then ListT
     else error "Concating something that is not a list"
 
+typeCheck (Map e1 e2) nameTypes =
+    if typeCheck e2 nameTypes == ListT
+      then case e1 of
+           Ident n -> case lookup n nameTypes of
+                      Just _  -> ListT
+                      Nothing -> error $ "Mapping undefined identifier"
+           _       -> error $ "Can't map " ++ (show e1) ++ "to " ++ (show e2)
+      else error $ "Can only map to a list"
 
+typeCheck (Filter e1 e2) nameTypes =
+    if typeCheck e2 nameTypes == ListT
+    then case e1 of
+           Ident n -> case lookup n nameTypes of
+                      Just _  -> ListT
+                      Nothing -> error $ "Mapping undefined identifier"
+           _       -> error $ "Can't map " ++ (show e1) ++ "to " ++ (show e2)
+      else error $ "Can only filter a list"
 
 typeCheck (Ident n) nameTypes = case lookup n nameTypes of
                                      Just (t,_,_) -> t
@@ -125,7 +148,7 @@ typeCheck (Fn names e1 _) nameTypes = FnT (map (\n-> inferType n e1 nameTypes) n
 typeCheck (App e1 e2) nameTypes =
   let
     e2type = typeCheck e2 nameTypes
-    (FnT t1 t2) = traceShowId $ case e1 of
+    (FnT t1 t2) = case e1 of
         Ident n -> case lookup n nameTypes of
             Just (t,e,rec) -> if rec
                               then t

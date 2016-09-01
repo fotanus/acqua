@@ -138,6 +138,26 @@ _compile (L1.Concat t1 t2) = do
   cs <- return $ t1c ++ t2c ++ [SC (IR.Concat "resp" t1Ident t2Ident)]
   return cs
 
+_compile (L1.Map t1 t2) = do
+  c1 <- _compile t1
+  c2 <- _compile t2
+  t1Ident <- nextIdentName
+  t2Ident <- nextIdentName
+  t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
+  t2c <- return $ c2 ++ [SC (AssignV t2Ident resp)]
+  cs <- return $ t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident)]
+  return cs
+
+_compile (L1.Filter t1 t2) = do
+  c1 <- _compile t1
+  c2 <- _compile t2
+  t1Ident <- nextIdentName
+  t2Ident <- nextIdentName
+  t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
+  t2c <- return $ c2 ++ [SC (AssignV t2Ident resp)]
+  cs <- return $ t1c ++ t2c ++ [SC (IR.Filter "resp" t1Ident t2Ident)]
+  return cs
+
 _compile (L1.Length t1) = do
   c1 <- _compile t1
   return $ c1 ++ [SC (IR.Length resp resp)]

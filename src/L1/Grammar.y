@@ -26,6 +26,8 @@ import L1.Language
     last   { Token _ TokenLast }
     length { Token _ TokenLength }
     concat { Token _ TokenConcat }
+    map    { Token _ TokenMap }
+    filter { Token _ TokenFilter }
     '!='   { Token _ TokenNEQ }
     'and'  { Token _ TokenAnd }
     'or'   { Token _ TokenOr }
@@ -88,6 +90,8 @@ Exp :
     | last Exp                           { Last $2 }
     | length Exp                         { Length $2 }
     | concat '(' Exp ',' Exp ')'             { Concat $3 $5 }
+    | map '(' Exp ',' Exp ')'             { Map $3 $5 }
+    | filter '(' Exp ',' Exp ')'             { Filter $3 $5 }
 
     -- Application
     | var Exp   %prec APP                          { App (Ident $1) $2 }

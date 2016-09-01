@@ -32,4 +32,6 @@ data Term
   | Last Term
   | Length Term
   | Concat Term Term
+  | Map Term Term
+  | Filter Term Term
   deriving (Eq,Ord,Show,Read)
