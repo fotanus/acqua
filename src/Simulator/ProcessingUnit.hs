@@ -10,11 +10,12 @@ import Simulator.CallRecordSeg
 import Simulator.Interconnection
 import Simulator.CallRecord
 import Simulator.ProcessingUnitId
+import Simulator.ReturnAddrVar
 
 data ReturnAddr = ReturnAddr {
   addr_pId :: PId,
   addr_envId :: EnvId,
-  variable :: Name
+  variable :: ReturnAddrVar
 } deriving (Show,Eq)
 
 data ExecutionContext = ExecutionContext {

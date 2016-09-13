@@ -124,19 +124,21 @@ typeCheck (Concat e1 e2) nameTypes =
 typeCheck (Map e1 e2) nameTypes =
     if typeCheck e2 nameTypes == ListT
       then case e1 of
+           Fn _ _ _ -> ListT
            Ident n -> case lookup n nameTypes of
                       Just _  -> ListT
                       Nothing -> error $ "Mapping undefined identifier"
-           _       -> error $ "Can't map " ++ (show e1) ++ "to " ++ (show e2)
+           _       -> error $ "Can't map " ++ (show e1) ++ " to " ++ (show e2)
       else error $ "Can only map to a list"
 
 typeCheck (Filter e1 e2) nameTypes =
     if typeCheck e2 nameTypes == ListT
     then case e1 of
+           Fn _ _ _ -> ListT
            Ident n -> case lookup n nameTypes of
                       Just _  -> ListT
                       Nothing -> error $ "Mapping undefined identifier"
-           _       -> error $ "Can't map " ++ (show e1) ++ "to " ++ (show e2)
+           _       -> error $ "Can't filter " ++ (show e2) ++ " with function " ++ (show e1)
       else error $ "Can only filter a list"
 
 typeCheck (Ident n) nameTypes = case lookup n nameTypes of

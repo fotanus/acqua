@@ -34,7 +34,8 @@ reqEnv acqua  =
           Just tenv = Map.lookup mteId env
           Just (PointerV pointer) = Map.lookup callRecordName tenv
           Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
-          crseg' = Map.delete (addr pointer) crseg
+          -- TODO: deallocate here, count number of calls on cr because of map
+          crseg' = crseg -- Map.delete (addr pointer) crseg
           idxValToMsg idx val =
               ConstMsgUpdate (MsgUpdate pIdS mjsId idx val) (msgStepsToPropagate acqua)
 

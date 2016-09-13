@@ -1,6 +1,7 @@
 module Simulator.Rules.Call where
 
 import qualified Data.Map as Map
+import qualified Data.Sequence as Seq
 import Logger
 
 import AcquaIR.Language as IR
@@ -10,6 +11,7 @@ import Simulator.Queue as Q
 import Simulator.Value
 import Simulator.CallRecordSeg
 import Simulator.CallRecord
+import Simulator.ReturnAddrVar
 
 import Simulator.Rules.Base
 
@@ -36,7 +38,7 @@ stepCall q (pu:pus) =
         Just (PointerV pointer) = Map.lookup x2 cenv
         Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
         l = functionName callRec
-        j = Job l ce pId x2 x1
+        j = Job l ce pId (CallSource x2) (Seq.length (params callRec)) (EnvVal x1)
         q' = q { jobs = j:(jobs q) }
 
         -- increment calls count

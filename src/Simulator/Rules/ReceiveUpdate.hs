@@ -39,7 +39,10 @@ receiveUpdate acqua  =
           Just (PointerV pointer) = Map.lookup "callRecord" cenv
           Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
 
-          newParams = Seq.update idx val (params callRec)
+          -- FIXME: Avoid rewriting of value set when creating the job
+          newParams = if Seq.index (params callRec) idx == (NumberV 0)
+                      then Seq.update idx val (params callRec)
+                      else params callRec
           callRec' = callRec { params = newParams }
 
           crseg' = Map.insert (addr pointer) (CallRecordV callRec') crseg

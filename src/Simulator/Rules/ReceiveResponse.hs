@@ -7,6 +7,10 @@ import Logger
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
+import Simulator.ReturnAddrVar
+import Simulator.CallRecordSeg
+import Simulator.List
+import Simulator.Value
 
 import Simulator.Rules.Base
 
@@ -21,7 +25,8 @@ receiveResponse :: Rule
 receiveResponse acqua =
   let m = getNextUpdateMessage (interconnection acqua)
   in case m of
-      Just (ConstMsgResponse (MsgResponse pId envId x v) 0) -> trace ((show (PU.puId pu)) ++ ": receive response")  $ receiveResponse (acqua { processingUnits = pus', interconnection = iret, finishFlag = f' })
+      Just (ConstMsgResponse (MsgResponse pId envId retval v) 0) ->
+          trace ((show (PU.puId pu)) ++ ": receive response")  $ receiveResponse (acqua { processingUnits = pus', interconnection = iret, finishFlag = f' })
         where
           pus = processingUnits acqua
           i = interconnection acqua
@@ -29,16 +34,28 @@ receiveResponse acqua =
           env = environments pu
           cc = callCount pu
           Just cenv  = Map.lookup envId env
-          cenv' = Map.insert x v cenv
+
+          cenv' = case retval of
+                    EnvVal x -> Map.insert x v cenv
+                    _ -> cenv
+
+          crseg = callRecordSeg pu
+          crseg' = case retval of
+                     ListVal ptr idx -> Map.insert (addr ptr) list' crseg
+                        where
+                            Just (ListV (List lsize list)) = Map.lookup (addr ptr) crseg
+                            list' = ListV (List lsize (listSetPos list idx v))
+                     _ -> crseg
+
           env' = Map.insert envId cenv' env
           Just nCalls = Map.lookup envId cc
           cc' = Map.insert envId (nCalls-1) cc
           (iret, pu') = if (lockedMsg pu)
                       then (i'', pu)
-                      else (i', pu { environments = env', callCount = cc', lockedMsg = True})
+                      else (i', pu { environments = env', callCount = cc', callRecordSeg = crseg', lockedMsg = True})
           Just m' = m
           i' = delete m' i
-          i'' = (ConstMsgResponse (MsgResponse pId envId x v) 1):i'
+          i'' = (ConstMsgResponse (MsgResponse pId envId retval v) 1):i'
           pus' = updatePU pus pu'
           f' = if pId == 0 && (nCalls-1) == 0
                  then True

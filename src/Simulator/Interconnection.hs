@@ -3,6 +3,7 @@ module Simulator.Interconnection where
 import AcquaIR.Language
 import Simulator.Value
 import Simulator.ProcessingUnitId
+import Simulator.ReturnAddrVar
 
 data Message
  = ConstMsgUpdate  MsgUpdate Int
@@ -41,7 +42,7 @@ data MsgUpdateMetaClos = MsgUpdateMetaClos {
 data MsgResponse = MsgResponse {
   puIdR :: PId,
   environmentR :: EnvId,
-  variableR :: Name,
+  variableR :: ReturnAddrVar,
   valueR :: Value
   } deriving (Show, Eq)
 

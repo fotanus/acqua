@@ -37,7 +37,7 @@ assignJob acqua =
 
           BB _ _ c t = lookupBB bb l
 
-          Job l envId pId' callRec x = job
+          Job l envId pId' source sourceSize x = job
           Queue js qlck = q
           jobs' = List.delete job js
 
@@ -47,13 +47,17 @@ assignJob acqua =
           cc' = Map.insert newEnvId 0 cc
 
           -- add message
-          m = MsgReqEnv pId newEnvId pId' envId callRec
+          m = case source of
+                CallSource callRec -> MsgReqEnv pId newEnvId pId' envId callRec
+                MapSource callRec _ -> MsgReqEnv pId newEnvId pId' envId callRec
           i' = (ConstMsgReqEnv m (msgStepsToPropagate acqua)) : i
 
           -- add callRecord on callRecordSeg
           crsegPos = nextFreePos crseg
-          crseg' = Map.insert crsegPos (CallRecordV (CallRecord "receivedCallRecord" 0 0 emptyParams)) crseg
-          emptyParams = Seq.replicate 5 (NumberV 0)
+          crseg' = Map.insert crsegPos (CallRecordV (CallRecord "receivedCallRecord" 0 0 defaultParams)) crseg
+          defaultParams = case source of
+                          CallSource _ -> Seq.replicate sourceSize (NumberV 0)
+                          MapSource _ v -> Seq.update (sourceSize-1) (NumberV v) $ Seq.replicate sourceSize (NumberV 0)
 
           -- create env with pointer to callRecord
           pt = PointerV $ Pointer pId crsegPos
