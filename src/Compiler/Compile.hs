@@ -153,9 +153,10 @@ _compile (L1.Filter t1 t2) = do
   c2 <- _compile t2
   t1Ident <- nextIdentName
   t2Ident <- nextIdentName
+  t3Ident <- nextIdentName
   t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
   t2c <- return $ c2 ++ [SC (AssignV t2Ident resp)]
-  cs <- return $ t1c ++ t2c ++ [SC (IR.Filter "resp" t1Ident t2Ident)]
+  cs <- return $ t1c ++ t2c ++ [SC (IR.Map t3Ident t1Ident t2Ident), SC Wait, SC (IR.Filter "resp" t3Ident t2Ident)]
   return cs
 
 _compile (L1.Length t1) = do

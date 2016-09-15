@@ -67,13 +67,21 @@ Exp :
     | letrec var '=' Exp in Exp end      { Letrec $2 $4 $6 }
 
     -- Constructions
-    | if BoolExp then Exp else Exp       { If $2 $4 $6 }
+    | if Exp then Exp else Exp       { If $2 $4 $6 }
 
     -- Math
     | Exp '+' Exp                        { Op $1 Add $3 }
     | Exp '-' Exp                        { Op $1 Sub $3 }
     | Exp '*' Exp                        { Op $1 Mult $3 }
     | Exp '/' Exp                        { Op $1 Div $3 }
+    | Exp '==' Exp                       { Op $1 Equal $3 }
+    | Exp '!=' Exp                       { Op $1 NotEqual $3 }
+    | Exp '>=' Exp                       { Op $1 GreaterEqual $3 }
+    | Exp '<=' Exp                       { Op $1 LesserEqual $3 }
+    | Exp '>' Exp                        { Op $1 Greater $3 }
+    | Exp '<' Exp                        { Op $1 Lesser $3 }
+    | Exp 'or' Exp                       { Op $1 Or $3 }
+    | Exp 'and' Exp                      { Op $1 And $3 }
 
     -- Literals
     | var %prec NOT_APP                  { Ident $1 }
@@ -103,15 +111,6 @@ vars : var ',' vars   { [$1] ++ $3 }
 nums : num ',' nums   { [$1] ++ $3 }
      | num            { [$1] }
 
-BoolExp : Exp '==' Exp          { Op $1 Equal $3 }
-        | Exp '!=' Exp          { Op $1 NotEqual $3 }
-        | Exp '>=' Exp          { Op $1 GreaterEqual $3 }
-        | Exp '<=' Exp          { Op $1 LesserEqual $3 }
-        | Exp '>' Exp           { Op $1 Greater $3 }
-        | Exp '<' Exp           { Op $1 Lesser $3 }
-        | BoolExp 'or' BoolExp  { Op $1 Or $3 }
-        | BoolExp 'and' BoolExp { Op $1 And $3 }
-        | '(' BoolExp ')'       { $2 }
 
 {
 lexwrap :: (Token -> Alex a) -> Alex a

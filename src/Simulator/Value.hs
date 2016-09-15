@@ -15,3 +15,7 @@ data Value
   | NumberV Int
   | PointerV Pointer
   deriving (Show,Eq)
+
+numVal :: Value -> Int
+numVal (NumberV n) = n
+numVal _ = error "numVal must receive a NumberV"
