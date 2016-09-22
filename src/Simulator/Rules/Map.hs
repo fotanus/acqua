@@ -57,7 +57,7 @@ stepMapRule q (pu:pus) =
             Just nCalls = Map.lookup ce cc
             cc' = trace ("new calls waiting: " ++ (show (nCalls+nParams))) $ Map.insert ce (nCalls+nParams) cc
 
-            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, PU.callCount = cc', callRecordSeg = crseg', PU.locked = True }
+            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, PU.callCount = cc', callRecordSeg = crseg', PU.locked = True, PU.stallCycles = nParams+1}
 
             (q'', pus') = stepMapRule q' pus
         _ -> (q', pu:pus')

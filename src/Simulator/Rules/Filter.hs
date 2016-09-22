@@ -44,7 +44,7 @@ stepFilterRule q (pu:pus) =
             newList = List nParams resultList
             crseg' = Map.insert crsegPos (ListV newList) crseg
 
-            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, callRecordSeg = crseg', PU.locked = True }
+            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, callRecordSeg = crseg', PU.locked = True, PU.stallCycles = (length selectList) }
 
             (q', pus') = stepFilterRule q pus
         _ -> (q', pu:pus')

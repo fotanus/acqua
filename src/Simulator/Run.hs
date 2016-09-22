@@ -22,4 +22,4 @@ _step acqua _ | (finishFlag acqua) == True = "Finished!\n" ++ (showAcquaResult a
 _step acqua acqua'= -- traceAcqua acqua $
   if acqua == acqua'
     then error $ traceAcqua acqua "Cannot give a step!\n"
-    else trace ("----") $ _step (trackStats (applyRules rules (unlockAll acqua))) acqua
+    else trace ("----") $ _step (trackStats (applyRules rules (unlockAndUnstallAll acqua))) acqua

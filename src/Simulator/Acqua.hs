@@ -38,8 +38,8 @@ newAcquaMap p n stepsToPropagate var params = Acqua p' q pus newInterconnection 
     p' = ((addGetVar (head p)):(tail p))
     addGetVar bb = bb { IR.commands = ((GetCallRecordParam "callRecord" 0 var):(IR.commands bb)) }
 
-unlockAll :: Acqua -> Acqua
-unlockAll acqua = acqua { processingUnits = map (\p -> unlock p) (processingUnits acqua) }
+unlockAndUnstallAll :: Acqua -> Acqua
+unlockAndUnstallAll acqua = acqua { processingUnits = (map (unlock.decrementStallCycles) (processingUnits acqua)) }
 
 showAcquaResult :: Acqua -> String
 showAcquaResult acqua =

@@ -36,6 +36,7 @@ data ProcessingUnit = PU {
   outgoingMessageQueue :: [Message],
   enabled :: Bool,
   locked :: Bool,
+  stallCycles :: Int,
   lockedMsg :: Bool
 } deriving (Show,Eq)
 
@@ -57,6 +58,7 @@ emptySpecialPU =
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
         Simulator.ProcessingUnit.enabled = False,
         Simulator.ProcessingUnit.locked = False,
+        Simulator.ProcessingUnit.stallCycles = 0,
         Simulator.ProcessingUnit.lockedMsg = False
     }
 
@@ -80,6 +82,7 @@ specialPU pars =
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
         Simulator.ProcessingUnit.enabled = False,
         Simulator.ProcessingUnit.locked = False,
+        Simulator.ProcessingUnit.stallCycles = 0,
         Simulator.ProcessingUnit.lockedMsg = False
     }
 
@@ -98,6 +101,7 @@ newPU n =
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
         Simulator.ProcessingUnit.enabled = False,
         Simulator.ProcessingUnit.locked = False,
+        Simulator.ProcessingUnit.stallCycles = 0,
         Simulator.ProcessingUnit.lockedMsg = False
     }
 
@@ -124,8 +128,15 @@ newProcessingUnits n = (map newPU [1..n])
 unlock :: ProcessingUnit -> ProcessingUnit
 unlock pu = pu { locked = False, lockedMsg = False }
 
+decrementStallCycles :: ProcessingUnit -> ProcessingUnit
+decrementStallCycles pu =
+  pu { stallCycles = decrementedStallCycles }
+  where
+    decrementedStallCycles = if stallCycles pu > 0 then (stallCycles pu) - 1 else 0
+
+
 canExecuteCmds :: ProcessingUnit -> Bool
-canExecuteCmds pu = (enabled pu) && (not (locked pu))
+canExecuteCmds pu = (enabled pu) && (not (locked pu)) && (stallCycles pu) == 0
 
 currentPuEnv :: ProcessingUnit -> Environment
 currentPuEnv pu =
