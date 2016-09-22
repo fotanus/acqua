@@ -15,7 +15,7 @@ main = do
       args <- getArgs
       if (length args) < 4
         then
-          putStrLn $ "usage: ./aqua-run number_of_pus number_of_steps_for_messages function_var_name list_of_applied_values < function.l1"
+          putStrLn $ "usage: ./aqua-run npus nstepsm var val < function.l1\n\n  npus: number of processing units\n  nstepsm: number of steps a message takes to reach another pu (for hierarchical crossbar), 0 for disabled\n  var: variable name with starting value\n  val: Starting values for var.\n\nFor multiple starting jobs, add more values as extra arguments"
         else do
           n_pus <- return $ read (args!!0)
           msg_steps <- return $ read (args!!1)
