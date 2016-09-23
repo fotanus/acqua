@@ -12,6 +12,8 @@ stepMessage acqua = acqua { interconnection = i' }
            ConstMsgUpdate m c -> if c > 0 then ConstMsgUpdate m (c-1) else ConstMsgUpdate m c
            ConstMsgUpdateClos m c -> if c > 0 then ConstMsgUpdateClos m (c-1) else ConstMsgUpdateClos m c
            ConstMsgUpdateMetaClos m c -> if c > 0 then ConstMsgUpdateMetaClos m (c-1) else ConstMsgUpdateMetaClos m c
+           ConstMsgUpdateList m c -> if c > 0 then ConstMsgUpdateList m (c-1) else ConstMsgUpdateList m c
+           ConstMsgUpdateMetaList m c -> if c > 0 then ConstMsgUpdateMetaList m (c-1) else ConstMsgUpdateMetaList m c
            ConstMsgResponse m c -> if c > 0 then ConstMsgResponse m (c-1) else ConstMsgResponse m c
            ConstMsgReqEnv m c -> if c > 0 then ConstMsgReqEnv m (c-1) else ConstMsgReqEnv m c
            ConstMsgReqClos m c -> if c > 0 then ConstMsgReqClos m (c-1) else ConstMsgReqClos m c

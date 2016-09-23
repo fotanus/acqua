@@ -32,9 +32,9 @@ newAcqua p n = Acqua p q pus newInterconnection False statesDefault 0
 newAcquaMap :: Program -> Int -> Int -> String -> [String] -> Acqua
 newAcquaMap p n stepsToPropagate var params = Acqua p' q pus newInterconnection False statesDefault stepsToPropagate
   where
-    specialProcessingUnit = specialPU (map read params)
+    specialProcessingUnit = specialPU params
     pus = specialProcessingUnit:(newProcessingUnits n)
-    q = newQueueForMap specialProcessingUnit (map read params)
+    q = newQueueForMap specialProcessingUnit (length params)
     p' = ((addGetVar (head p)):(tail p))
     addGetVar bb = bb { IR.commands = ((GetCallRecordParam "callRecord" 0 var):(IR.commands bb)) }
 

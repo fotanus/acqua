@@ -15,5 +15,8 @@ data CallRecord = CallRecord {
 emptyCallRecord :: CallRecord
 emptyCallRecord = CallRecord "" 0 0 (fromList [])
 
-callRecordWithParam :: Int -> CallRecord
-callRecordWithParam param = CallRecord "" 0 0 (fromList [(NumberV param)])
+callRecordWithIntParam :: Int -> CallRecord
+callRecordWithIntParam param = CallRecord "" 0 0 (fromList [(NumberV param)])
+
+callRecordWithListParam :: Pointer -> CallRecord
+callRecordWithListParam param = CallRecord "" 0 0 (fromList [(PointerV param)])

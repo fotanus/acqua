@@ -10,6 +10,7 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.Value
+import Simulator.List
 import Simulator.CallRecordSeg
 import Simulator.CallRecord as CallRecord
 
@@ -24,13 +25,25 @@ reqClos acqua  =
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pIdT) pus
           omq' = (outgoingMessageQueue pu) ++ newMessages
-          newMessages = updMetaMsg ++ updMsgs ++ [endMsg]
-          endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS) (msgStepsToPropagate acqua))
-          updMsgs = toList $ Seq.mapWithIndex idxValToMsg (params callRec)
-          updMetaMsg = [ConstMsgUpdateMetaClos (MsgUpdateMetaClos pIdS ptSrc (functionName callRec) (CallRecord.paramCount callRec) (CallRecord.paramMissing callRec)) (msgStepsToPropagate acqua)]
-          Just (CallRecordV callRec) = Map.lookup (addr ptTrg) (callRecordSeg pu)
-          idxValToMsg idx val =
-              ConstMsgUpdateClos (MsgUpdateClos pIdS ptSrc idx val) (msgStepsToPropagate acqua)
+
+          newMessages = case Map.lookup (addr ptTrg) (callRecordSeg pu) of
+                        Nothing -> error $ "reqclos: asked for unexisting call record or list"
+                        Just (ListV (List listSize listItems)) ->
+                          let
+                             endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS) (msgStepsToPropagate acqua))
+                             updMsgs = map (\val -> ConstMsgUpdateList (MsgUpdateList pIdS ptSrc val) (msgStepsToPropagate acqua)) listItems
+                             updMetaMsg = ConstMsgUpdateMetaList (MsgUpdateMetaList pIdS ptSrc listSize) (msgStepsToPropagate acqua)
+                          in
+                             [updMetaMsg] ++ updMsgs ++ [endMsg]
+                        Just (CallRecordV callRec) ->
+                          let
+                             endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS) (msgStepsToPropagate acqua))
+                             updMsgs = toList $ Seq.mapWithIndex idxValToMsg (CallRecord.params callRec)
+                             updMetaMsg = ConstMsgUpdateMetaClos (MsgUpdateMetaClos pIdS ptSrc (functionName callRec) (CallRecord.paramCount callRec) (CallRecord.paramMissing callRec)) (msgStepsToPropagate acqua)
+                             idxValToMsg idx val =
+                                 ConstMsgUpdateClos (MsgUpdateClos pIdS ptSrc idx val) (msgStepsToPropagate acqua)
+                          in
+                             [updMetaMsg] ++ updMsgs ++ [endMsg]
 
           pu' = pu { outgoingMessageQueue = omq', locked = True }
           pus' = updatePU pus pu'

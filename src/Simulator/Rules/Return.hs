@@ -17,7 +17,7 @@ returnTerminator acqua =
     (i', pus') = stepReturn acqua (interconnection acqua) (processingUnits acqua)
 
 stepReturn :: Acqua -> Interconnection -> [ProcessingUnit] -> (Interconnection, [ProcessingUnit])
-stepReturn acqua i [] = (i,[])
+stepReturn _ i [] = (i,[])
 stepReturn acqua i (pu:pus) =
   case (PU.commands pu,PU.terminator pu,PU.canExecuteCmds pu) of
     ([], Return x,True) -> trace ((show (PU.puId pu)) ++ ": returning " ++ (show m)) (i'', pu':pus')

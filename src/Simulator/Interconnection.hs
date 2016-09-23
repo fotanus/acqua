@@ -9,6 +9,8 @@ data Message
  = ConstMsgUpdate  MsgUpdate Int
  | ConstMsgUpdateClos  MsgUpdateClos Int
  | ConstMsgUpdateMetaClos  MsgUpdateMetaClos Int
+ | ConstMsgUpdateList  MsgUpdateList Int
+ | ConstMsgUpdateMetaList  MsgUpdateMetaList Int
  | ConstMsgResponse MsgResponse Int
  | ConstMsgReqEnv  MsgReqEnv Int
  | ConstMsgReqClos MsgReqClos Int
@@ -36,6 +38,18 @@ data MsgUpdateMetaClos = MsgUpdateMetaClos {
   fnName :: String,
   paramCount :: Int,
   paramMissing :: Int
+  } deriving (Show, Eq)
+
+data MsgUpdateList = MsgUpdateList {
+  puIdCC :: PId,
+  ptCC :: Pointer,
+  valueCC :: Value
+  } deriving (Show, Eq)
+
+data MsgUpdateMetaList = MsgUpdateMetaList {
+  puIdMCC :: PId,
+  ptMC :: Pointer,
+  valC :: Int
   } deriving (Show, Eq)
 
 

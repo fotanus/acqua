@@ -2,9 +2,11 @@ module Simulator.ProcessingUnit where
 
 import qualified Data.Map as Map
 import qualified Data.List as List
+import qualified Data.List.Split as ListSP
 
 import AcquaIR.Language
 import Simulator.Value
+import Simulator.List
 import Simulator.Environment
 import Simulator.CallRecordSeg
 import Simulator.Interconnection
@@ -62,12 +64,23 @@ emptySpecialPU =
         Simulator.ProcessingUnit.lockedMsg = False
     }
 
-specialPU :: [Int] -> ProcessingUnit
+specialPU :: [String] -> ProcessingUnit
 specialPU pars =
   let
     env = Map.fromList $ (List.map (\i -> ((show i), PointerV (Pointer 0 i))) [0..(length pars)]) ++ [("resultType", NumberV 1)]
     envs = Map.fromList [("0", env)]
-    crseg = Map.fromList (List.map (\a -> ((snd a), CallRecordV (callRecordWithParam (fst a)))) (zip pars [0..]))
+    startingListAddr = length pars
+    crseg = Map.fromList (List.foldr paramsToCRegList [] (zip [0..] pars))
+
+    parseListToInts l = map (\a -> NumberV (read a)) $ ListSP.splitOn "," $ tail.reverse.tail.reverse $ l
+
+    paramsToCRegList (idx,param) acm =
+      case head param of
+              '[' -> acm ++ [
+                        (idx,                 CallRecordV (callRecordWithListParam (Pointer 0 (startingListAddr + idx)))),
+                        (startingListAddr + idx, ListV (List (length (parseListToInts param)) (parseListToInts param)))
+                     ]
+              _   -> acm ++ [(idx, CallRecordV (callRecordWithIntParam (read param)))]
   in
     PU {
         Simulator.ProcessingUnit.puId=0,

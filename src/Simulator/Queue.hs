@@ -34,10 +34,10 @@ newQueue pu =
   in
     Queue [startingJob] False
 
-newQueueForMap :: ProcessingUnit -> [Int] -> Queue
-newQueueForMap pu pars =
+newQueueForMap :: ProcessingUnit -> Int -> Queue
+newQueueForMap pu paramsLength =
   let
     envId = currentEnv pu
-    startingJobs = List.map (\x-> Job "main" envId (PU.puId pu) (CallSource (show x)) 1 (EnvVal ("result"++(show x)))) [0..((length pars)-1)]
+    startingJobs = List.map (\x-> Job "main" envId (PU.puId pu) (CallSource (show x)) 1 (EnvVal ("result"++(show x)))) [0..((paramsLength)-1)]
   in
     Queue startingJobs False
