@@ -25,6 +25,7 @@ data Command
   -- lists
   | NewList Name Int
   | ListSet Name Int Int
+  | ListSetN Name Int Name
   | Head Name Name
   | Last Name Name
   | Tail Name Name
@@ -128,6 +129,7 @@ printCommand (SetCallRecordParamI n1 n2 n3) = ident ++ "SetCallRecordParamIL " +
 printCommand (GetCallRecordParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetCallRecordParam ") ++ n1 ++ " " ++ (show n2) ++ "\n"
 printCommand (NewList n1 i) = ident ++ n1 ++  " = " ++ "NewList " ++ (show i) ++ "\n"
 printCommand (ListSet n1 i1 i2) = ident ++ "ListSet " ++ n1 ++ " " ++ (show i1) ++ " " ++ (show i2) ++ "\n"
+printCommand (ListSetN n1 i1 n2) = ident ++ "ListSetN " ++ n1 ++ " " ++ (show i1) ++ " " ++ n2 ++ "\n"
 printCommand (Head n1 n2) = ident ++ n1 ++ " = " ++ "head " ++ n2 ++ "\n"
 printCommand (Tail n1 n2) = ident ++ n1 ++ " = " ++ "tail " ++ n2 ++ "\n"
 printCommand (Last n1 n2) = ident ++ n1 ++ " = " ++ "last " ++ n2 ++ "\n"

@@ -17,6 +17,11 @@ data OpCode
   | LesserEqual
   deriving (Eq,Ord,Show,Read)
 
+data ListItem
+  = ListNum Int
+  | ListIdent Name
+  deriving (Eq,Ord,Show,Read)
+
 data Term
   = Op Term OpCode Term
   | Num Int
@@ -26,7 +31,7 @@ data Term
   | Letrec Name Term Term
   | If Term Term Term
   | Fn [Name] Term [Name]
-  | List [Int]
+  | List [ListItem]
   | Head Term
   | Tail Term
   | Last Term

@@ -104,7 +104,7 @@ spec = do
   it "list" $ do
     parse "[1,2,3]"
     `shouldBe`
-    Right (List [1,2,3])
+    Right (List [ListNum 1,ListNum 2,ListNum 3])
 
   it "empty list" $ do
     parse "[]"
@@ -114,9 +114,14 @@ spec = do
   it "one element list" $ do
     parse "[300]"
     `shouldBe`
-    Right (List [300])
+    Right (List [ListNum 300])
 
   it "length" $ do
     parse "length [300]"
     `shouldBe`
-    Right (Length (List [300]))
+    Right (Length (List [ListNum 300]))
+
+  it "list with variable" $ do
+    parse "[x]"
+    `shouldBe`
+    Right (List [ListIdent "x"])

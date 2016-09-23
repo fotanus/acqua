@@ -113,8 +113,15 @@ _compile (App t1 t2) = do
   return cs
 
 _compile (L1.List elements) = do
-  return $ [ SC (NewList resp (length elements)) ] ++
-           map (\(e,idx)-> SC (ListSet resp idx e)) (zip elements [0..])
+  listSets <-return $
+                  map (\(e,idx) ->
+                    case e of
+                      ListNum n -> SC (ListSet resp idx n);
+                      ListIdent n -> SC (ListSetN resp idx n);
+                  ) (zip elements [0..])
+  return $ [ SC (NewList resp (length elements)) ] ++ listSets
+
+
 
 _compile (L1.Head t1) = do
   c1 <- _compile t1

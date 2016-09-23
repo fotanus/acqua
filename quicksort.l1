@@ -1,0 +1,14 @@
+letrec quicksort =
+  fn list =>
+    let x  = head list in
+    let xs = tail list in
+    let smallerSorted = quicksort (filter(fn y => y < x, xs)) in
+    let biggerSorted = quicksort (filter(fn y => y >= x, xs)) in
+    concat(concat(smallerSorted, [x]),biggerSorted)
+    end
+    end
+    end
+    end
+in
+  quicksort x
+end
