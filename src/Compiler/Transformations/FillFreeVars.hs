@@ -10,6 +10,13 @@ fillFreeVars (Op t1 op t2) = Op (fillFreeVars t1) op (fillFreeVars t2)
 fillFreeVars (App t1 t2) = App (fillFreeVars t1) (fillFreeVars t2)
 fillFreeVars (Let n t1 t2) = Let n (fillFreeVars t1) (fillFreeVars t2)
 fillFreeVars (Letrec n t1 t2) = Letrec n (fillFreeVars t1) (fillFreeVars t2)
+fillFreeVars (Head t1) = Head (fillFreeVars t1)
+fillFreeVars (Tail t1) = Tail (fillFreeVars t1)
+fillFreeVars (Last t1) = Last (fillFreeVars t1)
+fillFreeVars (Length t1) = Length (fillFreeVars t1)
+fillFreeVars (Concat t1 t2) = Concat (fillFreeVars t1) (fillFreeVars t2)
+fillFreeVars (Map t1 t2) = Map (fillFreeVars t1) (fillFreeVars t2)
+fillFreeVars (Filter t1 t2) = Filter (fillFreeVars t1) (fillFreeVars t2)
 fillFreeVars t = t
 
 

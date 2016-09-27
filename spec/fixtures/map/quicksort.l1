@@ -1,0 +1,23 @@
+letrec quicksort =
+  fn list =>
+    if (length list) > 1
+      then
+        let x  = head list in
+        let xs = tail list in
+        let smallerSorted = quicksort (filter(fn y => y < x, xs)) in
+        let biggerSorted = quicksort (filter(fn y => y >= x, xs)) in
+          concat(concat(smallerSorted, [x]),biggerSorted)
+        end
+        end
+        end
+        end
+      else
+        if (length list) > 0
+          then
+            let x = head list in
+              [x]
+             end
+          else []
+in
+  quicksort x
+end

@@ -1,10 +1,12 @@
 module Simulator.Acqua where
 
+import Data.List
 import qualified Data.Map as Map
 
 import AcquaIR.Language as IR
 import Simulator.AcquaState
-import Simulator.ProcessingUnit
+import Simulator.ProcessingUnit as PU
+import Simulator.CallRecordSeg as CRS
 import Simulator.Interconnection
 import Simulator.Environment
 import Simulator.Queue
@@ -49,7 +51,7 @@ showAcquaResult acqua =
     stats = showStats acqua
     result = case Map.lookup "resultType" responseEnv of
         Just (NumberV 0) -> acquaResultRun responseEnv
-        Just (NumberV 1) -> acquaResultMap responseEnv
+        Just (NumberV 1) -> acquaResultMap responseEnv acqua
         _ -> error "Can't show this result type"
   in
     result ++ "\n\n" ++ stats
@@ -77,13 +79,20 @@ acquaResultRun env =
   in
     "response: " ++ (show response)
 
-acquaResultMap :: Environment -> [Char]
-acquaResultMap env =
+acquaResultMap :: Environment -> Acqua -> [Char]
+acquaResultMap env acqua =
   let
     responses :: Int -> String
     responses n = case response n of
-                    Just (NumberV resp) -> (show resp) ++ ", " ++ (responses (n+1))
-                    Just _ -> error "Result should be a number"
+                    Just (NumberV resp) ->
+                        (show resp) ++ ", " ++ (responses (n+1))
+                    Just (PointerV (Pointer pid pos)) ->
+                        let
+                          Just puWithResp = find (\pu -> (PU.puId pu)==pid) (processingUnits acqua)
+                          resp = CRS.lookup pos (callRecordSeg puWithResp)
+                        in
+                          (show resp) ++ ", " ++ (responses (n+1))
+                    Just resp -> error $ "Unexpected value for result: " ++ (show resp)
                     Nothing -> ""
     response n = Map.lookup ("result" ++ (show n)) env
   in
