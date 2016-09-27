@@ -33,5 +33,5 @@ tailRule acqua = acqua { processingUnits = newPus }
             newPointer = Pointer (PU.puId pu) crsegPos
             newList = List (length newListVals) newListVals
             crseg' = Map.insert crsegPos (ListV newList) crseg
-            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, callRecordSeg = crseg', locked = True }
+            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, callRecordSeg = crseg', locked = True, stallCycles = (length newListVals) }
         _ -> pu
