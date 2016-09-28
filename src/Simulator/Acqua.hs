@@ -22,7 +22,11 @@ data Acqua = Acqua {
   finishFlag :: FinishFlag,
   acquaState :: AcquaState,
   msgStepsToPropagate :: Int
-} deriving (Show,Eq)
+} deriving (Show)
+
+instance Eq Acqua where
+  Acqua a b c d e _ f == Acqua a' b' c' d' e' _ f' =
+    a == a' && b == b' && c == c' && d == d' && e == e' && f == f'
 
 
 newAcqua :: Program -> Int -> Int -> String -> [String] -> Acqua
