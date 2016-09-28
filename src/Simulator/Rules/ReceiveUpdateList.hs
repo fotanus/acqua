@@ -10,7 +10,6 @@ import Simulator.Interconnection
 import Simulator.CallRecordSeg
 import Simulator.Value
 import Simulator.List
-import Simulator.CallRecord
 
 import Simulator.Rules.Base
 

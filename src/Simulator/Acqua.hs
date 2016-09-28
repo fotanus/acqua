@@ -24,15 +24,9 @@ data Acqua = Acqua {
   msgStepsToPropagate :: Int
 } deriving (Show,Eq)
 
-newAcqua :: Program -> Int -> Acqua
-newAcqua p n = Acqua p q pus newInterconnection False statesDefault 0
-  where
-    specialProcessingUnit = emptySpecialPU
-    pus = specialProcessingUnit:(newProcessingUnits n)
-    q = newQueue specialProcessingUnit
 
-newAcquaMap :: Program -> Int -> Int -> String -> [String] -> Acqua
-newAcquaMap p n stepsToPropagate var params = Acqua p' q pus newInterconnection False statesDefault stepsToPropagate
+newAcqua :: Program -> Int -> Int -> String -> [String] -> Acqua
+newAcqua p n stepsToPropagate var params = Acqua p' q pus newInterconnection False statesDefault stepsToPropagate
   where
     specialProcessingUnit = specialPU params
     pus = specialProcessingUnit:(newProcessingUnits n)

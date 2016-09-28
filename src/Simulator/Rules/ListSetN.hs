@@ -18,14 +18,14 @@ listSetN acqua = acqua { processingUnits = newPus }
     newPus = map steplistParam (processingUnits acqua)
     steplistParam pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
-        (((ListSetN x i ident):cs),True) -> trace ((show (PU.puId pu)) ++ ": ListSetN " ++ (show x) ++ " " ++ (show i) ++ " " ++ (show v)) pu'
+        (((ListSetN x i identifier):cs),True) -> trace ((show (PU.puId pu)) ++ ": ListSetN " ++ (show x) ++ " " ++ (show i) ++ " " ++ (show v)) pu'
           where
             ce = PU.currentEnv pu
             envs = PU.environments pu
             crseg = callRecordSeg pu
 
             Just cenv = Map.lookup ce envs
-            Just (NumberV v) = Map.lookup ident cenv
+            Just (NumberV v) = Map.lookup identifier cenv
             Just (PointerV pointer) = Map.lookup x cenv
             Just (ListV list) = Map.lookup (addr pointer) crseg
             params' = listSetPos (params list) i (NumberV v)
