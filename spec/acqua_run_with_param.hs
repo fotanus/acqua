@@ -7,7 +7,7 @@ import Debug.Trace
 
 
 fixturesDir :: String
-fixturesDir = "spec/fixtures/map/"
+fixturesDir = "spec/fixtures/need_x/"
 
 main :: IO ()
 main = do
