@@ -62,10 +62,16 @@ test-suite acqua-run-return-42-spec
   main-is: acqua_run_return_42.hs
   build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
 
-test-suite acqua-run-with_param-spec
+test-suite acqua-run-with-param-spec
   type: exitcode-stdio-1.0
   hs-source-dirs: spec
   main-is: acqua_run_with_param.hs
+  build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
+
+test-suite acqua-run-hierarchical-crossbar-spec
+  type: exitcode-stdio-1.0
+  hs-source-dirs: spec
+  main-is: acqua_run_hierarchical_crossbar.hs
   build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
 
 test-suite l1-typecheck-spec
