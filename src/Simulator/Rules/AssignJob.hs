@@ -80,7 +80,7 @@ assignJob acqua =
 
 firstOf :: [Job] -> Maybe Job
 firstOf [] = Nothing
-firstOf q = Just (head q)
+firstOf (j:js) = Just j
 
 getAvailable :: [ProcessingUnit] -> Maybe ProcessingUnit
 getAvailable [] = Nothing

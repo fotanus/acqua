@@ -27,6 +27,8 @@ headRule acqua = acqua { processingUnits = newPus }
             Just cenv = Map.lookup ce envs
             Just (PointerV pointer) = Map.lookup l cenv
             Just (ListV list) = Map.lookup (addr pointer) crseg
-            val = head (params list)
+            val = case (params list) of
+                  []     -> traceShow pu $ error $ "error on headRule: head on empty list. "
+                  (p:ps) -> p
             pu' = (setVal pu x val) { PU.commands = cs, locked = True }
         _ -> pu
