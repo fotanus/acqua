@@ -18,7 +18,7 @@ lengthRule acqua = acqua { processingUnits = newPus }
     newPus = map steplistParam (processingUnits acqua)
     steplistParam pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
-        (((Length x l):cs),True) -> trace ((show (PU.puId pu)) ++ " " ++ (show x) ++ " = Length " ++ (show l)) pu'
+        (((Length x l):cs),True) -> trace ((show (PU.puId pu)) ++ ": " ++ (show x) ++ " = Length " ++ (show l)) pu'
           where
             ce = PU.currentEnv pu
             envs = PU.environments pu
