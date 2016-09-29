@@ -53,7 +53,7 @@ rules = [
   newList, listSet, listSetN, headRule, tailRule, lastRule, lengthRule, concatRule, mapRule, filterRule,
   newCallRecord, setCallRecordFn, setCallRecordMissingI, setCallRecordCountI, setCallRecordParam, getCallRecordParam,
   setCallRecordParamIL, setCallRecordParamI, getCallRecordMissing, getCallRecordCount, setCallRecordCount, setCallRecordMissing,
-  receiveResponse, receiveUpdate, receiveUpdateClos, receiveUpdateList, receiveUpdateMetaClos, receiveUpdateMetaList, endCopy,
+  receiveResponse, receiveUpdate, receiveUpdateMetaClos, receiveUpdateMetaList, receiveUpdateClos, receiveUpdateList, endCopy,
   sendEnvMsg, reqEnv, reqClos, assignJob, call, stepMessage
   ]
 
