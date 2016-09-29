@@ -35,7 +35,7 @@ assignV acqua =
                                 crsegPos = CallRecordSeg.nextFreePos crseg
                                 pointer = Pointer (PU.puId pu) crsegPos
                                 -- FIXME: this call record created is dummy, used only to reserve the memory position.
-                                clos = CallRecord "" 0 0 (Sequence.replicate 0 (NumberV 0))
+                                clos = CallRecord "dummyCR" 0 0 (Sequence.replicate 0 (NumberV 0))
                                 crseg' = Map.insert crsegPos (CallRecordV clos) crseg
                                 pu'' = (setVal pu x (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', enabled = False, locked = True}
                                 m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
