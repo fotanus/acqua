@@ -40,8 +40,8 @@ receiveUpdateMetaClos acqua  =
 
           crseg'' = Map.insert (addr pointer) (CallRecordV callRec') crseg'
           (iret, pu') = if (lockedMsg pu)
-                      then (i'', pu)
-                      else (i',  pu { callRecordSeg = crseg'', lockedMsg = True })
+                        then (i'', pu)
+                        else (i',  pu { callRecordSeg = crseg'', lockedMsg = True })
           i' = delete m' i
           i'' = (ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing) 1):i'
 
