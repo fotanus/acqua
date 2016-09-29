@@ -45,6 +45,6 @@ receiveUpdateClos acqua =
                       else (i',  pu { callRecordSeg = crseg', lockedMsg = True })
 
           i' = delete m' i
-          i'' = (ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val) 1):i'
+          i'' = i' ++ [(ConstMsgUpdateClos (MsgUpdateClos pId pointer idx val) 1)]
           pus' = updatePU pus pu'
       _ -> acqua

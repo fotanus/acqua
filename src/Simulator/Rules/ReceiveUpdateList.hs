@@ -33,7 +33,7 @@ receiveUpdateList acqua =
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           crseg = callRecordSeg pu
 
-          Just (ListV (List listSize items)) = Map.lookup (addr pointer) crseg
+          Just (ListV (List listSize items)) = traceShowId $ Map.lookup (addr pointer) crseg
 
           list' = List listSize (items++[val])
 
@@ -43,6 +43,6 @@ receiveUpdateList acqua =
                       else (i',  pu { callRecordSeg = crseg', lockedMsg = True })
 
           i' = delete m' i
-          i'' = (ConstMsgUpdateList (MsgUpdateList pId pointer val) 1):i'
+          i'' = i' ++ [(ConstMsgUpdateList (MsgUpdateList pId pointer val) 1)]
           pus' = updatePU pus pu'
       _ -> acqua

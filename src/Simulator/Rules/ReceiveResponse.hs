@@ -55,7 +55,7 @@ receiveResponse acqua =
                       else (i', pu { environments = env', callCount = cc', callRecordSeg = crseg', lockedMsg = True})
           Just m' = m
           i' = delete m' i
-          i'' = (ConstMsgResponse (MsgResponse pId envId retval v) 1):i'
+          i'' = i' ++ [(ConstMsgResponse (MsgResponse pId envId retval v) 1)]
           pus' = updatePU pus pu'
           f' = if pId == 0 && (nCalls-1) == 0
                  then True

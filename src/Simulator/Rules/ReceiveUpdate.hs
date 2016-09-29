@@ -51,7 +51,7 @@ receiveUpdate acqua  =
                       then (i'', pu)
                       else (i',  pu { callRecordSeg = crseg', lockedMsg = True })
           i' = delete m' i
-          i'' = (ConstMsgUpdate (MsgUpdate pId envId idx val) 1):i'
+          i'' = i' ++ [(ConstMsgUpdate (MsgUpdate pId envId idx val) 1)]
           pus' = updatePU pus pu'
           f' = if pId == 0
                  then True
