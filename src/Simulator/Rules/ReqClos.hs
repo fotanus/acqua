@@ -17,11 +17,21 @@ import Simulator.CallRecord as CallRecord
 
 import Simulator.Rules.Base
 
+getNextReqClosMessage :: Interconnection -> Maybe Message
+getNextReqClosMessage [] = Nothing
+getNextReqClosMessage (m:ms) =
+   case m of
+       ConstMsgReqClos  _ 0 -> Just m
+       _ -> getNextReqClosMessage ms
+
+
 reqClos :: Rule
 reqClos acqua  =
-  case (interconnection acqua) of
-      ((ConstMsgReqClos (MsgReqClos pIdS ptSrc pIdT ptTrg) 0):ms) -> trace ((show (PU.puId pu)) ++ ": receive ReqClos")  $ acqua { processingUnits = pus', interconnection = ms }
+  let m = getNextReqClosMessage (interconnection acqua)
+  in case m of
+      Just (ConstMsgReqClos (MsgReqClos pIdS ptSrc pIdT ptTrg) 0) -> trace ((show (PU.puId pu)) ++ ": receive ReqClos")  $ reqClos $ acqua { processingUnits = pus', interconnection = iret }
         where
+          Just m' = m
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pIdT) pus
           omq' = (outgoingMessageQueue pu) ++ newMessages
@@ -45,7 +55,12 @@ reqClos acqua  =
                           in
                              [updMetaMsg] ++ updMsgs ++ [endMsg]
 
+          i = interconnection acqua
+          i' = delete m' i
+          i'' = i' ++ [(ConstMsgReqClos (MsgReqClos pIdS ptSrc pIdT ptTrg) 1)]
           pu' = pu { outgoingMessageQueue = omq', locked = True }
-          pus' = updatePU pus pu'
+          (iret, pus') = if lockedMsg pu
+                         then (i'', pus)
+                         else (i', updatePU pus pu')
 
       _ -> acqua

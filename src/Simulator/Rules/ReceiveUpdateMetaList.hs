@@ -40,7 +40,7 @@ receiveUpdateMetaList acqua  =
                       then (i'', pu)
                       else (i',  pu { callRecordSeg = crseg', lockedMsg = True })
           i' = delete m' i
-          i'' = (ConstMsgUpdateMetaList (MsgUpdateMetaList pId pointer listSize) 1):i'
+          i'' = i' ++ [(ConstMsgUpdateMetaList (MsgUpdateMetaList pId pointer listSize) 1)]
 
           pus' = updatePU pus pu'
       _ -> acqua

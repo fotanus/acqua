@@ -33,7 +33,7 @@ receiveUpdateList acqua =
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           crseg = callRecordSeg pu
 
-          Just (ListV (List listSize items)) = traceShowId $ Map.lookup (addr pointer) crseg
+          Just (ListV (List listSize items)) = Map.lookup (addr pointer) crseg
 
           list' = List listSize (items++[val])
 
