@@ -37,7 +37,7 @@ assignV acqua =
                                 -- FIXME: this call record created is dummy, used only to reserve the memory position.
                                 clos = CallRecord "dummyCR" 0 0 (Sequence.replicate 0 (NumberV 0))
                                 crseg' = Map.insert crsegPos (CallRecordV clos) crseg
-                                pu'' = (setVal pu x (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', enabled = False, locked = True}
+                                pu'' = (setVal (setVal pu x (PointerV pointer)) v (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', enabled = False, locked = True}
                                 m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
                                 i''' = (ConstMsgReqClos m (msgStepsToPropagate acqua)) : i
                 _ -> (puAfterAssign,i)
