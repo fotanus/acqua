@@ -47,6 +47,9 @@ stepMapRule q (pu:pus) =
             newList = List nParams (take nParams (repeat (NumberV 0)))
             crseg' = Map.insert crsegPos (ListV newList) crseg
 
+            -- update call record count to deallocate
+            crseg'' = Map.insert (addr pointer1) (CallRecordV (callRec { copiesToDelete = nParams} )) crseg'
+
             -- add new jobs to queue
             l = functionName callRec
             j = map (\(n,idx) -> let NumberV v = n in Job l ce pId (MapSource l1 v) (Seq.length (Simulator.CallRecord.params callRec)) (ListVal newPointer idx)) (zip paramsList [0..])
@@ -57,7 +60,7 @@ stepMapRule q (pu:pus) =
             Just nCalls = Map.lookup ce cc
             cc' = trace ("new calls waiting: " ++ (show (nCalls+nParams))) $ Map.insert ce (nCalls+nParams) cc
 
-            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, PU.callCount = cc', callRecordSeg = crseg', PU.locked = True, PU.stallCycles = nParams+1}
+            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, PU.callCount = cc', callRecordSeg = crseg'', PU.locked = True, PU.stallCycles = nParams+1}
 
             (q'', pus') = stepMapRule q' pus
         _ -> (q', pu:pus')

@@ -24,7 +24,7 @@ newCallRecord acqua = acqua { processingUnits = newPus }
             crseg = callRecordSeg pu
             crsegPos = CallRecordSeg.nextFreePos crseg
             pointer = Pointer (PU.puId pu) crsegPos
-            clos = CallRecord "" 0 0 (Sequence.replicate n (NumberV 0))
+            clos = CallRecord "" 0 0 (Sequence.replicate n (NumberV 0)) 1
             crseg' = Map.insert crsegPos (CallRecordV clos) crseg
             pu' = (setVal pu x (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', locked = True }
         _ -> pu

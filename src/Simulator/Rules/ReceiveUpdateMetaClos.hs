@@ -34,7 +34,7 @@ receiveUpdateMetaClos acqua  =
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           crseg = callRecordSeg pu
 
-          callRec = CallRecord "" 0 0 (Sequence.replicate 5 (NumberV 0))
+          callRec = CallRecord "" 0 0 (Sequence.replicate 5 (NumberV 0)) 1
           crseg' = Map.insert (addr pointer) (CallRecordV callRec) crseg
           callRec' = callRec { functionName = fnN, CallRecord.paramCount = count, CallRecord.paramMissing = missing }
 

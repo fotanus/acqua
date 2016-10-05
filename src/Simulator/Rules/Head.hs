@@ -29,6 +29,6 @@ headRule acqua = acqua { processingUnits = newPus }
             Just (ListV list) = Map.lookup (addr pointer) crseg
             val = case (params list) of
                   []     -> traceShow pu $ error $ "error on headRule: head on empty list. "
-                  (p:ps) -> p
+                  (p:_) -> p
             pu' = (setVal pu x val) { PU.commands = cs, locked = True }
         _ -> pu
