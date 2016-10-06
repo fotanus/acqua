@@ -53,7 +53,8 @@ import L1.Language
 %left if then else
 %left '<' '>' '!=' '==' '<=' '>=' '=' 'and' 'or'
 %left '+' '-'
-%left '*'
+%left '*' '/'
+%left head tail last length
 %left '(' ')'
 %left let letrec
 %left APP
@@ -97,9 +98,9 @@ Exp :
     | tail Exp                           { Tail $2 }
     | last Exp                           { Last $2 }
     | length Exp                         { Length $2 }
-    | concat '(' Exp ',' Exp ')'             { Concat $3 $5 }
-    | map '(' Exp ',' Exp ')'             { Map $3 $5 }
-    | filter '(' Exp ',' Exp ')'             { Filter $3 $5 }
+    | concat '(' Exp ',' Exp ')'         { Concat $3 $5 }
+    | map '(' Exp ',' Exp ')'            { Map $3 $5 }
+    | filter '(' Exp ',' Exp ')'         { Filter $3 $5 }
 
     -- Application
     | var Exp   %prec APP                          { App (Ident $1) $2 }
