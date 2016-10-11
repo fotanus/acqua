@@ -9,6 +9,7 @@ import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 import Simulator.ReturnAddrVar
 import Simulator.CallRecordSeg
+import Simulator.CallRecord
 import Simulator.List
 import Simulator.Value
 
@@ -41,15 +42,24 @@ receiveResponse acqua =
 
           crseg = callRecordSeg pu
           crseg' = case retval of
-                     ListVal ptr idx -> Map.insert (addr ptr) list' crseg
+                     ListVal ptr idx -> Map.insert (addr origptr) cr' $ Map.insert (addr ptr) list' crseg
                         where
                             Just (ListV (List lsize list)) = Map.lookup (addr ptr) crseg
                             list' = ListV (List lsize (listSetPos list idx v))
+
+                            -- set max time to dealocate when call count reaches zero
+                            Just origptr = Map.lookup envId $ originCallRec pu
+                            Just (CallRecordV cr) = Map.lookup (addr origptr) crseg
+                            cr' = if nCalls-1 == 0
+                                  then CallRecordV $ cr { timeout = maxTimeout }
+                                  else CallRecordV $ cr
                      _ -> crseg
 
           env' = Map.insert envId cenv' env
           Just nCalls = Map.lookup envId cc
           cc' = Map.insert envId (nCalls-1) cc
+
+
           (iret, pu') = if (lockedMsg pu)
                       then (i'', pu)
                       else (i', pu { environments = env', callCount = cc', callRecordSeg = crseg', lockedMsg = True})

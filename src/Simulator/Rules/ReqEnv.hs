@@ -44,11 +44,9 @@ reqEnv acqua  =
           Just (PointerV pointer) = Map.lookup callRecordName tenv
           Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
 
-          -- dealocate call record if count got to 0
-          ctd = copiesToDelete callRec
-          crseg' = if ctd == 1
+          crseg' = if not $ isMap callRec
                    then Map.delete (addr pointer) crseg
-                   else Map.insert (addr pointer) (CallRecordV (callRec { copiesToDelete = ctd-1 })) crseg
+                   else crseg
 
           idxValToMsg idx val =
               ConstMsgUpdate (MsgUpdate pIdS mjsId idx val) (msgStepsToPropagate acqua)

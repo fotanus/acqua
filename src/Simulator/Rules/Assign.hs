@@ -1,7 +1,6 @@
 module Simulator.Rules.Assign where
 
 import qualified Data.Map as Map
-import Data.Sequence as Sequence
 import Logger
 
 import AcquaIR.Language as IR
@@ -35,7 +34,7 @@ assignV acqua =
                                 crsegPos = CallRecordSeg.nextFreePos crseg
                                 pointer = Pointer (PU.puId pu) crsegPos
                                 -- FIXME: this call record created is dummy, used only to reserve the memory position.
-                                clos = CallRecord "dummyCR" 0 0 (Sequence.replicate 0 (NumberV 0)) 0
+                                clos = emptyCallRecord { functionName = "dummyCR" } 
                                 crseg' = Map.insert crsegPos (CallRecordV clos) crseg
                                 pu'' = (setVal (setVal pu x (PointerV pointer)) v (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', enabled = False, locked = True}
                                 m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt

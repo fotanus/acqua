@@ -54,7 +54,7 @@ assignJob acqua =
 
           -- add callRecord on callRecordSeg
           crsegPos = nextFreePos crseg
-          crseg' = Map.insert crsegPos (CallRecordV (CallRecord "receivedCallRecord" 0 0 defaultParams 1)) crseg
+          crseg' = Map.insert crsegPos (CallRecordV (emptyCallRecord { functionName = "receivedCallRecord", params = defaultParams })) crseg
           defaultParams = case source of
                           CallSource _ -> Seq.replicate sourceSize (NumberV 0)
                           MapSource _ v -> Seq.update (sourceSize-1) (NumberV v) $ Seq.replicate sourceSize (NumberV 0)
@@ -80,7 +80,7 @@ assignJob acqua =
 
 firstOf :: [Job] -> Maybe Job
 firstOf [] = Nothing
-firstOf (j:js) = Just j
+firstOf (j:_) = Just j
 
 getAvailable :: [ProcessingUnit] -> Maybe ProcessingUnit
 getAvailable [] = Nothing

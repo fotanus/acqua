@@ -45,7 +45,8 @@ stepCall q (pu:pus) =
         cc  = PU.callCount pu
         Just nCalls = Map.lookup ce cc
         cc' = Map.insert ce (nCalls+1) cc
-        pu' = pu { PU.commands = cs, PU.callCount = cc', PU.locked = True }
+        ocr = Map.insert ce pointer (originCallRec pu)
+        pu' = pu { PU.commands = cs, PU.callCount = cc', originCallRec = ocr, PU.locked = True }
 
     _ -> (q', pu:pus')
       where (q', pus') = stepCall q pus
