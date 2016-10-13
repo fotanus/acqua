@@ -37,9 +37,11 @@ data ProcessingUnit = PU {
   callCount :: Map.Map EnvId Int,
   sleepingExecution :: Map.Map EnvId ExecutionContext,
   outgoingMessageQueue :: [Message],
+  free :: Bool,
   enabled :: Bool,
   locked :: Bool,
   stallCycles :: Int,
+  callRecordCache :: (Pointer, Pointer),
   lockedMsg :: Bool
 } deriving (Show,Eq)
 
@@ -54,12 +56,14 @@ emptySpecialPU =
         Simulator.ProcessingUnit.terminator = Empty,
         Simulator.ProcessingUnit.currentEnv = "0",
         Simulator.ProcessingUnit.environments = Map.fromList [("0", environmentZero)],
-        Simulator.ProcessingUnit.callRecordSeg = Map.fromList [(0, CallRecordV emptyCallRecord)],
+        Simulator.ProcessingUnit.callRecordSeg = Map.fromList [(0, CallRecordV (emptyCallRecord { functionName = "main" }))],
         Simulator.ProcessingUnit.returnAddrs = Map.fromList [],
         Simulator.ProcessingUnit.originCallRec = Map.fromList [],
         Simulator.ProcessingUnit.callCount = Map.fromList [("0",1)],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
+        Simulator.ProcessingUnit.free = False,
+        Simulator.ProcessingUnit.callRecordCache = ((Pointer 0 0),(Pointer 0 0)),
         Simulator.ProcessingUnit.enabled = False,
         Simulator.ProcessingUnit.locked = False,
         Simulator.ProcessingUnit.stallCycles = 0,
@@ -79,10 +83,10 @@ specialPU pars =
     paramsToCRegList (idx,param) acm =
       case head param of
               '[' -> acm ++ [
-                        (idx,                 CallRecordV (callRecordWithListParam (Pointer 0 (startingListAddr + idx)))),
+                        (idx,                 CallRecordV ((callRecordWithListParam (Pointer 0 (startingListAddr + idx))) {functionName = "main"} )),
                         (startingListAddr + idx, ListV (List (length (parseListToInts param)) (parseListToInts param)))
                      ]
-              _   -> acm ++ [(idx, CallRecordV (callRecordWithIntParam (read param)))]
+              _   -> acm ++ [(idx, CallRecordV ((callRecordWithIntParam (read param)) { functionName = "main" } ))]
   in
     PU {
         Simulator.ProcessingUnit.puId=0,
@@ -96,6 +100,8 @@ specialPU pars =
         Simulator.ProcessingUnit.callCount = Map.fromList [("0",(length pars))],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
+        Simulator.ProcessingUnit.free = False,
+        Simulator.ProcessingUnit.callRecordCache = ((Pointer 0 0),(Pointer 0 0)),
         Simulator.ProcessingUnit.enabled = False,
         Simulator.ProcessingUnit.locked = False,
         Simulator.ProcessingUnit.stallCycles = 0,
@@ -116,6 +122,8 @@ newPU n =
         Simulator.ProcessingUnit.callCount = Map.fromList [],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
+        Simulator.ProcessingUnit.free = True,
+        Simulator.ProcessingUnit.callRecordCache = ((Pointer n 0),(Pointer n 0)),
         Simulator.ProcessingUnit.enabled = False,
         Simulator.ProcessingUnit.locked = False,
         Simulator.ProcessingUnit.stallCycles = 0,

@@ -12,7 +12,7 @@ import Simulator.Interconnection
 import Simulator.Value
 import Simulator.List
 import Simulator.CallRecordSeg
-import Simulator.CallRecord as CallRecord
+import Simulator.CallRecord as CR 
 
 
 import Simulator.Rules.Base
@@ -48,8 +48,8 @@ reqClos acqua  =
                         Just (CallRecordV callRec) ->
                           let
                              endMsg = (ConstMsgEndCopy (MsgEndCopy pIdS) (msgStepsToPropagate acqua))
-                             updMsgs = toList $ Seq.mapWithIndex idxValToMsg (CallRecord.params callRec)
-                             updMetaMsg = ConstMsgUpdateMetaClos (MsgUpdateMetaClos pIdS ptSrc (functionName callRec) (CallRecord.paramCount callRec) (CallRecord.paramMissing callRec)) (msgStepsToPropagate acqua)
+                             updMsgs = toList $ Seq.mapWithIndex idxValToMsg (CR.params callRec)
+                             updMetaMsg = ConstMsgUpdateMetaClos (MsgUpdateMetaClos pIdS ptSrc (functionName callRec) (CR.paramCount callRec) (CR.paramMissing callRec) (isMap callRec)) (msgStepsToPropagate acqua)
                              idxValToMsg idx val =
                                  ConstMsgUpdateClos (MsgUpdateClos pIdS ptSrc idx val) (msgStepsToPropagate acqua)
                           in

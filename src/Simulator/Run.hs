@@ -21,6 +21,6 @@ step acqua = _step (applyRules rules acqua) acqua
 _step :: Acqua -> Acqua -> String
 _step acqua _ | (finishFlag acqua) == True = "Finished!\n" ++ (showAcquaResult acqua)
 _step acqua acqua'= -- traceAcqua acqua $
-  if acqua == acqua'
+  if (processingUnits acqua) == (processingUnits acqua') && (interconnection acqua) == (interconnection acqua') && (queue acqua) == (queue acqua')
     then error $ traceAcqua acqua "Cannot give a step!\n"
     else trace ("----") $ _step (trackStats (garbageCollector (applyRules rules (unlockAndUnstallAll acqua)))) acqua

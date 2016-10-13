@@ -20,6 +20,7 @@ import Simulator.Rules.ReqEnv
 import Simulator.Rules.ReqClos
 import Simulator.Rules.SendEnvMsg
 import Simulator.Rules.EndCopy
+import Simulator.Rules.EndReqCopy
 import Simulator.Rules.StepMessage
 
 import Simulator.Rules.NewList
@@ -53,7 +54,7 @@ rules = [
   newList, listSet, listSetN, headRule, tailRule, lastRule, lengthRule, concatRule, mapRule, filterRule,
   newCallRecord, setCallRecordFn, setCallRecordMissingI, setCallRecordCountI, setCallRecordParam, getCallRecordParam,
   setCallRecordParamIL, setCallRecordParamI, getCallRecordMissing, getCallRecordCount, setCallRecordCount, setCallRecordMissing,
-  receiveUpdateMetaClos, receiveUpdateMetaList, receiveResponse, receiveUpdate, receiveUpdateClos, receiveUpdateList, endCopy,
+  receiveUpdateMetaClos, receiveUpdateMetaList, receiveResponse, receiveUpdate, receiveUpdateClos, receiveUpdateList, endCopy, endReqCopy,
   sendEnvMsg, reqEnv, reqClos, assignJob, call, stepMessage
   ]
 

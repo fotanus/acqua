@@ -15,12 +15,13 @@ data Message
  | ConstMsgReqEnv  MsgReqEnv Int
  | ConstMsgReqClos MsgReqClos Int
  | ConstMsgEndCopy MsgEndCopy Int
+ | ConstMsgEndReqCopy MsgEndReqCopy Int
  deriving (Show, Eq)
 
 
 data MsgUpdate = MsgUpdate {
   puId :: PId,
-  environment :: EnvId,
+  ptr :: Pointer,
   index :: Int,
   value :: Value
   } deriving (Show, Eq)
@@ -37,7 +38,8 @@ data MsgUpdateMetaClos = MsgUpdateMetaClos {
   ptM :: Pointer,
   fnName :: String,
   paramCount :: Int,
-  paramMissing :: Int
+  paramMissing :: Int,
+  isMapFlag :: Bool
   } deriving (Show, Eq)
 
 data MsgUpdateList = MsgUpdateList {
@@ -62,10 +64,9 @@ data MsgResponse = MsgResponse {
 
 data MsgReqEnv = MsgReqEnv {
   puIdS :: PId,
-  jsId  :: EnvId,
+  ptrS :: Pointer,
   puIdT :: PId,
-  teId  :: EnvId,
-  callRecord :: Name
+  ptrT :: Pointer
 } deriving (Show, Eq)
 
 data MsgReqClos = MsgReqClos {
@@ -78,6 +79,10 @@ data MsgReqClos = MsgReqClos {
 
 data MsgEndCopy = MsgEndCopy {
   puIdEC :: PId
+} deriving (Show, Eq)
+
+data MsgEndReqCopy = MsgEndReqCopy {
+  puIdERC :: PId
 } deriving (Show, Eq)
 
 

@@ -37,8 +37,8 @@ stepCall q (pu:pus) =
         Just cenv = Map.lookup ce envs
         Just (PointerV pointer) = Map.lookup x2 cenv
         Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
-        l = functionName callRec
-        j = Job l ce pId (CallSource x2) (Seq.length (params callRec)) (EnvVal x1)
+
+        j = Job pId (CallSource pointer) (Seq.length (params callRec)) ce (EnvVal x1)
         q' = q { jobs = j:(jobs q) }
 
         -- increment calls count

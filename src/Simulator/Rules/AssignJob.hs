@@ -5,7 +5,6 @@ import qualified Data.Map as Map
 import qualified Data.Sequence as Seq
 import Logger
 
-import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.AcquaState
 import Simulator.ProcessingUnit as PU
@@ -20,10 +19,9 @@ import Simulator.Rules.Base
 assignJob :: Rule
 assignJob acqua =
     case (getAvailable (processingUnits acqua), firstOf (jobs (queue acqua))) of
-      (Just pu, Just job) -> trace ((show (PU.puId pu)) ++ ": assignJob ") $ acqua { queue = q', processingUnits = pus', interconnection =  i', acquaState = s' }
+      (Just pu, Just job) -> trace ((show (PU.puId pu)) ++ ": assignJob " ++ (show job)) $ acqua { queue = q', processingUnits = pus', interconnection =  i', acquaState = s' }
         where
           pus = processingUnits acqua
-          bb = program acqua
           i = interconnection acqua
           s = acquaState acqua
           q = queue acqua
@@ -35,9 +33,7 @@ assignJob acqua =
           ra = returnAddrs pu
           cc = callCount pu
 
-          BB _ _ c t = lookupBB bb l
-
-          Job l envId pId' source sourceSize x = job
+          Job pId' source sourceSize envId x = job
           Queue js qlck = q
           jobs' = List.delete job js
 
@@ -48,9 +44,11 @@ assignJob acqua =
 
           -- add message
           m = case source of
-                CallSource callRec -> MsgReqEnv pId newEnvId pId' envId callRec
-                MapSource callRec _ -> MsgReqEnv pId newEnvId pId' envId callRec
-          i' = (ConstMsgReqEnv m (msgStepsToPropagate acqua)) : i
+                CallSource callRec -> MsgReqEnv pId pt pId' callRec
+                MapSource callRec _ -> MsgReqEnv pId pt pId' callRec
+          i' = case source of
+                CallSource _ -> (ConstMsgReqEnv m (msgStepsToPropagate acqua)) : i
+                MapSource _ _ -> (ConstMsgReqEnv m (msgStepsToPropagate acqua)) : i
 
           -- add callRecord on callRecordSeg
           crsegPos = nextFreePos crseg
@@ -60,14 +58,15 @@ assignJob acqua =
                           MapSource _ v -> Seq.update (sourceSize-1) (NumberV v) $ Seq.replicate sourceSize (NumberV 0)
 
           -- create env with pointer to callRecord
-          pt = PointerV $ Pointer pId crsegPos
-          nenv = Map.fromList [("callRecord", pt)]
+          pt = Pointer pId crsegPos
+          ptv = PointerV pt
+          nenv = Map.fromList [("callRecord", ptv)]
           env' = Map.insert newEnvId nenv env
+
 
           q' = Queue jobs' qlck
           pu' = pu {
-            PU.commands = c,
-            PU.terminator = t,
+            free = False,
             currentEnv = newEnvId,
             environments = env',
             callRecordSeg = crseg',
@@ -85,7 +84,7 @@ firstOf (j:_) = Just j
 getAvailable :: [ProcessingUnit] -> Maybe ProcessingUnit
 getAvailable [] = Nothing
 getAvailable (pu:pus') =
-  if (PU.terminator pu) == Empty && (PU.locked pu) == False && (PU.puId pu) > 0
+  if (PU.free pu) && (PU.locked pu) == False
     then Just pu
     else getAvailable pus'
 

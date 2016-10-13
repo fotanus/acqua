@@ -18,4 +18,5 @@ stepMessage acqua = acqua { interconnection = i' }
            ConstMsgReqEnv m c -> if c > 0 then ConstMsgReqEnv m (c-1) else ConstMsgReqEnv m c
            ConstMsgReqClos m c -> if c > 0 then ConstMsgReqClos m (c-1) else ConstMsgReqClos m c
            ConstMsgEndCopy m c -> if c > 0 then ConstMsgEndCopy m (c-1) else ConstMsgEndCopy m c
+           ConstMsgEndReqCopy m c -> if c > 0 then ConstMsgEndReqCopy m (c-1) else ConstMsgEndReqCopy m c
 

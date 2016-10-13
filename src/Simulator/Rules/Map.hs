@@ -52,8 +52,7 @@ stepMapRule q (pu:pus) =
             crseg'' = Map.insert (addr pointer1) (CallRecordV (callRec { isMap = True, timeout = maxTimeout + 1} )) crseg'
 
             -- add new jobs to queue
-            l = functionName callRec
-            j = map (\(n,idx) -> let NumberV v = n in Job l ce pId (MapSource l1 v) (Seq.length (Simulator.CallRecord.params callRec)) (ListVal newPointer idx)) (zip paramsList [0..])
+            j = map (\(n,idx) -> let NumberV v = n in Job pId (MapSource pointer1 v) (Seq.length (Simulator.CallRecord.params callRec)) ce (ListVal newPointer idx)) (zip paramsList [0..])
             q' = q { jobs = j ++ (jobs q) }
 
             -- increment call count

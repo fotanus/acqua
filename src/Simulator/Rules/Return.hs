@@ -36,7 +36,7 @@ stepReturn acqua i (pu:pus) =
         ra = returnAddrs pu
         env = environments pu
         cc' = Map.insert ce 100 cc
-        pu' = pu { PU.commands = [], PU.terminator = Empty, callCount = cc', locked = True }
+        pu' = pu { PU.commands = [], PU.free = True, PU.terminator = Empty, callCount = cc', locked = True }
 
     _ -> (i', pu:pus')
       where (i', pus') = stepReturn acqua i pus

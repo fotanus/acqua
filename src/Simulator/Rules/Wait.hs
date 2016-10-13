@@ -21,6 +21,6 @@ wait acqua = acqua { processingUnits = newPus }
             se = sleepingExecution pu
             t = PU.terminator pu
             se' = Map.insert ce (ExecutionContext cs t) se
-            pu' = pu { PU.commands = [], PU.terminator = Empty, sleepingExecution = se', locked = True }
+            pu' = pu { PU.commands = [], PU.free = True, PU.terminator = Empty, sleepingExecution = se', locked = True }
         _ -> pu
 

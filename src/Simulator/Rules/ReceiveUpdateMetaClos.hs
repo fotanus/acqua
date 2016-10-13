@@ -26,7 +26,7 @@ receiveUpdateMetaClos :: Rule
 receiveUpdateMetaClos acqua  =
   let m = getNextUpdateMessage (interconnection acqua)
   in case m of
-      Just (ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing) 0) -> trace ((show (PU.puId pu)) ++ ": receive updateMetaClos") $ receiveUpdateMetaClos $ acqua { processingUnits = pus', interconnection = iret}
+      Just (ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing im) 0) -> trace ((show (PU.puId pu)) ++ ": receive updateMetaClos") $ receiveUpdateMetaClos $ acqua { processingUnits = pus', interconnection = iret}
         where
           Just m' = m
           i = interconnection acqua
@@ -34,16 +34,19 @@ receiveUpdateMetaClos acqua  =
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
           crseg = callRecordSeg pu
 
-          callRec = emptyCallRecord { params = (Sequence.replicate 5 (NumberV 0)) }
-          crseg' = Map.insert (addr pointer) (CallRecordV callRec) crseg
-          callRec' = callRec { functionName = fnN, CallRecord.paramCount = count, CallRecord.paramMissing = missing }
+          Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
+          callRec' = if (functionName callRec) == "assignCopyCR"
+                     then emptyCallRecord { params = (Sequence.replicate (count+missing) (NumberV 0)) }
+                     else callRec
+          callRec'' = callRec' { functionName = fnN, CallRecord.paramCount = count, CallRecord.paramMissing = missing, isMap = im , timeout = if im then maxTimeout else maxTimeout + 1 }
 
-          crseg'' = Map.insert (addr pointer) (CallRecordV callRec') crseg'
+          crseg' = Map.insert (addr pointer) (CallRecordV callRec'') crseg
+
           (iret, pu') = if (lockedMsg pu)
                         then (i'', pu)
-                        else (i',  pu { callRecordSeg = crseg'', lockedMsg = True })
+                        else (i',  pu { callRecordSeg = crseg', lockedMsg = True })
           i' = delete m' i
-          i'' = (ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing) 1):i'
+          i'' = (ConstMsgUpdateMetaClos (MsgUpdateMetaClos pId pointer fnN count missing im) 1):i'
 
           pus' = updatePU pus pu'
       _ -> acqua
