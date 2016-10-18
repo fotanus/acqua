@@ -6,7 +6,7 @@ before_install:
   - git clone https://github.com/mietek/halcyon.git /app/halcyon
 
 install:
-  - /app/halcyon/halcyon build
+  - /app/halcyon/halcyon build --cabal-version=1.22.2.0
   - /app/halcyon/halcyon paths > halcyon-env
   - ln -sf /app/sandbox/cabal.sandbox.config cabal.sandbox.config
 
