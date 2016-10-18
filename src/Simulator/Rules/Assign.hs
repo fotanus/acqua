@@ -29,7 +29,6 @@ assignV acqua =
             (pu',i') = case val of
                 PointerV pt | (V.puId pt) == (PU.puId pu) -> (puAfterAssign,i)
                             | otherwise -> case (sourcePtr == pt, Map.lookup (addr cachePtr) crseg) of
-                                             -- (True, Just (CallRecordV _)) -> traceShow "Using cached pointer" (puWithCachedVal, i)
                                              _ -> traceShow ("AssignV from other PU, starting to copy " ++ (show pt)) (pu'',i''')
                               where
                                 (sourcePtr, cachePtr) = callRecordCache pu
@@ -41,11 +40,6 @@ assignV acqua =
                                 pu'' = (setVal (setVal pu x (PointerV pointer)) v (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', enabled = False, locked = True}
                                 m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
                                 i''' = (ConstMsgReqClos m (msgStepsToPropagate acqua)) : i
-
-                                Just (CallRecordV cacheCR) = Map.lookup (addr cachePtr) crseg
-                                crseg'' = Map.insert (addr cachePtr) (CallRecordV (cacheCR { timeout = maxTimeout } )) crseg
-                                puWithCachedVal = (setVal pu x (PointerV cachePtr)) { PU.commands = cs, callRecordSeg = crseg'', enabled = False, locked = True}
-
                 _ -> (puAfterAssign,i)
         _ ->
          let

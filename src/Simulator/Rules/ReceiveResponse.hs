@@ -42,9 +42,9 @@ receiveResponse acqua =
 
           crseg = callRecordSeg pu
           crseg' = case retval of
-                     ListVal ptr idx -> Map.insert (addr origptr) cr' $ Map.insert (addr ptr) list' crseg
+                     ListVal pointer idx -> Map.insert (addr origptr) cr' $ Map.insert (addr pointer) list' crseg
                         where
-                            Just (ListV (List lsize list)) = Map.lookup (addr ptr) crseg
+                            Just (ListV (List lsize list)) = Map.lookup (addr pointer) crseg
                             list' = ListV (List lsize (listSetPos list idx v))
 
                             -- set max time to dealocate when call count reaches zero

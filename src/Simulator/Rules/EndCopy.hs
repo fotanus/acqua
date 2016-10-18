@@ -1,16 +1,11 @@
 module Simulator.Rules.EndCopy where
 
-import qualified Data.Map as Map
 import Data.List
 import Logger
 
-import AcquaIR.Language
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
-import Simulator.Value
-import Simulator.CallRecord
-import Simulator.CallRecordSeg
 
 import Simulator.Rules.Base
 
@@ -30,7 +25,6 @@ endCopy acqua  =
           Just m' = m
           pus = processingUnits acqua
           Just pu = Data.List.find (\p -> (PU.puId p) == pId) pus
-          crseg = callRecordSeg pu
 
           pu' = pu { enabled = True }
 
