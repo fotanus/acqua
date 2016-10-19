@@ -38,8 +38,8 @@ assignV acqua =
                                 clos = emptyCallRecord { functionName = "assignCopyCR" }
                                 crseg' = Map.insert crsegPos (CallRecordV clos) crseg
                                 pu'' = (setVal (setVal pu x (PointerV pointer)) v (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', enabled = False, locked = True}
-                                m = MsgReqClos (PU.puId pu) pointer (V.puId pt) pt
-                                i''' = (ConstMsgReqClos m (msgStepsToPropagate acqua)) : i
+                                m = MsgReqPointer (PU.puId pu) pointer (V.puId pt) pt
+                                i''' = (ConstMsgReqPointer m (msgStepsToPropagate acqua)) : i
                 _ -> (puAfterAssign,i)
         _ ->
          let

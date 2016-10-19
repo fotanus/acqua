@@ -7,13 +7,13 @@ import Simulator.ReturnAddrVar
 
 data Message
  = ConstMsgUpdate  MsgUpdate Int
- | ConstMsgUpdateClos  MsgUpdateClos Int
- | ConstMsgUpdateMetaClos  MsgUpdateMetaClos Int
+ | ConstMsgUpdatePointer  MsgUpdatePointer Int
+ | ConstMsgUpdateMetaPointer MsgUpdateMetaPointer Int
  | ConstMsgUpdateList  MsgUpdateList Int
  | ConstMsgUpdateMetaList  MsgUpdateMetaList Int
  | ConstMsgResponse MsgResponse Int
- | ConstMsgReqEnv  MsgReqEnv Int
- | ConstMsgReqClos MsgReqClos Int
+ | ConstMsgReqJobCallRecord  MsgReqJobCallRecord Int
+ | ConstMsgReqPointer MsgReqPointer Int
  | ConstMsgEndCopy MsgEndCopy Int
  | ConstMsgEndReqCopy MsgEndReqCopy Int
  deriving (Show, Eq)
@@ -26,14 +26,14 @@ data MsgUpdate = MsgUpdate {
   value :: Value
   } deriving (Show, Eq)
 
-data MsgUpdateClos = MsgUpdateClos {
+data MsgUpdatePointer = MsgUpdatePointer {
   puIdC :: PId,
   ptC :: Pointer,
   indexC :: Int,
   valueC :: Value
   } deriving (Show, Eq)
 
-data MsgUpdateMetaClos = MsgUpdateMetaClos {
+data MsgUpdateMetaPointer = MsgUpdateMetaPointer {
   puIdMC :: PId,
   ptM :: Pointer,
   fnName :: String,
@@ -62,14 +62,14 @@ data MsgResponse = MsgResponse {
   valueR :: Value
   } deriving (Show, Eq)
 
-data MsgReqEnv = MsgReqEnv {
+data MsgReqJobCallRecord = MsgReqJobCallRecord {
   puIdS :: PId,
   ptrS :: Pointer,
   puIdT :: PId,
   ptrT :: Pointer
 } deriving (Show, Eq)
 
-data MsgReqClos = MsgReqClos {
+data MsgReqPointer = MsgReqPointer {
   puIdSC :: PId,
   ptS :: Pointer,
   puIdTC :: PId,

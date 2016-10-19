@@ -44,11 +44,11 @@ assignJob acqua =
 
           -- add message
           m = case source of
-                CallSource callRec -> MsgReqEnv pId pt pId' callRec
-                MapSource callRec _ -> MsgReqEnv pId pt pId' callRec
+                CallSource callRec -> MsgReqJobCallRecord pId pt pId' callRec
+                MapSource callRec _ -> MsgReqJobCallRecord pId pt pId' callRec
           i' = case source of
-                CallSource _ -> (ConstMsgReqEnv m (msgStepsToPropagate acqua)) : i
-                MapSource _ _ -> (ConstMsgReqEnv m (msgStepsToPropagate acqua)) : i
+                CallSource _ -> (ConstMsgReqJobCallRecord m (msgStepsToPropagate acqua)) : i
+                MapSource _ _ -> (ConstMsgReqJobCallRecord m (msgStepsToPropagate acqua)) : i
 
           -- add callRecord on callRecordSeg
           crsegPos = nextFreePos crseg
