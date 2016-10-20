@@ -32,6 +32,7 @@ data Command
   | Concat Name Name Name
   | Length Name Name
   | Map Name Name Name
+  | Zip Name Name Name Name
   | Filter Name Name Name
   -- call record
   | NewCallRecord Name Int
@@ -135,6 +136,7 @@ printCommand (Tail n1 n2) = ident ++ n1 ++ " = " ++ "tail " ++ n2 ++ "\n"
 printCommand (Last n1 n2) = ident ++ n1 ++ " = " ++ "last " ++ n2 ++ "\n"
 printCommand (Concat res name1 name2) = ident ++ res ++ " = Concat " ++ name1 ++ " " ++ name2 ++ "\n"
 printCommand (Map res name1 name2) = ident ++ res ++ " = Map " ++ name1 ++ " " ++ name2 ++ "\n"
+printCommand (Zip res name1 name2 name3) = ident ++ res ++ " = Zip " ++ name1 ++ " " ++ name2 ++ " " ++ name3 ++ "\n"
 printCommand (Filter res name1 name2) = ident ++ res ++ " = Filter " ++ name1 ++ " " ++ name2 ++ "\n"
 printCommand (Length res name1) = ident ++ res ++ " = Length " ++ name1 ++ "\n"
 
