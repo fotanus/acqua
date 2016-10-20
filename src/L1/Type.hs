@@ -85,6 +85,10 @@ inferType n (Map e1 e2) nameTypes =
     if e1 == (Ident n)
     then FnT [(typeCheck e2 nameTypes)] UnknownT
     else inferType n e2 nameTypes
+inferType n (Zip e1 e2 e3) nameTypes =
+    if (e2 == (Ident n)) || (e3 == (Ident n))
+    then ListT
+    else inferType n e1 nameTypes
 inferType n (Filter e1 e2) nameTypes =
     if e1 == (Ident n)
     then FnT [(typeCheck e2 nameTypes)] UnknownT
@@ -120,6 +124,16 @@ typeCheck (Concat e1 e2) nameTypes =
   if (isTypeOrUnknown (typeCheck e1 nameTypes) ListT) && (isTypeOrUnknown (typeCheck e2 nameTypes) ListT)
     then ListT
     else error "Concating something that is not a list"
+
+typeCheck (Zip e1 e2 e3) nameTypes =
+  if (isTypeOrUnknown (typeCheck e2 nameTypes) ListT) && (isTypeOrUnknown (typeCheck e3 nameTypes) ListT)
+    then case e1 of
+           Fn _ _ _ -> ListT
+           Ident n -> case lookup n nameTypes of
+                      Just _  -> ListT
+                      Nothing -> error $ "Zipping undefined identifier"
+           _       -> error $ "Zipping something that is not a function"
+    else error "Zipping something that is not a list"
 
 typeCheck (Map e1 e2) nameTypes =
     if typeCheck e2 nameTypes == ListT

@@ -38,5 +38,6 @@ data Term
   | Length Term
   | Concat Term Term
   | Map Term Term
+  | Zip Term Term Term
   | Filter Term Term
   deriving (Eq,Ord,Show,Read)

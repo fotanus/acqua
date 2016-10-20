@@ -125,3 +125,10 @@ spec = do
     parse "[x]"
     `shouldBe`
     Right (List [ListIdent "x"])
+
+  it "zip" $ do
+    parse "zip((fn x => fn y => x), [1], [1])"
+    `shouldBe`
+    Right (Zip (Fn ["x"] (Fn ["y"] (Ident "x") []) []) (List [ListNum 1]) (List [ListNum 1]))
+
+

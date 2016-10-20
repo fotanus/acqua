@@ -27,6 +27,7 @@ import L1.Language
     length { Token _ TokenLength }
     concat { Token _ TokenConcat }
     map    { Token _ TokenMap }
+    zip    { Token _ TokenZip }
     filter { Token _ TokenFilter }
     '!='   { Token _ TokenNEQ }
     'and'  { Token _ TokenAnd }
@@ -100,6 +101,7 @@ Exp :
     | length Exp                         { Length $2 }
     | concat '(' Exp ',' Exp ')'         { Concat $3 $5 }
     | map '(' Exp ',' Exp ')'            { Map $3 $5 }
+    | zip '(' Exp ',' Exp ',' Exp ')'    { Zip $3 $5 $7 }
     | filter '(' Exp ',' Exp ')'         { Filter $3 $5 }
 
     -- Application
