@@ -75,7 +75,7 @@ Exp :
     | Exp '-' Exp                        { Op $1 Sub $3 }
     | Exp '*' Exp                        { Op $1 Mult $3 }
     | Exp '/' Exp                        { Op $1 Div $3 }
-    | Exp '==' Exp                       { Op $1 Equal $3 }
+    | Exp '=' Exp                       { Op $1 Equal $3 }
     | Exp '!=' Exp                       { Op $1 NotEqual $3 }
     | Exp '>=' Exp                       { Op $1 GreaterEqual $3 }
     | Exp '<=' Exp                       { Op $1 LesserEqual $3 }
