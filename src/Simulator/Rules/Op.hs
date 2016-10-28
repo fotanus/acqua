@@ -26,7 +26,7 @@ op acqua = acqua { processingUnits = newPus }
               Sub -> v1 - v2
               Mult -> v1 * v2
               Div -> v1 `div` v2
-              Equal -> v1 - v2
+              Equal -> if v1 == v2 then 1 else 0
               NotEqual -> v1 - v2
               Greater -> v1 - v2
               GreaterEqual -> v1 + 1 - v2

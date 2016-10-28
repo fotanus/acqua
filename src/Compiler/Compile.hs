@@ -44,8 +44,8 @@ _compile (Ident n) = do
                            SC (SetCallRecordFn "callRecord" fn),
                            SC (SetCallRecordParamIL "callRecord" 0 fn)
                          ] ++ freeVarsSetParams ++ [
-                           SC (SetCallRecordMissingI "callRecord" 1),
-                           SC (SetCallRecordCountI "callRecord" ((length vars')+(length params))),
+                           SC (SetCallRecordMissingI "callRecord" (length params)),
+                           SC (SetCallRecordCountI "callRecord" ((length vars')+1)),
                            SC (AssignV resp "callRecord")
                          ]
                         where
