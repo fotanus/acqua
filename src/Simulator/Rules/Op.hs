@@ -20,18 +20,18 @@ op acqua = acqua { processingUnits = newPus }
             NumberV v1 = getVal pu x1
             NumberV v2 = getVal pu x2
             val = case opc of
-              And -> v1 + v2
-              Or -> v1 + v2
+              And -> if v1 > 0 && v2 > 0 then 1 else 0
+              Or -> if v1 > 0 ||  v2 > 0 then 1 else 0
               Add -> v1 + v2
               Sub -> v1 - v2
               Mult -> v1 * v2
               Div -> v1 `div` v2
               Equal -> if v1 == v2 then 1 else 0
-              NotEqual -> v1 - v2
-              Greater -> v1 - v2
-              GreaterEqual -> v1 + 1 - v2
-              Lesser -> v2 - v1
-              LesserEqual -> v2 + 1 - v1
+              NotEqual -> if v1 == v2 then 0 else 1
+              Greater -> if v1 > v2 then 1 else 0
+              GreaterEqual -> if v1 >= v2 then 1 else 0
+              Lesser -> if v1 < v2 then 1 else 0
+              LesserEqual -> if v1 <= v2 then 1 else 0
             pu'' = (setVal pu res (NumberV val)) { PU.commands = cs, locked = True }
         _ -> pu
 
