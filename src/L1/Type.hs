@@ -85,6 +85,16 @@ inferType n (Map e1 e2) nameTypes =
     if e1 == (Ident n)
     then FnT [(typeCheck e2 nameTypes)] UnknownT
     else inferType n e2 nameTypes
+inferType n (Slice e1 e2 e3) nameTypes =
+    if e1 == (Ident n)
+    then ListT
+    else if e2 == (Ident n) 
+      then IntT
+      else if e3 == (Ident n)
+        then IntT
+        else if inferType n e2 nameTypes == UnknownT
+          then inferType n e3 nameTypes
+          else inferType n e2 nameTypes
 inferType n (Filter e1 e2) nameTypes =
     if e1 == (Ident n)
     then FnT [(typeCheck e2 nameTypes)] UnknownT
@@ -121,6 +131,11 @@ typeCheck (Concat e1 e2) nameTypes =
     then ListT
     else error "Concating something that is not a list"
 
+typeCheck (Slice e1 e2 e3) nameTypes =
+  if (isTypeOrUnknown (typeCheck e1 nameTypes) ListT) && (isTypeOrUnknown (typeCheck e2 nameTypes) IntT)  && (isTypeOrUnknown (typeCheck e3 nameTypes) IntT)
+    then ListT
+    else error "Slice with wrong types"
+
 typeCheck (Map e1 e2) nameTypes =
     if typeCheck e2 nameTypes == ListT
       then case e1 of
@@ -150,7 +165,7 @@ typeCheck (Fn names e1 _) nameTypes = FnT (map (\n-> inferType n e1 nameTypes) n
 typeCheck (App e1 e2) nameTypes =
   let
     e2type = typeCheck e2 nameTypes
-    (FnT t1 t2) = case e1 of
+    (FnT t1 t2) =  case e1 of
         Ident n -> case lookup n nameTypes of
             Just (t,e,rec) -> if rec
                               then t

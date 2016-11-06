@@ -125,3 +125,8 @@ spec = do
     parse "[x]"
     `shouldBe`
     Right (List [ListIdent "x"])
+
+  it "slice" $ do
+    parse "slice([], 0, 1)"
+    `shouldBe`
+    Right (Slice (List []) (Num 0) (Num 1))

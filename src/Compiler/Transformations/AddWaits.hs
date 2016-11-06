@@ -108,6 +108,10 @@ addWaitCommands p ((lab,name):basicblocks) =
         SetCallRecordParam n _ n' -> if varName == n || varName == n'
                                   then Wait:c:cs
                                   else c:(insertWait cs varName)
+        Concat _ n n'             -> if varName == n || varName == n'
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        -- TODO: other list commands
 
         _ -> c:(insertWait cs name)
 

@@ -67,6 +67,8 @@ spec = do
         (runFile (fixturesDir ++ "sum.l1")) `shouldReturn` "42, "
     it "use_cache.l1" $ do
         (runFile (fixturesDir ++ "use_cache.l1")) `shouldReturn` "42, "
+    it "slice.l1" $ do
+        (runFile (fixturesDir ++ "slice.l1")) `shouldReturn` "42, "
 
 
 

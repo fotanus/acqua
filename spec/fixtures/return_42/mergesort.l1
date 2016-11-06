@@ -1,0 +1,39 @@
+letrec merge = fn l1,l2 =>
+  if (length l1) = 0
+  then l2
+  else if (length l2) = 0
+    then l1
+    else
+      let x = head l1 in
+      let y = head l2 in
+        if x <= y
+          then
+             let xs = tail l1 in
+               concat([x], ((merge xs) l2))
+             end
+          else
+            let ys = tail l2 in
+              concat([y], ((merge l1) ys))
+            end
+      end
+      end
+in
+letrec mergeSort = fn l =>
+  if (length l) < 2
+    then l
+    else
+      let len = length l in
+      let mid = len / 2 in
+      let top = slice(l, 0, mid-1) in
+      let bot = slice(l, (mid), len-1) in
+        (merge (mergeSort top)) (mergeSort bot)
+      end
+      end
+      end
+      end
+in
+
+head (mergeSort [300,42,100])
+
+end
+end

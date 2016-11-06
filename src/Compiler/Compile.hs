@@ -40,16 +40,15 @@ _compile (Ident n) = do
                         where
                           freeVarsSetParams = map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip vars [0..])
                Just (fn,_,params,vars,True) -> [
-                           SC (NewCallRecord "callRecord" ((length vars')+(length params)+1)),
+                           SC (NewCallRecord "callRecord" ((length vars)+(length params)+1)),
                            SC (SetCallRecordFn "callRecord" fn),
                            SC (SetCallRecordParamIL "callRecord" 0 fn)
                          ] ++ freeVarsSetParams ++ [
                            SC (SetCallRecordMissingI "callRecord" (length params)),
-                           SC (SetCallRecordCountI "callRecord" ((length vars')+1)),
+                           SC (SetCallRecordCountI "callRecord" ((length vars)+1)),
                            SC (AssignV resp "callRecord")
                          ]
                         where
-                          vars' = if null vars then [] else tail vars
                           freeVarsSetParams = map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip vars [1..])
 
 _compile (Fn params t1 freeVars) = do
@@ -145,6 +144,19 @@ _compile (L1.Concat t1 t2) = do
   cs <- return $ t1c ++ t2c ++ [SC (IR.Concat "resp" t1Ident t2Ident)]
   return cs
 
+_compile (L1.Slice t1 t2 t3) = do
+  c1 <- _compile t1
+  c2 <- _compile t2
+  c3 <- _compile t3
+  t1Ident <- nextIdentName
+  t2Ident <- nextIdentName
+  t3Ident <- nextIdentName
+  t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
+  t2c <- return $ c2 ++ [SC (AssignV t2Ident resp)]
+  t3c <- return $ c3 ++ [SC (AssignV t3Ident resp)]
+  cs <- return $ t1c ++ t2c ++ t3c ++ [SC (IR.Slice "resp" t1Ident t2Ident t3Ident)]
+  return cs
+
 _compile (L1.Map t1 t2) = do
   c1 <- _compile t1
   c2 <- _compile t2
@@ -238,7 +250,19 @@ _compile (Letrec n (Fn params t1 freeVars) t2) = do
   getParamsCommands'' <- return $ getParamsCommands' ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands')..] ))
   fnBody <- return $ [SL fn] ++ getParamsCommands'' ++ c1 ++ [ST (Return resp)]
   c2 <- _compile t2
-  return $ c2 ++ [ST (Goto continueLabel)] ++ fnBody ++ [(SL continueLabel)]
+
+  freeVarsSetParams <- return $ (SC (SetCallRecordParamIL "callRecord" 0 fn)): (map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip freeVars' [1..]))
+  
+  newCallRecordCommands <- return $ [
+                                   SC (NewCallRecord "callRecord" ((length freeVars)+(length params))),
+                                   SC (SetCallRecordFn "callRecord" fn)
+                                 ] ++ freeVarsSetParams ++ [
+                                   SC (SetCallRecordMissingI "callRecord" (length params)),
+                                   SC (SetCallRecordCountI "callRecord" (length freeVars)),
+                                   SC (AssignV n "callRecord")
+                                 ]
+
+  return $ newCallRecordCommands ++ c2 ++ [ST (Goto continueLabel)] ++ fnBody ++ [(SL continueLabel)]
 
 _compile (Letrec _ _ _) = error "Letrec first term should be a function"
 

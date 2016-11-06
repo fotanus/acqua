@@ -16,6 +16,7 @@ fillFreeVars (Last t1) = Last (fillFreeVars t1)
 fillFreeVars (Length t1) = Length (fillFreeVars t1)
 fillFreeVars (Concat t1 t2) = Concat (fillFreeVars t1) (fillFreeVars t2)
 fillFreeVars (Map t1 t2) = Map (fillFreeVars t1) (fillFreeVars t2)
+fillFreeVars (Slice t1 t2 t3) = Slice (fillFreeVars t1) (fillFreeVars t2) (fillFreeVars t3)
 fillFreeVars (Filter t1 t2) = Filter (fillFreeVars t1) (fillFreeVars t2)
 fillFreeVars t = t
 
@@ -36,6 +37,7 @@ findFreeVars (Tail t1) bl = (findFreeVars t1 bl)
 findFreeVars (Last t1 ) bl = (findFreeVars t1 bl)
 findFreeVars (Length t1) bl = (findFreeVars t1 bl)
 findFreeVars (Concat t1 t2) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
+findFreeVars (Slice t1 t2 t3) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl) ++ (findFreeVars t3 bl)
 findFreeVars (Map t1 t2) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
 findFreeVars (Filter t1 t2) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
 findFreeVars (List items) bl = foldr (\e prev-> case e of ListIdent n -> if n `elem` bl then prev else prev++[n]; _ -> prev) [] items

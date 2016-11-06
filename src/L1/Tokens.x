@@ -41,6 +41,7 @@ tokens :-
   length                        { lex' TokenLength }
   concat                        { lex' TokenConcat }
   map                           { lex' TokenMap }
+  slice                         { lex' TokenSlice }
   filter                        { lex' TokenFilter }
   $digit+                       { lex  (TokenNum . read) }
   \&\&		                  		{ lex' TokenAnd }
@@ -103,6 +104,7 @@ data TokenClass
            | TokenLength
            | TokenConcat
            | TokenMap
+           | TokenSlice
            | TokenFilter
            | TokenSym String
            | TokenEQ
