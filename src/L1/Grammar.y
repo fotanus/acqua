@@ -111,10 +111,14 @@ Exp :
 vars : var ',' vars   { [$1] ++ $3 }
      | var            { [$1] }
 
-nums : num ',' nums   { [ListNum $1] ++ $3 }
-     | num            { [ListNum $1] }
-     | var ',' nums   { [ListIdent $1] ++ $3 }
-     | var            { [ListIdent $1] }
+nums : num ',' nums             { [ListNum $1] ++ $3 }
+     | var ',' nums             { [ListIdent $1] ++ $3 }
+     | '[' ']' ',' nums         { [RecList []] ++ $4 }
+     | '[' nums ']' ',' nums    { [RecList $2] ++ $5 }
+     | num                      { [ListNum $1] }
+     | var                      { [ListIdent $1] }
+     | '[' ']'                  { [RecList []] }
+     | '[' nums ']'             { [RecList $2] }
 
 
 {

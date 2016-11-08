@@ -112,15 +112,9 @@ _compile (App t1 t2) = do
   return cs
 
 _compile (L1.List elements) = do
-  listSets <-return $
-                  map (\(e,idx) ->
-                    case e of
-                      ListNum n -> SC (ListSet resp idx n);
-                      ListIdent n -> SC (ListSetN resp idx n);
-                  ) (zip elements [0..])
-  return $ [ SC (NewList resp (length elements)) ] ++ listSets
-
-
+  listIdent <- nextIdentName
+  listSets <- return $ listSetsFun elements listIdent 0
+  return $ [ SC (NewList listIdent (length elements)) ] ++ listSets ++ [SC (AssignV resp listIdent)]
 
 _compile (L1.Head t1) = do
   c1 <- _compile t1
@@ -141,7 +135,8 @@ _compile (L1.Concat t1 t2) = do
   t2Ident <- nextIdentName
   t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
   t2c <- return $ c2 ++ [SC (AssignV t2Ident resp)]
-  cs <- return $ t1c ++ t2c ++ [SC (IR.Concat "resp" t1Ident t2Ident)]
+  assigns <- return $ [(SC (AssignV t1Ident t1Ident)), (SC (AssignV t2Ident t2Ident))]
+  cs <- return $ t1c ++ t2c ++ assigns ++ [SC (IR.Concat "resp" t1Ident t2Ident)]
   return cs
 
 _compile (L1.Slice t1 t2 t3) = do
@@ -265,6 +260,23 @@ _compile (Letrec n (Fn params t1 freeVars) t2) = do
   return $ newCallRecordCommands ++ c2 ++ [ST (Goto continueLabel)] ++ fnBody ++ [(SL continueLabel)]
 
 _compile (Letrec _ _ _) = error "Letrec first term should be a function"
+
+
+listSetsFun :: [ListItem] -> String -> Int -> [Statement]
+listSetsFun elements prevListVar count =  concat $ map (\(e,idx) ->
+                                  case e of
+                                    ListNum n -> [SC (ListSet prevListVar idx n)];
+                                    ListIdent n -> [SC (ListSetN prevListVar idx n)];
+                                    RecList l ->
+                                      let
+                                        listVar = ("recList" ++ (show count))
+                                        listSets = listSetsFun l listVar (count + 1)
+                                      in
+                                        [ SC (NewList listVar (length l)) ]  ++ listSets ++ [SC (ListSetN prevListVar idx listVar)];
+                                 ) (zip elements [0..])
+
+
+
 
 
 setOp :: L1.OpCode -> IR.OpCode

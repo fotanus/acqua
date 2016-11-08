@@ -55,7 +55,7 @@ assignJob acqua =
           crseg' = Map.insert crsegPos (CallRecordV (emptyCallRecord { functionName = "receivedCallRecord", params = defaultParams })) crseg
           defaultParams = case source of
                           CallSource _ -> Seq.replicate sourceSize (NumberV 0)
-                          MapSource _ v -> Seq.update (sourceSize-1) (NumberV v) $ Seq.replicate sourceSize (NumberV 0)
+                          MapSource _ v -> Seq.update (sourceSize-1) v $ Seq.replicate sourceSize (NumberV 0)
 
           -- create env with pointer to callRecord
           pt = Pointer pId crsegPos

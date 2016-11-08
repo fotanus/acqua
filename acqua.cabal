@@ -74,10 +74,11 @@ test-suite acqua-run-hierarchical-crossbar-spec
   main-is: acqua_run_hierarchical_crossbar.hs
   build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
 
-test-suite l1-typecheck-spec
-  type: exitcode-stdio-1.0
-  hs-source-dirs: spec, src
-  other-modules: L1.Tokens, L1.Grammar
-  main-is: l1_typecheck.hs
-  build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
+-- disabled because it is not necessary after changing to call records
+-- test-suite l1-typecheck-spec
+--   type: exitcode-stdio-1.0
+--   hs-source-dirs: spec, src
+--   other-modules: L1.Tokens, L1.Grammar
+--   main-is: l1_typecheck.hs
+--   build-depends: base == 4.*, hspec, array, directory, process, regex-posix, text, split
 

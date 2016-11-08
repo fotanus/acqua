@@ -15,7 +15,7 @@ data Queue = Queue {
 
 data CopySource
   = CallSource Pointer 
-  | MapSource Pointer Int
+  | MapSource Pointer Value
   deriving (Show,Eq)
 
 data Job = Job {

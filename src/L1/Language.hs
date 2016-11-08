@@ -20,6 +20,7 @@ data OpCode
 data ListItem
   = ListNum Int
   | ListIdent Name
+  | RecList [ListItem]
   deriving (Eq,Ord,Show,Read)
 
 data Term
