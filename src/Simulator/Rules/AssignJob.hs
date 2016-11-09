@@ -5,10 +5,11 @@ import qualified Data.Map as Map
 import qualified Data.Sequence as Seq
 import Logger
 
+import AcquaIR.Language
 import Simulator.Acqua
 import Simulator.AcquaState
 import Simulator.ProcessingUnit as PU
-import Simulator.Queue
+import Simulator.Queue as Q
 import Simulator.Interconnection
 import Simulator.Value
 import Simulator.CallRecord
@@ -32,8 +33,13 @@ assignJob acqua =
           crseg = callRecordSeg pu
           ra = returnAddrs pu
           cc = callCount pu
+          (srcCachePtr, trgCachePtr) = callRecordCache pu
 
-          Job pId' source sourceSize envId x = job
+          callRecPtr = case source of
+                CallSource callRec -> callRec
+                MapSource callRec _ -> callRec
+
+          Job pId' source sourceSize envId x _ = job
           Queue js qlck = q
           jobs' = List.delete job js
 
@@ -43,36 +49,69 @@ assignJob acqua =
           cc' = Map.insert newEnvId 0 cc
 
           -- add message
-          m = case source of
-                CallSource callRec -> MsgReqJobCallRecord pId pt pId' callRec
-                MapSource callRec _ -> MsgReqJobCallRecord pId pt pId' callRec
-          i' = case source of
-                CallSource _ -> (ConstMsgReqJobCallRecord m (msgStepsToPropagate acqua)) : i
-                MapSource _ _ -> (ConstMsgReqJobCallRecord m (msgStepsToPropagate acqua)) : i
+          m =  MsgReqJobCallRecord pId pt pId' callRecPtr
+          i' = if canUseCache
+               then i
+               else (ConstMsgReqJobCallRecord m (msgStepsToPropagate acqua)) : i
 
-          -- add callRecord on callRecordSeg
-          crsegPos = nextFreePos crseg
-          crseg' = Map.insert crsegPos (CallRecordV (emptyCallRecord { functionName = "receivedCallRecord", params = defaultParams })) crseg
+          -- check if can reuse cache
+          canUseCache = case (Q.isMap job, srcCachePtr == callRecPtr, Map.lookup (addr trgCachePtr) crseg) of
+                              (True, True, Just (CallRecordV _)) -> True
+                              _                             -> False
+
+          Just (CallRecordV cachecr) = Map.lookup (addr trgCachePtr) crseg
+
+          -- prepare callrecord to be used
+          newCallRecord = if canUseCache
+                          then let
+                                  MapSource _ v = source
+                                in
+                                  cachecr { params = Seq.update (sourceSize-1) v (params cachecr), timeout = maxTimeout }
+                          else emptyCallRecord { functionName = "receivedCallRecord", params = defaultParams }
+
           defaultParams = case source of
                           CallSource _ -> Seq.replicate sourceSize (NumberV 0)
                           MapSource _ v -> Seq.update (sourceSize-1) v $ Seq.replicate sourceSize (NumberV 0)
+
+          -- add callRecord on callRecordSeg if created a new
+          crseg' = if canUseCache
+                     then traceShow "Using cached pointer" Map.insert (addr trgCachePtr) (CallRecordV newCallRecord) crseg
+                     else traceShow "Can't use cached pointer" $ Map.insert crsegPos (CallRecordV newCallRecord) crseg
+          crsegPos = if canUseCache
+                      then addr trgCachePtr
+                      else nextFreePos crseg
 
           -- create env with pointer to callRecord
           pt = Pointer pId crsegPos
           ptv = PointerV pt
           nenv = Map.fromList [("callRecord", ptv)]
-          env' = Map.insert newEnvId nenv env
+          nenvcache = Map.fromList [("callRecord", (PointerV trgCachePtr))]
+          env' = if canUseCache
+                 then Map.insert newEnvId nenvcache env
+                 else Map.insert newEnvId nenv env
 
+          -- if is a map, cache the call record
+          crc  = if (Q.isMap job)
+                 then (callRecPtr, pt)
+                 else (callRecordCache pu)
+
+          -- fetch basic block if the callrecord was cached
+          cmds = if canUseCache then c' else (PU.commands pu)
+          term = if canUseCache then t' else (PU.terminator pu)
+          BB _ _ c' t' = lookupBB (program acqua) (functionName newCallRecord)
 
           q' = Queue jobs' qlck
           pu' = pu {
+            PU.commands = cmds,
+            PU.terminator = term, 
             free = False,
             currentEnv = newEnvId,
             environments = env',
             callRecordSeg = crseg',
             returnAddrs = ra',
             callCount = cc',
-            enabled = False,
+            callRecordCache = crc,
+            enabled = canUseCache,
             PU.locked = True
           }
       (_,_) -> acqua

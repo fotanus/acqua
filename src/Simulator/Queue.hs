@@ -23,13 +23,14 @@ data Job = Job {
   copySource :: CopySource,
   copySourceSize :: Int,
   environment :: EnvId,
-  variable :: ReturnAddrVar
+  variable :: ReturnAddrVar,
+  isMap :: Bool
 } deriving(Show, Eq)
 
 newQueueForMap :: ProcessingUnit -> Int -> Queue
 newQueueForMap pu paramsLength =
   let
     envId = currentEnv pu
-    startingJobs = List.map (\x-> Job (PU.puId pu) (CallSource (Pointer (PU.puId pu) x)) 1 envId (EnvVal ("result"++(show x)))) [0..((paramsLength)-1)]
+    startingJobs = List.map (\x-> Job (PU.puId pu) (CallSource (Pointer (PU.puId pu) x)) 1 envId (EnvVal ("result"++(show x))) True) [0..((paramsLength)-1)]
   in
     Queue startingJobs False

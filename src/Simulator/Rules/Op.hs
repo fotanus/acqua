@@ -32,6 +32,6 @@ op acqua = acqua { processingUnits = newPus }
               GreaterEqual -> if v1 >= v2 then 1 else 0
               Lesser -> if v1 < v2 then 1 else 0
               LesserEqual -> if v1 <= v2 then 1 else 0
-            pu'' = (setVal pu res (NumberV val)) { PU.commands = cs, locked = True }
+            pu'' = (setVal pu res (NumberV val)) { PU.commands = cs, locked = True, PU.stallCycles = 3 }
         _ -> pu
 

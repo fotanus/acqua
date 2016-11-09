@@ -9,7 +9,7 @@ import Simulator.Acqua
 import Simulator.Queue as Q
 import Simulator.ProcessingUnit as PU
 import Simulator.CallRecordSeg
-import Simulator.CallRecord
+import Simulator.CallRecord as CR
 import Simulator.Value
 import Simulator.List
 import Simulator.ReturnAddrVar
@@ -49,10 +49,10 @@ stepMapRule q (pu:pus) =
             ocr = Map.insert (currentEnv pu) (Pointer pId (addr pointer1)) (originCallRec pu)
 
             -- update call record count to deallocate
-            crseg'' = Map.insert (addr pointer1) (CallRecordV (callRec { isMap = True, timeout = maxTimeout + 1} )) crseg'
+            crseg'' = Map.insert (addr pointer1) (CallRecordV (callRec { CR.isMap = True, timeout = maxTimeout + 1} )) crseg'
 
             -- add new jobs to queue
-            j = map (\(n,idx) -> Job pId (MapSource pointer1 n) (Seq.length (Simulator.CallRecord.params callRec)) ce (ListVal newPointer idx)) (zip paramsList [0..])
+            j = map (\(n,idx) -> Job pId (MapSource pointer1 n) (Seq.length (CR.params callRec)) ce (ListVal newPointer idx) True) (zip paramsList [0..])
             q' = q { jobs = j ++ (jobs q) }
 
             -- increment call count

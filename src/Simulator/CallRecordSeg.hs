@@ -1,5 +1,6 @@
 module Simulator.CallRecordSeg where
 
+import Debug.Trace
 import Data.Map as Map
 
 import Simulator.Value
@@ -30,6 +31,6 @@ lookup ad crseg =
 lookupPt :: Pointer -> CallRecordSeg -> CallRecordSegValue
 lookupPt pt crseg =
   let
-    Just v = Map.lookup (addr pt) crseg
+    Just v = traceShowId $ Map.lookup (addr pt) crseg
   in
     v
