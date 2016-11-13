@@ -32,6 +32,7 @@ import Simulator.Rules.List.Tail
 import Simulator.Rules.List.Last
 import Simulator.Rules.List.Length
 import Simulator.Rules.List.Concat
+import Simulator.Rules.List.Concat3
 import Simulator.Rules.List.Map
 import Simulator.Rules.List.Slice
 import Simulator.Rules.List.Filter
@@ -53,7 +54,7 @@ import Simulator.Rules.CallRecord.GetCallRecordCount
 rules :: [Rule]
 rules = [
   assignV, assignL, assignI, returnTerminator, resume, wait, op, ifRule, goto,
-  newList, listSet, listSetN, headRule, tailRule, lastRule, lengthRule, concatRule, mapRule, sliceRule, filterRule,
+  newList, listSet, listSetN, headRule, tailRule, lastRule, lengthRule, concatRule, concatRule3, mapRule, sliceRule, filterRule,
   newCallRecord, setCallRecordFn, setCallRecordMissingI, setCallRecordCountI, setCallRecordParam, getCallRecordParam,
   setCallRecordParamIL, setCallRecordParamI, getCallRecordMissing, getCallRecordCount, setCallRecordCount, setCallRecordMissing,
   updateMetaPointer, updateMetaList, response, update, updatePointer, updateList, endCopy, endReqCopy,

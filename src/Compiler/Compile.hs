@@ -188,6 +188,20 @@ _compile (L1.Concat t1 t2) = do
   cs <- return $ t1c ++ t2c ++ assigns ++ [SC (IR.Concat "resp" t1Ident t2Ident)]
   return cs
 
+_compile (L1.Concat3 t1 t2 t3) = do
+  c1 <- _compile t1
+  c2 <- _compile t2
+  c3 <- _compile t3
+  t1Ident <- nextIdentName
+  t2Ident <- nextIdentName
+  t3Ident <- nextIdentName
+  t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
+  t2c <- return $ c2 ++ [SC (AssignV t2Ident resp)]
+  t3c <- return $ c3 ++ [SC (AssignV t3Ident resp)]
+  assigns <- return $ [(SC (AssignV t1Ident t1Ident)), (SC (AssignV t2Ident t2Ident)), (SC (AssignV t3Ident t3Ident))]
+  cs <- return $ t1c ++ t2c ++ t3c ++ assigns ++ [SC (IR.Concat3 "resp" t1Ident t2Ident t3Ident)]
+  return cs
+
 _compile (L1.Slice t1 t2 t3) = do
   c1 <- _compile t1
   c2 <- _compile t2

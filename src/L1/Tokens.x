@@ -40,6 +40,7 @@ tokens :-
   last                          { lex' TokenLast }
   length                        { lex' TokenLength }
   concat                        { lex' TokenConcat }
+  concat3                        { lex' TokenConcat3 }
   map                           { lex' TokenMap }
   slice                         { lex' TokenSlice }
   filter                        { lex' TokenFilter }
@@ -103,6 +104,7 @@ data TokenClass
            | TokenLast
            | TokenLength
            | TokenConcat
+           | TokenConcat3
            | TokenMap
            | TokenSlice
            | TokenFilter

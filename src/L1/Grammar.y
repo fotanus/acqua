@@ -26,6 +26,7 @@ import L1.Language
     last   { Token _ TokenLast }
     length { Token _ TokenLength }
     concat { Token _ TokenConcat }
+    concat3 { Token _ TokenConcat3 }
     map    { Token _ TokenMap }
     slice  { Token _ TokenSlice }
     filter { Token _ TokenFilter }
@@ -100,6 +101,7 @@ Exp :
     | last Exp                           { Last $2 }
     | length Exp                         { Length $2 }
     | concat '(' Exp ',' Exp ')'         { Concat $3 $5 }
+    | concat3 '(' Exp ',' Exp ',' Exp ')'         { Concat3 $3 $5 $7 }
     | map '(' Exp ',' Exp ')'            { Map $3 $5 }
     | slice '(' Exp ',' Exp ',' Exp ')'  { Slice $3 $5 $7 }
     | filter '(' Exp ',' Exp ')'         { Filter $3 $5 }
@@ -107,7 +109,8 @@ Exp :
     -- Application
     | var Exp   %prec APP                          { App (Ident $1) $2 }
     | '(' Exp ')' Exp %prec APP                    { App $2 $4 }
-    | Exp '(' Exps ')' %prec APP { MultiApp $1 $3 }
+    | Exp '(' Exp ')' %prec APP                    { App $1 $3 }
+    | Exp '(' Exp ',' Exps ')' %prec APP           { MultiApp $1 ([$3] ++ $5) }
 
 Exps : Exp { [$1] }
      | Exp ',' Exps { [$1] ++ $3 }

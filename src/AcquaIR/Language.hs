@@ -30,6 +30,7 @@ data Command
   | Last Name Name
   | Tail Name Name
   | Concat Name Name Name
+  | Concat3 Name Name Name Name
   | Length Name Name
   | Map Name Name Name
   | Slice Name Name Name Name
@@ -135,6 +136,7 @@ printCommand (Head n1 n2) = ident ++ n1 ++ " = " ++ "head " ++ n2 ++ "\n"
 printCommand (Tail n1 n2) = ident ++ n1 ++ " = " ++ "tail " ++ n2 ++ "\n"
 printCommand (Last n1 n2) = ident ++ n1 ++ " = " ++ "last " ++ n2 ++ "\n"
 printCommand (Concat res name1 name2) = ident ++ res ++ " = Concat " ++ name1 ++ " " ++ name2 ++ "\n"
+printCommand (Concat3 res name1 name2 name3) = ident ++ res ++ " = Concat " ++ name1 ++ " " ++ name2 ++ " " ++ name3 ++ "\n"
 printCommand (Map res name1 name2) = ident ++ res ++ " = Map " ++ name1 ++ " " ++ name2 ++ "\n"
 printCommand (Slice res name1 name2 name3) = ident ++ res ++ " = Slice " ++ name1 ++ " " ++ name2 ++ " " ++ name3 ++ "\n"
 printCommand (Filter res name1 name2) = ident ++ res ++ " = Filter " ++ name1 ++ " " ++ name2 ++ "\n"

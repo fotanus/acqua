@@ -39,6 +39,7 @@ data Term
   | Last Term
   | Length Term
   | Concat Term Term
+  | Concat3 Term Term Term
   | Map Term Term
   | Slice Term Term Term
   | Filter Term Term
