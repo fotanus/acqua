@@ -73,6 +73,55 @@ _compile (Fn params t1 freeVars) = do
   return newCallRecordCommands
 
 
+_compile (MultiApp t1 t2) = do
+  c1 <- _compile t1
+  c2s <- mapM _compile t2
+  thenLabel <- nextThenLabel
+  backLabel <- nextBackLabel
+  dummyLabel <- nextDummyLabel
+  callRecordIdent <- nextIdentName
+  callRecordIdent' <- nextIdentName
+  nparams <- nextIdentName
+  currentCount <- nextIdentName
+  addParams <- return $ concat $ map (\c-> c ++ [
+                                         SC (AssignV "param" "resp"),
+                                         SC (IR.Op currentCount currentCount IR.Add "one"),
+                                         SC (SetCallRecordParam callRecordIdent' currentCount "param")
+                                       ]
+                            ) c2s
+
+  bbThen <- return $ [
+                       SL thenLabel,
+                       SC (AssignV callRecordIdent callRecordIdent'),
+                       SC (Call "resp" callRecordIdent),
+                       ST (Goto backLabel)
+                     ]
+  envs <- return $ [
+                     SC (AssignI "one" 1),
+                     SC (AssignI nparams (length t2)),
+                     SC (AssignV callRecordIdent' callRecordIdent'),
+                     SC (GetCallRecordMissing callRecordIdent' "missing"),
+                     SC (GetCallRecordCount callRecordIdent' "count"),
+                     SC (IR.Op currentCount "count" IR.Sub "one"),
+                     SC (IR.Op "resp" "missing" IR.Sub nparams),
+                     SC (AssignV "new_missing" resp),
+                     SC (IR.Op "resp" "count" IR.Add nparams),
+                     SC (AssignV "new_count" resp),
+                     SC (SetCallRecordCount callRecordIdent' "new_count"),
+                     SC (SetCallRecordMissing callRecordIdent' "new_missing")
+                   ] ++ addParams ++ [
+                     SC (IR.Op "resp" "new_missing" IR.Lesser "one"),
+                     ST (IR.If resp thenLabel),
+                     SL dummyLabel,
+                     SC (AssignV "resp" callRecordIdent'),
+                     ST (Goto backLabel)
+                   ] ++ bbThen ++ [
+                     SL backLabel
+                   ]
+  cs <- return $ c1 ++ [SC (AssignV callRecordIdent' resp)] ++ envs
+  return cs
+
+
 _compile (App t1 t2) = do
   c1 <- _compile t1
   c2 <- _compile t2

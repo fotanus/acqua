@@ -107,6 +107,10 @@ Exp :
     -- Application
     | var Exp   %prec APP                          { App (Ident $1) $2 }
     | '(' Exp ')' Exp %prec APP                    { App $2 $4 }
+    | Exp '(' Exps ')' %prec APP { MultiApp $1 $3 }
+
+Exps : Exp { [$1] }
+     | Exp ',' Exps { [$1] ++ $3 }
 
 vars : var ',' vars   { [$1] ++ $3 }
      | var            { [$1] }

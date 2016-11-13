@@ -19,7 +19,7 @@ setCallRecordParam acqua = acqua { processingUnits = newPus }
     newPus = map stepSetCallRecordParam (processingUnits acqua)
     stepSetCallRecordParam pu =
       case (PU.commands pu,PU.canExecuteCmds pu) of
-        (((SetCallRecordParam x i v):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetCallRecordParam " ++ (show x) ++ " " ++ (show i) ++ " " ++ (show v)) pu'
+        (((SetCallRecordParam x i v):cs),True) -> trace ((show (PU.puId pu)) ++ ": SetCallRecordParam " ++ (show x) ++ " " ++ (show idx) ++ " " ++ (show v)) pu'
           where
             ce = PU.currentEnv pu
             envs = PU.environments pu

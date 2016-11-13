@@ -28,6 +28,7 @@ data Term
   | Num Int
   | Ident Name
   | App Term Term
+  | MultiApp Term [Term]
   | Let Name Term Term
   | Letrec Name Term Term
   | If Term Term Term

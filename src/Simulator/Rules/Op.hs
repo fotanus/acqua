@@ -15,7 +15,7 @@ op acqua = acqua { processingUnits = newPus }
     newPus = map stepOp (processingUnits acqua)
     stepOp pu =
       case (PU.commands pu, PU.canExecuteCmds pu) of
-        ((Op res x1 opc x2):cs, True) -> trace ((show (PU.puId pu)) ++ ": OP") pu''
+        ((Op res x1 opc x2):cs, True) -> trace ((show (PU.puId pu)) ++ ": OP with result " ++ (show val)) pu''
           where
             NumberV v1 = getVal pu x1
             NumberV v2 = getVal pu x2
