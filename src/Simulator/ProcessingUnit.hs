@@ -3,14 +3,15 @@ module Simulator.ProcessingUnit where
 import qualified Data.Map as Map
 import qualified Data.List as List
 import qualified Data.List.Split as ListSP
+import qualified Data.Sequence as Seq
 
 import AcquaIR.Language
 import Simulator.Value
-import Simulator.List
+import Simulator.List as L
 import Simulator.Environment
 import Simulator.CallRecordSeg
 import Simulator.Interconnection
-import Simulator.CallRecord
+import Simulator.CallRecord as CR
 import Simulator.ProcessingUnitId
 import Simulator.ReturnAddrVar
 
@@ -169,3 +170,15 @@ currentPuEnv pu =
     Just cenv = Map.lookup (currentEnv pu) (environments pu)
   in
     cenv
+
+occupiedMemory :: ProcessingUnit -> Int
+occupiedMemory pu = 
+  let
+    elements = Map.elems (callRecordSeg pu)
+    lists = map (\x-> case x of ListV l -> l) $ filter (\x-> case x of ListV _ -> True ; _ -> False) elements
+    crs = map (\x-> case x of CallRecordV cr -> cr) $ filter (\x-> case x of CallRecordV _ -> True ; _ -> False) elements
+    listsSize = sum $ map (\l-> length (L.params l)) lists
+    crsSize = sum $ map (\cr -> 4 + (Seq.length (CR.params cr))) crs
+  in
+    listsSize + crsSize
+

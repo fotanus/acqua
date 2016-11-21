@@ -57,7 +57,7 @@ updateMaxCallRec acqua =
   let
     Just (IntVal currentMax) = Map.lookup "maxCallRec" (acquaState acqua)
     maxSize = if currentMax > currentCallRec then currentMax else currentCallRec
-    currentCallRec = maximum $ map (\p-> Map.size (callRecordSeg p)) (processingUnits acqua)
+    currentCallRec = maximum $ map (\p-> occupiedMemory p) (processingUnits acqua)
     state' = Map.insert "maxCallRec" (IntVal maxSize) (acquaState acqua)
   in
     acqua { acquaState = state' }
