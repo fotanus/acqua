@@ -49,6 +49,8 @@ data Command
   | SetCallRecordParamI Name Int Name
   | SetCallRecordParamIL Name Int Name
   | GetCallRecordParam Name Int Name
+  -- pus
+  | GetNPU Name
   deriving (Eq,Ord,Show,Read)
 
 data Terminator
@@ -141,6 +143,8 @@ printCommand (Map res name1 name2) = ident ++ res ++ " = Map " ++ name1 ++ " " +
 printCommand (Slice res name1 name2 name3) = ident ++ res ++ " = Slice " ++ name1 ++ " " ++ name2 ++ " " ++ name3 ++ "\n"
 printCommand (Filter res name1 name2) = ident ++ res ++ " = Filter " ++ name1 ++ " " ++ name2 ++ "\n"
 printCommand (Length res name1) = ident ++ res ++ " = Length " ++ name1 ++ "\n"
+
+printCommand (GetNPU name1) = ident ++ name1 ++ " = GetNPU\n"
 
 printTerminator :: Terminator -> String
 printTerminator (Goto l) = ident ++ (green ("goto " ++ l)) ++ "\n"

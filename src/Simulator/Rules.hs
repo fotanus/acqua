@@ -10,6 +10,7 @@ import Simulator.Rules.Resume
 import Simulator.Rules.Call
 import Simulator.Rules.Wait
 import Simulator.Rules.Op
+import Simulator.Rules.GetNPU
 
 import Simulator.Rules.Messages.Response
 import Simulator.Rules.Messages.Update
@@ -53,7 +54,7 @@ import Simulator.Rules.CallRecord.GetCallRecordCount
 
 rules :: [Rule]
 rules = [
-  assignV, assignL, assignI, returnTerminator, resume, wait, op, ifRule, goto,
+  assignV, assignL, assignI, returnTerminator, resume, wait, op, getNPU, ifRule, goto,
   newList, listSet, listSetN, headRule, tailRule, lastRule, lengthRule, concatRule, concatRule3, mapRule, sliceRule, filterRule,
   newCallRecord, setCallRecordFn, setCallRecordMissingI, setCallRecordCountI, setCallRecordParam, getCallRecordParam,
   setCallRecordParamIL, setCallRecordParamI, getCallRecordMissing, getCallRecordCount, setCallRecordCount, setCallRecordMissing,
