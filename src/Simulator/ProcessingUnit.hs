@@ -175,8 +175,8 @@ occupiedMemory :: ProcessingUnit -> Int
 occupiedMemory pu = 
   let
     elements = Map.elems (callRecordSeg pu)
-    lists = map (\x-> case x of ListV l -> l) $ filter (\x-> case x of ListV _ -> True ; _ -> False) elements
-    crs = map (\x-> case x of CallRecordV cr -> cr) $ filter (\x-> case x of CallRecordV _ -> True ; _ -> False) elements
+    lists = map (\x-> case x of ListV l -> l ; _ -> error "should be a list" ) $ filter (\x-> case x of ListV _ -> True ; _ -> False) elements
+    crs = map (\x-> case x of CallRecordV cr -> cr ; _ -> error "should be a cr") $ filter (\x-> case x of CallRecordV _ -> True ; _ -> False) elements
     listsSize = sum $ map (\l-> length (L.params l)) lists
     crsSize = sum $ map (\cr -> 4 + (Seq.length (CR.params cr))) crs
   in
