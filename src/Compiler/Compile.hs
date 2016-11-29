@@ -17,7 +17,7 @@ resp = "resp"
 
 compile :: L1.Term -> IR.Program
 compile t =
-  addWaits (eliminateRedundantVars (statementsToProgram statements))
+  addSplitMap.addWaits.eliminateRedundantVars.statementsToProgram $ statements
   where
     c = evalState (_compile (fillFreeVars t)) defaultCompileStates
     statements = [SL "main"] ++ c ++ [ST (Return resp)]
@@ -222,7 +222,60 @@ _compile (L1.Map t1 t2) = do
   t2Ident <- nextIdentName
   t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
   t2c <- return $ c2 ++ [SC (AssignV t2Ident resp)]
-  cs <- return $ t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident), SC Wait]
+  thenLabel <- nextThenLabel
+  backLabel <- nextBackLabel
+  dummyLabel <- nextDummyLabel
+  dummyLabel2 <- nextDummyLabel
+  continueLabel <- nextContinueLabel
+  mapCode <- return $ [
+      -- if (length list) > pus * 4
+      SC (GetNPU "pus"),
+      SC (IR.Length "listSize" t2Ident),
+      SC (AssignI "four" 4),
+      SC (IR.Op "resp" "pus" IR.Mult "four"),
+      SC (IR.Op "resp" "listSize" IR.Greater "resp"),
+      ST (IR.If resp thenLabel),
+
+      -- else map wait
+      SL dummyLabel,
+      SC (IR.Map "resp" t1Ident t2Ident),
+      SC Wait,
+      ST (Goto backLabel),
+
+      -- then distribute
+      -- split the list in n lists
+      -- create one job for each list
+      SL thenLabel,
+      SC (NewList "resultingList" 0),
+      SC (IR.Op "sliceSize" "listSize" IR.Div "pus"),
+      SC (IR.AssignI "start" 0),
+      SC (IR.AssignV "end" "sliceSize"),
+      ST (Goto continueLabel),
+
+      SL continueLabel,
+      SC (IR.Slice "list" t2Ident  "start" "end"),
+      SC (NewCallRecord "callRecord" 2),
+      SC (SetCallRecordFn "callRecord" "splitMap"),
+      SC (SetCallRecordMissingI "callRecord" 0),
+      SC (SetCallRecordCountI "callRecord" 2),
+      SC (SetCallRecordParamI "callRecord" 0 t1Ident),
+      SC (SetCallRecordParamI "callRecord" 1 "list"),
+      -- this call is not supported by addwaits
+      -- need a smart way to merge the lists
+      --SC (Call "partialList" "callRecord"),
+      SC (IR.Op "start" "start" IR.Add "sliceSize"),
+      SC (IR.Op "end" "end" IR.Add "sliceSize"),
+      SC (IR.Op "resp" "listSize" IR.Greater "start"),
+      ST (IR.If "resp" continueLabel),
+
+      -- merge lists
+      SL dummyLabel2,
+      ST (Goto backLabel),
+
+      -- continue execution
+      SL backLabel
+    ]
+  cs <- return $ t1c ++ t2c ++ mapCode
   return cs
 
 _compile (L1.Filter t1 t2) = do
@@ -338,6 +391,18 @@ listSetsFun elements prevListVar count =  concat $ map (\(e,idx) ->
                                         [ SC (NewList listVar (length l)) ]  ++ listSets ++ [SC (ListSetN prevListVar idx listVar)];
                                  ) (zip elements [0..])
 
+
+addSplitMap :: IR.Program -> IR.Program
+addSplitMap p =
+  let
+    mapSplitCommands = [
+      GetCallRecordParam "callRecord" 0 "fn",
+      GetCallRecordParam "callRecord" 1 "list",
+      IR.Map "resp" "fn" "list",
+      Wait
+      ]
+  in
+    p ++ [(BB "splitMap" 0 mapSplitCommands (Return "resp"))]
 
 
 
