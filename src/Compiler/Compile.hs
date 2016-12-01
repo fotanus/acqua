@@ -231,10 +231,10 @@ _compile (L1.Map t1 t2) = do
       -- if (length list) > pus * 4
       SC (GetNPU "pus"),
       SC (IR.Length "listSize" t2Ident),
-      SC (AssignI "four" 4),
+      SC (AssignI "four" 2),
       SC (IR.Op "resp" "pus" IR.Mult "four"),
       SC (IR.Op "resp" "listSize" IR.Greater "resp"),
-      ST (IR.If resp thenLabel),
+      ST (IR.If "resp" thenLabel),
 
       -- else map wait
       SL dummyLabel,
@@ -246,10 +246,13 @@ _compile (L1.Map t1 t2) = do
       -- split the list in n lists
       -- create one job for each list
       SL thenLabel,
-      SC (NewList "resultingList" 0),
       SC (IR.Op "sliceSize" "listSize" IR.Div "pus"),
+      SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
+      SC (NewList "partialResultLists" 0),
       SC (IR.AssignI "start" 0),
       SC (IR.AssignV "end" "sliceSize"),
+      SC (IR.AssignI "idx" 0),
+      SC (IR.AssignI "one" 1),
       ST (Goto continueLabel),
 
       SL continueLabel,
@@ -260,11 +263,10 @@ _compile (L1.Map t1 t2) = do
       SC (SetCallRecordCountI "callRecord" 2),
       SC (SetCallRecordParamI "callRecord" 0 t1Ident),
       SC (SetCallRecordParamI "callRecord" 1 "list"),
-      -- this call is not supported by addwaits
-      -- need a smart way to merge the lists
-      --SC (Call "partialList" "callRecord"),
+      SC (CallL "partialResultList" "idx" "callRecord"),
       SC (IR.Op "start" "start" IR.Add "sliceSize"),
       SC (IR.Op "end" "end" IR.Add "sliceSize"),
+      SC (IR.Op "idx" "idx" IR.Add "one"),
       SC (IR.Op "resp" "listSize" IR.Greater "start"),
       ST (IR.If "resp" continueLabel),
 

@@ -17,6 +17,7 @@ data BasicBlock = BB {
 
 data Command
   = Call Name Name
+  | CallL Name Name Name
   | Wait
   | Op Name Name OpCode Name
   | AssignI Name Int
@@ -26,6 +27,7 @@ data Command
   | NewList Name Int
   | ListSet Name Int Int
   | ListSetN Name Int Name
+  | ListSetNN Name Name Name
   | Head Name Name
   | Last Name Name
   | Tail Name Name
@@ -113,6 +115,7 @@ printCommands cs = foldr (++) "" (map printCommand cs)
 
 printCommand :: Command -> String
 printCommand (Call name1 name2) = ident ++ (blue (name1 ++ " = Call " ++ name2)) ++ "\n"
+printCommand (CallL name1 idx name2) = ident ++ (blue (name1 ++ "[" ++ idx ++ "] = Call " ++ name2)) ++ "\n"
 printCommand (Op res name1 op name2) = ident ++ res ++ " = " ++ name1 ++ " " ++ (printOpCode op) ++ " " ++ name2 ++ "\n"
 printCommand (AssignI name n) = ident ++ name ++ " = " ++ (show n) ++ "\n"
 printCommand (AssignL name l) = ident ++ name ++ " = \"" ++ l ++ "\"\n"
@@ -134,6 +137,7 @@ printCommand (GetCallRecordParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetC
 printCommand (NewList n1 i) = ident ++ n1 ++  " = " ++ "NewList " ++ (show i) ++ "\n"
 printCommand (ListSet n1 i1 i2) = ident ++ "ListSet " ++ n1 ++ " " ++ (show i1) ++ " " ++ (show i2) ++ "\n"
 printCommand (ListSetN n1 i1 n2) = ident ++ "ListSetN " ++ n1 ++ " " ++ (show i1) ++ " " ++ n2 ++ "\n"
+printCommand (ListSetNN n1 n2 n3) = ident ++ "ListSetN " ++ n1 ++ " " ++ n2 ++ " " ++ n3 ++ "\n"
 printCommand (Head n1 n2) = ident ++ n1 ++ " = " ++ "head " ++ n2 ++ "\n"
 printCommand (Tail n1 n2) = ident ++ n1 ++ " = " ++ "tail " ++ n2 ++ "\n"
 printCommand (Last n1 n2) = ident ++ n1 ++ " = " ++ "last " ++ n2 ++ "\n"

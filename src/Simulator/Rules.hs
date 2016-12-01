@@ -8,6 +8,7 @@ import Simulator.Rules.If
 import Simulator.Rules.Goto
 import Simulator.Rules.Resume
 import Simulator.Rules.Call
+import Simulator.Rules.CallL
 import Simulator.Rules.Wait
 import Simulator.Rules.Op
 import Simulator.Rules.GetNPU
@@ -28,6 +29,7 @@ import Simulator.Rules.Messages.StepMessage
 import Simulator.Rules.List.NewList
 import Simulator.Rules.List.ListSet
 import Simulator.Rules.List.ListSetN
+import Simulator.Rules.List.ListSetNN
 import Simulator.Rules.List.Head
 import Simulator.Rules.List.Tail
 import Simulator.Rules.List.Last
@@ -55,10 +57,10 @@ import Simulator.Rules.CallRecord.GetCallRecordCount
 rules :: [Rule]
 rules = [
   assignV, assignL, assignI, returnTerminator, resume, wait, op, getNPU, ifRule, goto,
-  newList, listSet, listSetN, headRule, tailRule, lastRule, lengthRule, concatRule, concatRule3, mapRule, sliceRule, filterRule,
+  newList, listSet, listSetN, listSetNN, headRule, tailRule, lastRule, lengthRule, concatRule, concatRule3, mapRule, sliceRule, filterRule,
   newCallRecord, setCallRecordFn, setCallRecordMissingI, setCallRecordCountI, setCallRecordParam, getCallRecordParam,
   setCallRecordParamIL, setCallRecordParamI, getCallRecordMissing, getCallRecordCount, setCallRecordCount, setCallRecordMissing,
   updateMetaPointer, updateMetaList, response, update, updatePointer, updateList, endCopy, endReqCopy,
-  sendMsg, reqJobCallRecord, reqPointer, assignJob, call, stepMessage
+  sendMsg, reqJobCallRecord, reqPointer, assignJob, call, callL, stepMessage
   ]
 

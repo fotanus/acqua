@@ -12,12 +12,11 @@ addWaits p = addWaitCommands p (traceShowId $ blocksToWait p)
 blocksWithCall :: IR.Program -> [BasicBlock]
 blocksWithCall [] = []
 blocksWithCall (bb:basicblocks) =
-  let
-    callFold c = (|| case c of {Call _ _ -> True; _ -> False})
-  in
-    if foldr callFold False (commands bb)
-    then bb:(blocksWithCall basicblocks)
-    else blocksWithCall basicblocks
+    if length (commands bb) >= 2
+      then case (commands bb) !! 1  of
+           Call _ _ -> bb:(blocksWithCall basicblocks)
+           _        -> blocksWithCall basicblocks
+      else blocksWithCall basicblocks
 
 
 -- for a given block which contains the call command, extract the block that will

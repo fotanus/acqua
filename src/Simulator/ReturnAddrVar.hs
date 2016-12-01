@@ -7,4 +7,3 @@ data ReturnAddrVar
   = EnvVal Name
   | ListVal Pointer Int
   deriving (Show,Eq)
-

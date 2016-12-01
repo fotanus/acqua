@@ -14,6 +14,7 @@ data Value
   = LabelV Label
   | NumberV Int
   | PointerV Pointer
+  | NameV Name
   deriving (Show,Eq)
 
 numVal :: Value -> Int
