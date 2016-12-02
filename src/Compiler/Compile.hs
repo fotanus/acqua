@@ -223,10 +223,11 @@ _compile (L1.Map t1 t2) = do
   t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
   t2c <- return $ c2 ++ [SC (AssignV t2Ident resp)]
   thenLabel <- nextThenLabel
-  backLabel <- nextBackLabel
+  thenLabel2 <- nextThenLabel
+  thenLabel3 <- nextThenLabel
   dummyLabel <- nextDummyLabel
   dummyLabel2 <- nextDummyLabel
-  continueLabel <- nextContinueLabel
+  dummyLabel3 <- nextDummyLabel
   mapCode <- return $ [
       -- if (length list) > pus * 4
       SC (GetNPU "pus"),
@@ -240,7 +241,7 @@ _compile (L1.Map t1 t2) = do
       SL dummyLabel,
       SC (IR.Map "resp" t1Ident t2Ident),
       SC Wait,
-      ST (Goto backLabel),
+      ST (Goto dummyLabel3),
 
       -- then distribute
       -- split the list in n lists
@@ -248,14 +249,14 @@ _compile (L1.Map t1 t2) = do
       SL thenLabel,
       SC (IR.Op "sliceSize" "listSize" IR.Div "pus"),
       SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
-      SC (NewList "partialResultLists" 0),
+      SC (NewList "partialResultLists" 10),
       SC (IR.AssignI "start" 0),
       SC (IR.AssignV "end" "sliceSize"),
       SC (IR.AssignI "idx" 0),
       SC (IR.AssignI "one" 1),
-      ST (Goto continueLabel),
+      ST (Goto thenLabel2),
 
-      SL continueLabel,
+      SL thenLabel2,
       SC (IR.Slice "list" t2Ident  "start" "end"),
       SC (NewCallRecord "callRecord" 2),
       SC (SetCallRecordFn "callRecord" "splitMap"),
@@ -263,19 +264,32 @@ _compile (L1.Map t1 t2) = do
       SC (SetCallRecordCountI "callRecord" 2),
       SC (SetCallRecordParamI "callRecord" 0 t1Ident),
       SC (SetCallRecordParamI "callRecord" 1 "list"),
-      SC (CallL "partialResultList" "idx" "callRecord"),
+      SC (CallL "partialResultLists" "idx" "callRecord"),
       SC (IR.Op "start" "start" IR.Add "sliceSize"),
       SC (IR.Op "end" "end" IR.Add "sliceSize"),
       SC (IR.Op "idx" "idx" IR.Add "one"),
       SC (IR.Op "resp" "listSize" IR.Greater "start"),
-      ST (IR.If "resp" continueLabel),
+      ST (IR.If "resp" thenLabel2),
 
-      -- merge lists
+      -- merge lists setup
       SL dummyLabel2,
-      ST (Goto backLabel),
+      SC (NewList "resultList" 0),
+      SC (AssignI "idx" 0),
+      SC (Wait),
+      ST (Goto thenLabel3),
+
+      -- merge lists loop
+      SL thenLabel3,
+      SC (ListGet "partialList" "partialResultLists" "idx"),
+      SC (AssignV "partialList" "partialList"),
+      SC (IR.Concat "resultList" "resultList" "partialList"),
+      SC (IR.Op "idx" "idx" IR.Add "one"),
+      SC (IR.Op "test" "idx" IR.Lesser "numberOfResults"),
+      SC (AssignV "resp" "resultList"),
+      ST (IR.If "test" thenLabel3),
 
       -- continue execution
-      SL backLabel
+      SL dummyLabel3
     ]
   cs <- return $ t1c ++ t2c ++ mapCode
   return cs
@@ -400,6 +414,8 @@ addSplitMap p =
     mapSplitCommands = [
       GetCallRecordParam "callRecord" 0 "fn",
       GetCallRecordParam "callRecord" 1 "list",
+      AssignV "fn" "fn",
+      AssignV "list" "list",
       IR.Map "resp" "fn" "list",
       Wait
       ]

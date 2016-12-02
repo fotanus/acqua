@@ -32,5 +32,7 @@ ifRule acqua = acqua { processingUnits = newPus }
 
 
 dummy :: Label -> Label
-dummy l = "dummy" ++ (drop 4 l)
+dummy l = if take 4 l == "then"
+          then "dummy" ++ (drop 4 l)
+          else "dummy" ++ (drop 8 l)
 

@@ -39,7 +39,6 @@ stepCallL q (pu:pus) =
         Just (PointerV pointer) = Map.lookup x2 cenv
         Just (NumberV idx) = Map.lookup idxname cenv
         Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
-
         j = Job pId (CallSource pointer) (Seq.length (params callRec)) ce (ListVal retPointer idx) False
         q' = q { jobs = j:(jobs q) }
 
