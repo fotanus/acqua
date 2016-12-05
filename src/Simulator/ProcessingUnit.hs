@@ -6,6 +6,7 @@ import qualified Data.List.Split as ListSP
 import qualified Data.Sequence as Seq
 
 import AcquaIR.Language
+import Simulator.Job
 import Simulator.Value
 import Simulator.List as L
 import Simulator.Environment
@@ -38,6 +39,7 @@ data ProcessingUnit = PU {
   callCount :: Map.Map EnvId Int,
   sleepingExecution :: Map.Map EnvId ExecutionContext,
   outgoingMessageQueue :: [Message],
+  outgoingJobQueue :: [Job],
   free :: Bool,
   enabled :: Bool,
   locked :: Bool,
@@ -63,6 +65,7 @@ emptySpecialPU =
         Simulator.ProcessingUnit.callCount = Map.fromList [("0",1)],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
+        Simulator.ProcessingUnit.outgoingJobQueue = [],
         Simulator.ProcessingUnit.free = False,
         Simulator.ProcessingUnit.callRecordCache = ((Pointer 0 0),(Pointer 0 0)),
         Simulator.ProcessingUnit.enabled = False,
@@ -101,6 +104,7 @@ specialPU pars =
         Simulator.ProcessingUnit.callCount = Map.fromList [("0",(length pars))],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [("0", ExecutionContext [] Empty)],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
+        Simulator.ProcessingUnit.outgoingJobQueue = [],
         Simulator.ProcessingUnit.free = False,
         Simulator.ProcessingUnit.callRecordCache = ((Pointer 0 0),(Pointer 0 0)),
         Simulator.ProcessingUnit.enabled = False,
@@ -123,6 +127,7 @@ newPU n =
         Simulator.ProcessingUnit.callCount = Map.fromList [],
         Simulator.ProcessingUnit.sleepingExecution = Map.fromList [],
         Simulator.ProcessingUnit.outgoingMessageQueue = [],
+        Simulator.ProcessingUnit.outgoingJobQueue = [],
         Simulator.ProcessingUnit.free = True,
         Simulator.ProcessingUnit.callRecordCache = ((Pointer n 0),(Pointer n 0)),
         Simulator.ProcessingUnit.enabled = False,
@@ -172,7 +177,7 @@ currentPuEnv pu =
     cenv
 
 occupiedMemory :: ProcessingUnit -> Int
-occupiedMemory pu = 
+occupiedMemory pu =
   let
     elements = Map.elems (callRecordSeg pu)
     lists = map (\x-> case x of ListV l -> l ; _ -> error "should be a list" ) $ filter (\x-> case x of ListV _ -> True ; _ -> False) elements

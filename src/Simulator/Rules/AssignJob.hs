@@ -8,6 +8,7 @@ import Logger
 import AcquaIR.Language
 import Simulator.Acqua
 import Simulator.AcquaState
+import Simulator.Job as J
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue as Q
 import Simulator.Interconnection
@@ -55,7 +56,7 @@ assignJob acqua =
                else (ConstMsgReqJobCallRecord m (msgStepsToPropagate acqua)) : i
 
           -- check if can reuse cache
-          canUseCache = case (Q.isMap job, srcCachePtr == callRecPtr, Map.lookup (addr trgCachePtr) crseg) of
+          canUseCache = case (J.isMap job, srcCachePtr == callRecPtr, Map.lookup (addr trgCachePtr) crseg) of
                               (True, True, Just (CallRecordV _)) -> True
                               _                             -> False
 
@@ -91,7 +92,7 @@ assignJob acqua =
                  else Map.insert newEnvId nenv env
 
           -- if is a map, cache the call record
-          crc  = if (Q.isMap job)
+          crc  = if (J.isMap job)
                  then (callRecPtr, pt)
                  else (callRecordCache pu)
 

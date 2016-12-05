@@ -2,8 +2,7 @@ module Simulator.Queue where
 
 import qualified Data.List as List
 
-import AcquaIR.Language
-import Simulator.ProcessingUnitId
+import Simulator.Job
 import Simulator.ProcessingUnit as PU
 import Simulator.ReturnAddrVar
 import Simulator.Value
@@ -13,19 +12,8 @@ data Queue = Queue {
   locked :: Bool
 } deriving(Show, Eq)
 
-data CopySource
-  = CallSource Pointer 
-  | MapSource Pointer Value
-  deriving (Show,Eq)
-
-data Job = Job {
-  puId :: PId,
-  copySource :: CopySource,
-  copySourceSize :: Int,
-  environment :: EnvId,
-  variable :: ReturnAddrVar,
-  isMap :: Bool
-} deriving(Show, Eq)
+addJobs :: Queue -> [Job] -> Queue
+addJobs q js = q { jobs = (jobs q) ++ js }
 
 newQueueForMap :: ProcessingUnit -> Int -> Queue
 newQueueForMap pu paramsLength =

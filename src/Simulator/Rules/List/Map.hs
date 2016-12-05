@@ -6,7 +6,7 @@ import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
-import Simulator.Queue as Q
+import Simulator.Job
 import Simulator.ProcessingUnit as PU
 import Simulator.CallRecordSeg
 import Simulator.CallRecord as CR
@@ -18,15 +18,13 @@ import Simulator.Rules.Base
 
 mapRule :: Rule
 mapRule acqua =
-    acqua { queue = q', processingUnits = pus' }
-  where
-    (q', pus') = stepMapRule (queue acqua) (processingUnits acqua)
+    acqua { processingUnits = stepMapRule (processingUnits acqua) }
 
-stepMapRule :: Queue -> [ProcessingUnit] -> (Queue, [ProcessingUnit])
-stepMapRule q [] = (q,[])
-stepMapRule q (pu:pus) =
+stepMapRule :: [ProcessingUnit] -> [ProcessingUnit]
+stepMapRule [] = []
+stepMapRule (pu:pus) =
       case (PU.commands pu,PU.canExecuteCmds pu) of
-        (((Map x l1 l2):cs),True) -> trace ((show (PU.puId pu)) ++ " " ++ (show x) ++ " = Map " ++ (show l1) ++ " " ++ (show l2)) (q'', pu':pus')
+        (((Map x l1 l2):cs),True) -> trace ((show (PU.puId pu)) ++ " " ++ (show x) ++ " = Map " ++ (show l1) ++ " " ++ (show l2)) (pu':pus')
           where
             pId = PU.puId pu
             ce = PU.currentEnv pu
@@ -52,16 +50,16 @@ stepMapRule q (pu:pus) =
             crseg'' = Map.insert (addr pointer1) (CallRecordV (callRec { CR.isMap = True, timeout = maxTimeout + 1} )) crseg'
 
             -- add new jobs to queue
-            j = map (\(n,idx) -> Job pId (MapSource pointer1 n) (Seq.length (CR.params callRec)) ce (ListVal newPointer idx) True) (zip paramsList [0..])
-            q' = q { jobs = j ++ (jobs q) }
+            js = map (\(n,idx) -> Job pId (MapSource pointer1 n) (Seq.length (CR.params callRec)) ce (ListVal newPointer idx) True) (zip paramsList [0..])
+            ojq = js ++ (outgoingJobQueue pu)
 
             -- increment call count
             cc  = PU.callCount pu
             Just nCalls = Map.lookup ce cc
             cc' = trace ("new calls waiting: " ++ (show (nCalls+nParams))) $ Map.insert ce (nCalls+nParams) cc
 
-            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, PU.callCount = cc', callRecordSeg = crseg'', PU.locked = True, PU.stallCycles = nParams+1, originCallRec = ocr }
+            pu' = (setVal pu x (PointerV newPointer)) { PU.commands = cs, PU.callCount = cc', callRecordSeg = crseg'', PU.locked = True, PU.stallCycles = nParams+1, originCallRec = ocr, outgoingJobQueue = ojq }
 
-            (q'', pus') = stepMapRule q' pus
-        _ -> (q', pu:pus')
-          where (q', pus') = stepMapRule q pus
+            pus' = stepMapRule pus
+        _ -> pu:pus'
+          where  pus' = stepMapRule pus
