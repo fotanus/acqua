@@ -25,6 +25,7 @@ import Simulator.Rules.Messages.ReqJobCallRecord
 import Simulator.Rules.Messages.ReqPointer
 import Simulator.Rules.Messages.SendMsg
 import Simulator.Rules.Messages.StepMessage
+import Simulator.Rules.StepJob
 
 import Simulator.Rules.List.NewList
 import Simulator.Rules.List.ListSet
@@ -62,6 +63,6 @@ rules = [
   newCallRecord, setCallRecordFn, setCallRecordMissingI, setCallRecordCountI, setCallRecordParam, getCallRecordParam,
   setCallRecordParamIL, setCallRecordParamI, getCallRecordMissing, getCallRecordCount, setCallRecordCount, setCallRecordMissing,
   updateMetaPointer, updateMetaList, response, update, updatePointer, updateList, endCopy, endReqCopy,
-  sendMsg, reqJobCallRecord, reqPointer, assignJob, call, callL, stepMessage
+  sendMsg, reqJobCallRecord, reqPointer, assignJob, call, callL, stepMessage, stepJob
   ]
 

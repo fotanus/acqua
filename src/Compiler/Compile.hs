@@ -249,7 +249,7 @@ _compile (L1.Map t1 t2) = do
       SL thenLabel,
       SC (IR.Op "sliceSize" "listSize" IR.Div "pus"),
       SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
-      SC (NewList "partialResultLists" 10),
+      SC (NewList "partialResultLists" 100000),
       SC (IR.AssignI "start" 0),
       SC (IR.AssignV "end" "sliceSize"),
       SC (IR.AssignI "idx" 0),
