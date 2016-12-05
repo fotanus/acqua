@@ -5,6 +5,7 @@ import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
+import Simulator.Value
 import Simulator.ProcessingUnit as PU
 import Simulator.Interconnection
 
@@ -27,7 +28,10 @@ stepReturn acqua i (pu:pus) =
         Just cenv = Map.lookup ce env
         Just returnValue = Map.lookup x cenv
         Just (ReturnAddr pId' envId' x') = Map.lookup ce ra
-        m = MsgResponse pId' envId' x' returnValue
+        isMapF = case Map.lookup "isMap" cenv of
+                 Just (NumberV 1) -> True
+                 _ -> False
+        m = MsgResponse pId' envId' x' returnValue isMapF
         i' = (ConstMsgResponse m (msgStepsToPropagate acqua)) : i
 
         -- pu

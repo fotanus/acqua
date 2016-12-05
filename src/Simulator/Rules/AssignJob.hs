@@ -86,10 +86,17 @@ assignJob acqua =
           pt = Pointer pId crsegPos
           ptv = PointerV pt
           nenv = Map.fromList [("callRecord", ptv)]
+          nenv' = if J.isMap job
+                  then Map.insert "isMap" (NumberV 1) nenv
+                  else Map.insert "isMap" (NumberV 0) nenv
           nenvcache = Map.fromList [("callRecord", (PointerV trgCachePtr))]
+          nenvcache' = if J.isMap job
+                       then Map.insert "isMap" (NumberV 1) nenvcache
+                       else Map.insert "isMap" (NumberV 0) nenvcache
+          
           env' = if canUseCache
-                 then Map.insert newEnvId nenvcache env
-                 else Map.insert newEnvId nenv env
+                 then Map.insert newEnvId nenvcache' env
+                 else Map.insert newEnvId nenv' env
 
           -- if is a map, cache the call record
           crc  = if (J.isMap job)

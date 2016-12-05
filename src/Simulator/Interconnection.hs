@@ -59,7 +59,8 @@ data MsgResponse = MsgResponse {
   puIdR :: PId,
   environmentR :: EnvId,
   variableR :: ReturnAddrVar,
-  valueR :: Value
+  valueR :: Value,
+  isMapFlagR :: Bool
   } deriving (Show, Eq)
 
 data MsgReqJobCallRecord = MsgReqJobCallRecord {

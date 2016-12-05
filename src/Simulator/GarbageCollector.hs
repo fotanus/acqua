@@ -2,6 +2,7 @@ module Simulator.GarbageCollector where
 
 import qualified Data.Map as Map
 
+import Logger
 import Simulator.Acqua
 import Simulator.ProcessingUnit
 import Simulator.CallRecord
@@ -24,7 +25,7 @@ garbageCollector acqua =
       where
         v' = case v of
               CallRecordV cr -> if isMap cr && timeout cr <= maxTimeout
-                                then CallRecordV $ cr { timeout = (timeout cr) - 1 }
+                                then traceShowId $ CallRecordV $ cr { timeout = (timeout cr) - 1 }
                                 else CallRecordV $ cr
               _ -> v
 
