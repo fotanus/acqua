@@ -26,7 +26,7 @@ response :: Rule
 response acqua =
   let m = getNextUpdateMessage (interconnection acqua)
   in case m of
-      Just (ConstMsgResponse (MsgResponse pId envId retval v) 0) ->
+      Just (ConstMsgResponse (MsgResponse pId envId retval v isMapF) 0) ->
           trace ((show (PU.puId pu)) ++ ": receive response")  $ response (acqua { processingUnits = pus', interconnection = iret, finishFlag = f' })
         where
           pus = processingUnits acqua
@@ -50,9 +50,9 @@ response acqua =
                             -- set max time to dealocate when call count reaches zero
                             Just origptr = Map.lookup envId $ originCallRec pu
                             Just (CallRecordV cr) = Map.lookup (addr origptr) crseg
-                            cr' = if nCalls-1 == 0
+                            cr' = if isMapF && nCalls-1 == 0
                                   then CallRecordV $ cr { timeout = maxTimeout }
-                                  else CallRecordV $ cr
+                                  else CallRecordV $ cr { timeout = maxTimeout + 1 }
                      _ -> crseg
 
           env' = Map.insert envId cenv' env
@@ -65,7 +65,7 @@ response acqua =
                       else (i', pu { environments = env', callCount = cc', callRecordSeg = crseg', lockedMsg = True})
           Just m' = m
           i' = delete m' i
-          i'' = i' ++ [(ConstMsgResponse (MsgResponse pId envId retval v) 1)]
+          i'' = i' ++ [(ConstMsgResponse (MsgResponse pId envId retval v isMapF) 1)]
           pus' = updatePU pus pu'
           f' = if pId == 0 && (nCalls-1) == 0
                  then True
