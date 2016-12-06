@@ -247,8 +247,11 @@ _compile (L1.Map t1 t2) = do
       -- split the list in n lists
       -- create one job for each list
       SL thenLabel,
-      SC (IR.Op "sliceSize" "listSize" IR.Div "pus"),
-      SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
+      -- SC (IR.Op "sliceSize" "listSize" IR.Div "pus"),
+      -- SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
+      SC (IR.AssignI "two" 1),
+      SC (IR.Op "numberOfResults" "pus" IR.Div "two"),
+      SC (IR.Op "sliceSize" "listSize" IR.Div "numberOfResults"),
       SC (NewList "partialResultLists" 100000),
       SC (IR.AssignI "start" 0),
       SC (IR.AssignV "end" "sliceSize"),

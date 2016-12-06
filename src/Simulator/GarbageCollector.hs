@@ -25,7 +25,7 @@ garbageCollector acqua =
       where
         v' = case v of
               CallRecordV cr -> if isMap cr && timeout cr <= maxTimeout
-                                then traceShowId $ CallRecordV $ cr { timeout = (timeout cr) - 1 }
+                                then CallRecordV $ cr { timeout = (timeout cr) - 1 }
                                 else CallRecordV $ cr
               _ -> v
 
