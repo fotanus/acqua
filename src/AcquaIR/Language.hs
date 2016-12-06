@@ -25,6 +25,7 @@ data Command
   | AssignV Name Name
   -- lists
   | NewList Name Int
+  | NewListN Name Name
   | ListSet Name Int Int
   | ListGet Name Name Name
   | ListSetN Name Int Name
@@ -136,6 +137,7 @@ printCommand (SetCallRecordParamIL n1 n2 n3) = ident ++ "SetCallRecordParamIL " 
 printCommand (SetCallRecordParamI n1 n2 n3) = ident ++ "SetCallRecordParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
 printCommand (GetCallRecordParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetCallRecordParam ") ++ n1 ++ " " ++ (show n2) ++ "\n"
 printCommand (NewList n1 i) = ident ++ n1 ++  " = " ++ "NewList " ++ (show i) ++ "\n"
+printCommand (NewListN n1 n2) = ident ++ n1 ++  " = " ++ "NewList " ++ n2 ++ "\n"
 printCommand (ListSet n1 i1 i2) = ident ++ "ListSet " ++ n1 ++ " " ++ (show i1) ++ " " ++ (show i2) ++ "\n"
 printCommand (ListSetN n1 i1 n2) = ident ++ "ListSetN " ++ n1 ++ " " ++ (show i1) ++ " " ++ n2 ++ "\n"
 printCommand (ListSetNN n1 n2 n3) = ident ++ "ListSetN " ++ n1 ++ " " ++ n2 ++ " " ++ n3 ++ "\n"

@@ -252,7 +252,7 @@ _compile (L1.Map t1 t2) = do
       SC (IR.AssignI "two" 1),
       SC (IR.Op "numberOfResults" "pus" IR.Div "two"),
       SC (IR.Op "sliceSize" "listSize" IR.Div "numberOfResults"),
-      SC (NewList "partialResultLists" 100000),
+      SC (NewListN "partialResultLists" "numberOfResults"),
       SC (IR.AssignI "start" 0),
       SC (IR.AssignV "end" "sliceSize"),
       SC (IR.AssignI "idx" 0),
