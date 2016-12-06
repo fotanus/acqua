@@ -31,6 +31,6 @@ lookup ad crseg =
 lookupPt :: Pointer -> CallRecordSeg -> CallRecordSegValue
 lookupPt pt crseg =
   let
-    Just v = traceShowId $ Map.lookup (addr pt) crseg
+    Just v = Map.lookup (addr pt) crseg
   in
     v
