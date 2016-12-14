@@ -27,7 +27,7 @@ response acqua =
   let m = getNextUpdateMessage (interconnection acqua)
   in case m of
       Just (ConstMsgResponse (MsgResponse pId envId retval v isMapF) 0) ->
-          trace ((show (PU.puId pu)) ++ ": receive response")  $ response (acqua { processingUnits = pus', interconnection = iret, finishFlag = f' })
+          trace (("[message "++(show (PU.puId pu))++"]") ++ ": receive response")  $ response (acqua { processingUnits = pus', interconnection = iret, finishFlag = f' })
         where
           pus = processingUnits acqua
           i = interconnection acqua

@@ -20,7 +20,7 @@ endCopy :: Rule
 endCopy acqua  =
   let m = getNextEndCopyMessage (interconnection acqua)
   in case m of
-      Just (ConstMsgEndCopy (MsgEndCopy pId) 0) -> trace ((show (PU.puId pu)) ++ ": receive endCopy")  $ endCopy $ acqua { processingUnits = pus', interconnection = iret }
+      Just (ConstMsgEndCopy (MsgEndCopy pId) 0) -> trace (("[message "++(show (PU.puId pu))++"]") ++ ": receive endCopy")  $ endCopy $ acqua { processingUnits = pus', interconnection = iret }
         where
           Just m' = m
           pus = processingUnits acqua

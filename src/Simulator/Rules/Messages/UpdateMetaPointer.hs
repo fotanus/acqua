@@ -26,7 +26,7 @@ updateMetaPointer :: Rule
 updateMetaPointer acqua  =
   let m = getNextUpdateMessage (interconnection acqua)
   in case m of
-      Just (ConstMsgUpdateMetaPointer (MsgUpdateMetaPointer pId pointer fnN count missing im) 0) -> trace ((show (PU.puId pu)) ++ ": receive updateMetaPointer") $ updateMetaPointer $ acqua { processingUnits = pus', interconnection = iret}
+      Just (ConstMsgUpdateMetaPointer (MsgUpdateMetaPointer pId pointer fnN count missing im) 0) -> trace (("[message "++(show (PU.puId pu))++"]") ++ ": receive updateMetaPointer") $ updateMetaPointer $ acqua { processingUnits = pus', interconnection = iret}
         where
           Just m' = m
           i = interconnection acqua
