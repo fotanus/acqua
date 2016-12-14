@@ -27,7 +27,7 @@ reqJobCallRecord :: Rule
 reqJobCallRecord acqua  =
   let m = getNextReqJobCallRecordMessage (interconnection acqua)
   in case m of
-      Just (ConstMsgReqJobCallRecord (MsgReqJobCallRecord pIdS pointerS pIdT pointerT) 0) -> trace ((show (PU.puId pu)) ++ ": receive ReqJobCallRecord for" ++ (show pointerS))  $ reqJobCallRecord $ acqua { processingUnits = pus', interconnection = iret }
+      Just (ConstMsgReqJobCallRecord (MsgReqJobCallRecord pIdS pointerS pIdT pointerT) 0) -> trace (("[message "++(show (PU.puId pu))++"]") ++ ": receive ReqJobCallRecord for" ++ (show pointerS))  $ reqJobCallRecord $ acqua { processingUnits = pus', interconnection = iret }
         where
           Just m' = m
           pus = processingUnits acqua

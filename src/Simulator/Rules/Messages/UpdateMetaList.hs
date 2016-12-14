@@ -25,7 +25,7 @@ updateMetaList :: Rule
 updateMetaList acqua  =
   let m = getNextUpdateMessage (interconnection acqua)
   in case m of
-      Just (ConstMsgUpdateMetaList (MsgUpdateMetaList pId pointer listSize) 0) -> trace ((show (PU.puId pu)) ++ ": receive updateMetaList") $ updateMetaList $ acqua { processingUnits = pus', interconnection = iret}
+      Just (ConstMsgUpdateMetaList (MsgUpdateMetaList pId pointer listSize) 0) -> trace (("[message "++(show (PU.puId pu))++"]") ++ ": receive updateMetaList") $ updateMetaList $ acqua { processingUnits = pus', interconnection = iret}
         where
           Just m' = m
           i = interconnection acqua

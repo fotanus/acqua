@@ -29,7 +29,7 @@ reqPointer :: Rule
 reqPointer acqua  =
   let m = getNextReqPointerMessage (interconnection acqua)
   in case m of
-      Just (ConstMsgReqPointer (MsgReqPointer pIdS ptSrc pIdT ptTrg) 0) -> trace ((show (PU.puId pu)) ++ ": receive ReqPointer")  $ reqPointer $ acqua { processingUnits = pus', interconnection = iret }
+      Just (ConstMsgReqPointer (MsgReqPointer pIdS ptSrc pIdT ptTrg) 0) -> trace (("[message "++(show (PU.puId pu))++"]") ++ ": receive ReqPointer")  $ reqPointer $ acqua { processingUnits = pus', interconnection = iret }
         where
           Just m' = m
           pus = processingUnits acqua

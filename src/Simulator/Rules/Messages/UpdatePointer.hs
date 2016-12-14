@@ -25,7 +25,7 @@ updatePointer :: Rule
 updatePointer acqua =
   let m = getNextUpdateMessage (interconnection acqua)
   in case m of
-      Just (ConstMsgUpdatePointer (MsgUpdatePointer pId pointer idx val) 0) -> trace ((show (PU.puId pu)) ++ ": receive updatePointer, now it is " ++ (show callRec')) $ updatePointer (acqua { processingUnits = pus', interconnection = iret })
+      Just (ConstMsgUpdatePointer (MsgUpdatePointer pId pointer idx val) 0) -> trace (("[message "++(show (PU.puId pu))++"]") ++ ": receive updatePointer, now it is " ++ (show callRec')) $ updatePointer (acqua { processingUnits = pus', interconnection = iret })
         where
           Just m' = m
           i = interconnection acqua
