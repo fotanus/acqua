@@ -232,7 +232,7 @@ _compile (L1.Map t1 t2) = do
       -- if (length list) > pus * 4
       SC (GetNPU "pus"),
       SC (IR.Length "listSize" t2Ident),
-      SC (AssignI "four" 2),
+      SC (AssignI "four" 4),
       SC (IR.Op "resp" "pus" IR.Mult "four"),
       SC (IR.Op "resp" "listSize" IR.Greater "resp"),
       ST (IR.If "resp" thenLabel),
@@ -249,7 +249,7 @@ _compile (L1.Map t1 t2) = do
       SL thenLabel,
       -- SC (IR.Op "sliceSize" "listSize" IR.Div "pus"),
       -- SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
-      SC (IR.AssignI "two" 1),
+      SC (IR.AssignI "two" 2),
       SC (IR.Op "numberOfResults" "pus" IR.Div "two"),
       SC (IR.Op "sliceSize" "listSize" IR.Div "numberOfResults"),
       SC (NewListN "partialResultLists" "numberOfResults"),
