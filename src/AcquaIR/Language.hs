@@ -37,6 +37,7 @@ data Command
   | Concat3 Name Name Name Name
   | Length Name Name
   | Map Name Name Name
+  | SMap Name Name Name Name
   | Slice Name Name Name Name
   | Filter Name Name Name
   -- call record
@@ -148,6 +149,7 @@ printCommand (Last n1 n2) = ident ++ n1 ++ " = " ++ "last " ++ n2 ++ "\n"
 printCommand (Concat res name1 name2) = ident ++ res ++ " = Concat " ++ name1 ++ " " ++ name2 ++ "\n"
 printCommand (Concat3 res name1 name2 name3) = ident ++ res ++ " = Concat " ++ name1 ++ " " ++ name2 ++ " " ++ name3 ++ "\n"
 printCommand (Map res name1 name2) = ident ++ res ++ " = Map " ++ name1 ++ " " ++ name2 ++ "\n"
+printCommand (SMap res name1 name2 name3) = ident ++ res ++ " = SMap " ++ name1 ++ " " ++ name2 ++ " " ++ name3 ++ "\n"
 printCommand (Slice res name1 name2 name3) = ident ++ res ++ " = Slice " ++ name1 ++ " " ++ name2 ++ " " ++ name3 ++ "\n"
 printCommand (Filter res name1 name2) = ident ++ res ++ " = Filter " ++ name1 ++ " " ++ name2 ++ "\n"
 printCommand (Length res name1) = ident ++ res ++ " = Length " ++ name1 ++ "\n"

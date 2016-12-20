@@ -8,6 +8,7 @@ import Simulator.Value
 data CopySource
   = CallSource Pointer 
   | MapSource Pointer Value
+  | SMapSource Pointer Pointer Int
   deriving (Show,Eq)
 
 data Job = Job {

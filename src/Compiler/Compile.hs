@@ -250,8 +250,10 @@ _compile (L1.Map t1 t2) = do
       -- SC (IR.Op "sliceSize" "listSize" IR.Div "pus"),
       -- SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
       SC (IR.AssignI "two" 2),
-      SC (IR.Op "numberOfResults" "pus" IR.Div "two"),
-      SC (IR.Op "sliceSize" "listSize" IR.Div "numberOfResults"),
+      --SC (IR.Op "numberOfResults" "pus" IR.Div "two"),
+      --SC (IR.Op "sliceSize" "listSize" IR.Div "numberOfResults"),
+      SC (IR.AssignI "sliceSize" 20),
+      SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
       SC (NewListN "partialResultLists" "numberOfResults"),
       SC (IR.AssignI "start" 0),
       SC (IR.AssignV "end" "sliceSize"),
@@ -261,12 +263,14 @@ _compile (L1.Map t1 t2) = do
 
       SL thenLabel2,
       SC (IR.Slice "list" t2Ident  "start" "end"),
-      SC (NewCallRecord "callRecord" 2),
+      SC (IR.Length "thisSliceSize" "list"),
+      SC (NewCallRecord "callRecord" 3),
       SC (SetCallRecordFn "callRecord" "splitMap"),
       SC (SetCallRecordMissingI "callRecord" 0),
-      SC (SetCallRecordCountI "callRecord" 2),
+      SC (SetCallRecordCountI "callRecord" 3),
       SC (SetCallRecordParamI "callRecord" 0 t1Ident),
       SC (SetCallRecordParamI "callRecord" 1 "list"),
+      SC (SetCallRecordParamI "callRecord" 2 "thisSliceSize"),
       SC (CallL "partialResultLists" "idx" "callRecord"),
       SC (IR.Op "start" "start" IR.Add "sliceSize"),
       SC (IR.Op "end" "end" IR.Add "sliceSize"),
@@ -417,9 +421,10 @@ addSplitMap p =
     mapSplitCommands = [
       GetCallRecordParam "callRecord" 0 "fn",
       GetCallRecordParam "callRecord" 1 "list",
+      GetCallRecordParam "callRecord" 2 "size",
       AssignV "fn" "fn",
-      AssignV "list" "list",
-      IR.Map "resp" "fn" "list",
+      -- AssignV "list" "list",
+      IR.SMap "resp" "fn" "list" "size",
       Wait
       ]
   in

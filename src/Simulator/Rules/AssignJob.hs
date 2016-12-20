@@ -12,9 +12,10 @@ import Simulator.Job as J
 import Simulator.ProcessingUnit as PU
 import Simulator.Queue as Q
 import Simulator.Interconnection
-import Simulator.Value
-import Simulator.CallRecord
-import Simulator.CallRecordSeg
+import Simulator.Value as VAL
+import Simulator.List as LIST
+import Simulator.CallRecord as CR
+import Simulator.CallRecordSeg as CRS
 
 import Simulator.Rules.Base
 
@@ -39,6 +40,7 @@ assignJob acqua =
           callRecPtr = case source of
                 CallSource callRec -> callRec
                 MapSource callRec _ -> callRec
+                SMapSource callRec _ _ -> callRec
 
           Job pId' source sourceSize envId x _ = job
           Queue js qlck = q
@@ -65,14 +67,29 @@ assignJob acqua =
           -- prepare callrecord to be used
           newCallRecord = if canUseCache
                           then let
-                                  MapSource _ v = source
+                                  v = case source of 
+                                      MapSource _ v' -> v'
+                                      SMapSource _ pointr n -> v'
+                                                where
+                                                  -- todo: copy through interconnection
+                                                  pusrc = (processingUnits acqua)!!(VAL.puId pointr)
+                                                  v' = case CRS.lookup (addr pointr) (callRecordSeg pusrc) of
+                                                      ListV l -> (LIST.params l)!!n
+                                                      _ -> error "not a list on smap"
                                 in
-                                  cachecr { params = Seq.update (sourceSize-1) v (params cachecr), timeout = maxTimeout }
-                          else emptyCallRecord { functionName = "receivedCallRecord", params = defaultParams }
+                                  cachecr { CR.params = Seq.update (sourceSize-1) v (CR.params cachecr), timeout = maxTimeout }
+                          else emptyCallRecord { functionName = "receivedCallRecord", CR.params = defaultParams }
 
           defaultParams = case source of
                           CallSource _ -> Seq.replicate sourceSize (NumberV 0)
                           MapSource _ v -> Seq.update (sourceSize-1) v $ Seq.replicate sourceSize (NumberV 0)
+                          SMapSource _ pointr n -> Seq.update (sourceSize-1) v $ Seq.replicate sourceSize (NumberV 0)
+                                                where
+                                                  -- todo: copy through interconnection
+                                                  pusrc = (processingUnits acqua)!!(VAL.puId pointr)
+                                                  v = case CRS.lookup (addr pointr) (callRecordSeg pusrc) of
+                                                      ListV l -> (LIST.params l)!!n
+                                                      _ -> error "not a list on smap"
 
           -- add callRecord on callRecordSeg if created a new
           crseg' = if canUseCache
