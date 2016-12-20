@@ -1,6 +1,5 @@
 module Simulator.CallRecordSeg where
 
-import Debug.Trace
 import Data.Map as Map
 
 import Simulator.Value

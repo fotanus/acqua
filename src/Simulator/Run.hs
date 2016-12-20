@@ -5,6 +5,7 @@ import AcquaIR.Language
 import Simulator.Acqua
 import Simulator.Stats
 import Simulator.Rules
+import Simulator.Queue
 import Simulator.Rules.Base
 import Simulator.GarbageCollector
 import Simulator.ProcessingUnit
@@ -24,8 +25,9 @@ printOutgoingQueues a =
   let
     pus = processingUnits a
     queues = map (\pu -> ((puId pu),(length (outgoingMessageQueue pu)))) pus
+    jobsn = length (jobs (queue a))
   in
-    trace ("queues: " ++ (show queues)) a
+    trace ("queues: [job: " ++ (show jobsn) ++ "] " ++ (show queues)) a
 
 _step :: Acqua -> Acqua -> String
 _step acqua _ | (finishFlag acqua) == True = "Finished!\n" ++ (showAcquaResult acqua)
