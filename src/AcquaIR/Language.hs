@@ -68,6 +68,7 @@ data OpCode
   | Equal
   | NotEqual
   | Greater
+  | Mod
   | GreaterEqual
   | Lesser
   | LesserEqual
@@ -158,6 +159,7 @@ printOpCode Div = "/"
 printOpCode Equal = "=="
 printOpCode NotEqual = "!="
 printOpCode Greater = ">"
+printOpCode Mod = "mod"
 printOpCode GreaterEqual = ">="
 printOpCode Lesser = "<"
 printOpCode LesserEqual = "<="

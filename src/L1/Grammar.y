@@ -28,6 +28,7 @@ import L1.Language
     concat { Token _ TokenConcat }
     concat3 { Token _ TokenConcat3 }
     map    { Token _ TokenMap }
+    'mod'  { Token _ TokenMod }
     slice  { Token _ TokenSlice }
     filter { Token _ TokenFilter }
     '!='   { Token _ TokenNEQ }
@@ -81,6 +82,7 @@ Exp :
     | Exp '!=' Exp                       { Op $1 NotEqual $3 }
     | Exp '>=' Exp                       { Op $1 GreaterEqual $3 }
     | Exp '<=' Exp                       { Op $1 LesserEqual $3 }
+    | Exp 'mod' Exp                      { Op $1 LesserEqual $3 }
     | Exp '>' Exp                        { Op $1 Greater $3 }
     | Exp '<' Exp                        { Op $1 Lesser $3 }
     | Exp 'or' Exp                       { Op $1 Or $3 }

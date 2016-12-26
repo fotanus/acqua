@@ -23,6 +23,7 @@ op acqua = acqua { processingUnits = newPus }
               And -> if v1 > 0 && v2 > 0 then 1 else 0
               Or -> if v1 > 0 ||  v2 > 0 then 1 else 0
               Add -> v1 + v2
+              Mod -> v1 `mod` v2
               Sub -> v1 - v2
               Mult -> v1 * v2
               Div -> v1 `div` v2

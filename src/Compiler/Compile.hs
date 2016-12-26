@@ -354,4 +354,5 @@ setOp L1.NotEqual = IR.NotEqual
 setOp L1.Greater = IR.Greater
 setOp L1.GreaterEqual = IR.GreaterEqual
 setOp L1.Lesser = IR.Lesser
+setOp L1.Mod = IR.Mod
 setOp L1.LesserEqual = IR.LesserEqual
