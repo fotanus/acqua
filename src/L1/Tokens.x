@@ -42,6 +42,7 @@ tokens :-
   concat                        { lex' TokenConcat }
   concat3                        { lex' TokenConcat3 }
   map                           { lex' TokenMap }
+  mod                           { lex' TokenMod }
   slice                         { lex' TokenSlice }
   filter                        { lex' TokenFilter }
   $digit+                       { lex  (TokenNum . read) }
@@ -106,6 +107,7 @@ data TokenClass
            | TokenConcat
            | TokenConcat3
            | TokenMap
+           | TokenMod
            | TokenSlice
            | TokenFilter
            | TokenSym String
