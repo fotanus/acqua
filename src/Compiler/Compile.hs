@@ -229,12 +229,18 @@ _compile (L1.Map t1 t2) = do
   dummyLabel2 <- nextDummyLabel
   dummyLabel3 <- nextDummyLabel
   mapCode <- return $ [
-      -- if (length list) > pus * 4
+      SC (AssignI "two" 2),
+      SC (AssignI "three" 3),
+      SC (AssignI "four" 4),
+      SC (AssignI "six" 6),
+      SC (AssignI "eight" 8),
       SC (GetNPU "pus"),
       SC (IR.Length "listSize" t2Ident),
-      SC (AssignI "four" 4),
-      SC (IR.Op "resp" "pus" IR.Mult "four"),
-      SC (IR.Op "resp" "listSize" IR.Greater "resp"),
+      SC (IR.Op "resp" "pus" IR.Mult "eight"),
+      SC (IR.Op "b1" "listSize" IR.Greater "resp"),
+      SC (IR.Op "b2" "pus" IR.Greater "eight"),
+      SC (IR.Op "resp" "b1" IR.And "b2"),
+
       ST (IR.If "resp" thenLabel),
 
       -- else map wait
@@ -247,12 +253,8 @@ _compile (L1.Map t1 t2) = do
       -- split the list in n lists
       -- create one job for each list
       SL thenLabel,
-      -- SC (IR.Op "sliceSize" "listSize" IR.Div "pus"),
-      -- SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
-      SC (IR.AssignI "two" 2),
-      --SC (IR.Op "numberOfResults" "pus" IR.Div "two"),
-      --SC (IR.Op "sliceSize" "listSize" IR.Div "numberOfResults"),
-      SC (IR.AssignI "sliceSize" 20),
+      SC (IR.Op "divisor" "pus" IR.Div "pus"),
+      SC (IR.Op "sliceSize" "listSize" IR.Div "divisor"),
       SC (IR.Op "numberOfResults" "listSize" IR.Div "sliceSize"),
       SC (NewListN "partialResultLists" "numberOfResults"),
       SC (IR.AssignI "start" 0),

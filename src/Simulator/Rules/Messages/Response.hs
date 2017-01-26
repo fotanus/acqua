@@ -42,14 +42,18 @@ response acqua =
 
           crseg = callRecordSeg pu
           crseg' = case retval of
-                     ListVal pointer idx -> Map.insert (addr origptr) cr' $ Map.insert (addr pointer) list' crseg
+                     ListVal pointer idx -> case Map.lookup (addr origptr) crseg of 
+                                            Just (CallRecordV _) -> Map.insert (addr origptr) cr' $ withUpdatedValue
+                                            _ -> withUpdatedValue
                         where
+                            withUpdatedValue = Map.insert (addr pointer) list' crseg
+
                             Just (ListV (List lsize list)) = Map.lookup (addr pointer) crseg
                             list' = ListV (List lsize (listSetPos list idx v))
 
                             -- set max time to dealocate when call count reaches zero
                             Just origptr = Map.lookup envId $ originCallRec pu
-                            Just (CallRecordV cr) = Map.lookup (addr origptr) crseg
+                            Just (CallRecordV cr) = traceShowId $ Map.lookup (addr origptr) crseg
                             cr' = if isMapF && nCalls-1 == 0
                                   then CallRecordV $ cr { timeout = maxTimeout }
                                   else CallRecordV $ cr { timeout = maxTimeout + 1 }

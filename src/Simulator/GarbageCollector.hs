@@ -18,7 +18,7 @@ garbageCollector acqua =
         crseg' = Map.fromList $ filter deleteIfZero $ map decCounters $ Map.toList $ callRecordSeg pu
 
     deleteIfZero (_,v) = case v of
-                          CallRecordV cr -> timeout cr > 0
+                          CallRecordV cr -> isMap cr || timeout cr > 0
                           _ -> True
 
     decCounters (k,v) = (k, v')

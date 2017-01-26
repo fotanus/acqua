@@ -50,7 +50,7 @@ reqJobCallRecord acqua  =
           Just (CallRecordV callRec) = Map.lookup (addr pointerT) crseg
 
           crseg' = if not $ isMap callRec
-                   then crseg -- Map.delete (addr pointerT) crseg
+                   then Map.delete (addr pointerT) crseg
                    else crseg
 
           idxValToMsg idx val =
