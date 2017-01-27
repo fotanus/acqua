@@ -112,7 +112,7 @@ printBasicBlock :: BasicBlock -> String
 printBasicBlock (BB l n cs t) = (printLabel l n) ++ (printCommands cs) ++ (printTerminator t)
 
 printLabel :: Label -> Int -> String
-printLabel l n = (yellow l) ++ " (" ++ (show n) ++ "):\n"
+printLabel l _ = (yellow l) ++ ":\n"
 
 printCommands :: [Command] -> String
 printCommands cs = foldr (++) "" (map printCommand cs)
