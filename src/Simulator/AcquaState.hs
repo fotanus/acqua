@@ -8,8 +8,9 @@ data StateValue = IntVal Int
 
 type AcquaState = Map.Map String StateValue
 
-statesDefault :: AcquaState
-statesDefault = Map.fromList [
+statesDefault :: Int -> AcquaState
+statesDefault opt = Map.fromList [
+    ("opt", IntVal opt),
     ("envId",IntVal 0),
     ("occupiedPUPerCycle", MapIntInt (Map.fromList [])),
     ("maxQueueSize", IntVal 0),

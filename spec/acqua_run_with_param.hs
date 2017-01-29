@@ -27,7 +27,7 @@ spec [] = do return ()
 spec ((file,args,correctResult):ss) = do
   it file $ do
     fileContents <- readFile file
-    output <- readProcess "./acqua-run" (["10", "0", "x"] ++ args) fileContents
+    output <- readProcess "./acqua-run" (["1", "10", "0", "x"] ++ args) fileContents
     result <- return $ drop (length "response: ") (output =~ "response: (.+, )+" :: String)
     result `shouldBe` (correctResult ++ ", ")
 

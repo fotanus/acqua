@@ -15,17 +15,17 @@ import Compiler.Transformations.FillFreeVars
 resp :: IR.Name
 resp = "resp"
 
-compile :: L1.Term -> IR.Program
-compile t =
+compile :: L1.Term -> Int -> IR.Program
+compile t opt =
   addSplitMap.addWaits.eliminateRedundantVars.statementsToProgram $ statements
   where
-    c = evalState (_compile (fillFreeVars t)) defaultCompileStates
+    c = evalState (_compile (fillFreeVars t) opt) defaultCompileStates
     statements = [SL "main"] ++ c ++ [ST (Return resp)]
 
 
-_compile :: L1.Term -> State CompileStates [Statement]
-_compile (Num n)   = return [SC (AssignI resp n)]
-_compile (Ident n) = do
+_compile :: L1.Term -> Int -> State CompileStates [Statement]
+_compile (Num n) _ = return [SC (AssignI resp n)]
+_compile (Ident n) _ = do
     c <- getCallRecordInfo n
     return $ case c of
                Nothing -> [SC (AssignV resp n)]
@@ -51,9 +51,9 @@ _compile (Ident n) = do
                         where
                           freeVarsSetParams = map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip vars [1..])
 
-_compile (Fn params t1 freeVars) = do
+_compile (Fn params t1 freeVars) opt = do
   fn <- nextFnLabel
-  c1 <- _compile t1
+  c1 <- _compile t1 opt
   freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip freeVars [0..])
   getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
   getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
@@ -73,9 +73,9 @@ _compile (Fn params t1 freeVars) = do
   return newCallRecordCommands
 
 
-_compile (MultiApp t1 t2) = do
-  c1 <- _compile t1
-  c2s <- mapM _compile t2
+_compile (MultiApp t1 t2) opt = do
+  c1 <- _compile t1 opt
+  c2s <- mapM (\x -> _compile x opt) t2
   thenLabel <- nextThenLabel
   backLabel <- nextBackLabel
   dummyLabel <- nextDummyLabel
@@ -122,9 +122,9 @@ _compile (MultiApp t1 t2) = do
   return cs
 
 
-_compile (App t1 t2) = do
-  c1 <- _compile t1
-  c2 <- _compile t2
+_compile (App t1 t2) opt = do
+  c1 <- _compile t1 opt
+  c2 <- _compile t2 opt
   thenLabel <- nextThenLabel
   backLabel <- nextBackLabel
   dummyLabel <- nextDummyLabel
@@ -160,26 +160,26 @@ _compile (App t1 t2) = do
   cs <- return $ c1 ++ [SC (AssignV callRecordIdent' resp)] ++ c2 ++ envs
   return cs
 
-_compile (L1.List elements) = do
+_compile (L1.List elements) _ = do
   listIdent <- nextIdentName
   listSets <- return $ listSetsFun elements listIdent 0
   return $ [ SC (NewList listIdent (length elements)) ] ++ listSets ++ [SC (AssignV resp listIdent)]
 
-_compile (L1.Head t1) = do
-  c1 <- _compile t1
+_compile (L1.Head t1) opt = do
+  c1 <- _compile t1 opt
   return $ c1 ++ [SC (IR.Head resp resp)]
 
-_compile (L1.Tail t1) = do
-  c1 <- _compile t1
+_compile (L1.Tail t1) opt = do
+  c1 <- _compile t1 opt
   return $ c1 ++ [SC (IR.Tail resp resp)]
 
-_compile (L1.Last t1) = do
-  c1 <- _compile t1
+_compile (L1.Last t1) opt = do
+  c1 <- _compile t1 opt
   return $ c1 ++ [SC (IR.Last resp resp)]
 
-_compile (L1.Concat t1 t2) = do
-  c1 <- _compile t1
-  c2 <- _compile t2
+_compile (L1.Concat t1 t2) opt = do
+  c1 <- _compile t1 opt
+  c2 <- _compile t2 opt
   t1Ident <- nextIdentName
   t2Ident <- nextIdentName
   t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
@@ -188,10 +188,10 @@ _compile (L1.Concat t1 t2) = do
   cs <- return $ t1c ++ t2c ++ assigns ++ [SC (IR.Concat "resp" t1Ident t2Ident)]
   return cs
 
-_compile (L1.Concat3 t1 t2 t3) = do
-  c1 <- _compile t1
-  c2 <- _compile t2
-  c3 <- _compile t3
+_compile (L1.Concat3 t1 t2 t3) opt = do
+  c1 <- _compile t1 opt
+  c2 <- _compile t2 opt
+  c3 <- _compile t3 opt
   t1Ident <- nextIdentName
   t2Ident <- nextIdentName
   t3Ident <- nextIdentName
@@ -202,10 +202,10 @@ _compile (L1.Concat3 t1 t2 t3) = do
   cs <- return $ t1c ++ t2c ++ t3c ++ assigns ++ [SC (IR.Concat3 "resp" t1Ident t2Ident t3Ident)]
   return cs
 
-_compile (L1.Slice t1 t2 t3) = do
-  c1 <- _compile t1
-  c2 <- _compile t2
-  c3 <- _compile t3
+_compile (L1.Slice t1 t2 t3) opt = do
+  c1 <- _compile t1 opt
+  c2 <- _compile t2 opt
+  c3 <- _compile t3 opt
   t1Ident <- nextIdentName
   t2Ident <- nextIdentName
   t3Ident <- nextIdentName
@@ -215,9 +215,9 @@ _compile (L1.Slice t1 t2 t3) = do
   cs <- return $ t1c ++ t2c ++ t3c ++ [SC (IR.Slice "resp" t1Ident t2Ident t3Ident)]
   return cs
 
-_compile (L1.Map t1 t2) = do
-  c1 <- _compile t1
-  c2 <- _compile t2
+_compile (L1.Map t1 t2) opt = do
+  c1 <- _compile t1 opt
+  c2 <- _compile t2 opt
   t1Ident <- nextIdentName
   t2Ident <- nextIdentName
   t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
@@ -300,12 +300,14 @@ _compile (L1.Map t1 t2) = do
       -- continue execution
       SL dummyLabel3
     ]
-  cs <- return $ t1c ++ t2c ++ mapCode
+  cs <- return $ if opt == 0 || opt == 1
+                 then t1c ++ t2c ++ mapCode
+                 else t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident), SC Wait] 
   return cs
 
-_compile (L1.Filter t1 t2) = do
-  c1 <- _compile t1
-  c2 <- _compile t2
+_compile (L1.Filter t1 t2) opt = do
+  c1 <- _compile t1 opt
+  c2 <- _compile t2 opt
   t1Ident <- nextIdentName
   t2Ident <- nextIdentName
   t3Ident <- nextIdentName
@@ -314,13 +316,13 @@ _compile (L1.Filter t1 t2) = do
   cs <- return $ t1c ++ t2c ++ [SC (IR.Map t3Ident t1Ident t2Ident), SC Wait, SC (IR.Filter "resp" t3Ident t2Ident)]
   return cs
 
-_compile (L1.Length t1) = do
-  c1 <- _compile t1
+_compile (L1.Length t1) opt = do
+  c1 <- _compile t1 opt
   return $ c1 ++ [SC (IR.Length resp resp)]
 
-_compile (L1.Op t1 op t2) = do
-  c1 <- _compile t1
-  c2 <- _compile t2
+_compile (L1.Op t1 op t2) opt = do
+  c1 <- _compile t1 opt
+  c2 <- _compile t2 opt
   t1Ident <- nextIdentName
   t2Ident <- nextIdentName
   t1c <- return $ c1 ++ [SC (AssignV t1Ident resp)]
@@ -328,10 +330,10 @@ _compile (L1.Op t1 op t2) = do
   cs <- return $ t1c ++ t2c ++ [SC (IR.Op "resp" t1Ident (setOp op) t2Ident)]
   return cs
 
-_compile (L1.If t1 t2 t3) = do
-  c1 <- _compile t1
-  c2 <- _compile t2
-  c3 <- _compile t3
+_compile (L1.If t1 t2 t3) opt = do
+  c1 <- _compile t1 opt
+  c2 <- _compile t2 opt
+  c3 <- _compile t3 opt
   thenLabel <- nextThenLabel
   backLabel <- nextBackLabel
   dummyLabel <- nextDummyLabel
@@ -342,10 +344,10 @@ _compile (L1.If t1 t2 t3) = do
   cs <- return $ t1c ++ t3c ++ [ST (Goto continueLabel)] ++ bbThen ++ [(SL continueLabel)]
   return cs
 
-_compile (Let n (Fn params t1 freeVars) t2) = do
+_compile (Let n (Fn params t1 freeVars) t2) opt = do
   _ <- addKnownVars n
   fn <- nextFnLabel
-  c1 <- _compile t1
+  c1 <- _compile t1 opt
   freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip freeVars [0..])
   getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
   getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
@@ -363,29 +365,29 @@ _compile (Let n (Fn params t1 freeVars) t2) = do
                                   SL continueLabel
                                  ]
   _ <- setCallRecordInfo n (fn, n, params, freeVars, False)
-  c2 <- _compile t2
+  c2 <- _compile t2 opt
   cs <- return $  newCallRecordCommands ++ [SC (AssignV n resp)] ++ c2
   return cs
 
-_compile (Let n t1 t2) = do
+_compile (Let n t1 t2) opt = do
   _ <- addKnownVars n
-  c1 <- _compile t1
-  c2 <- _compile t2
+  c1 <- _compile t1 opt
+  c2 <- _compile t2 opt
   cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
   return cs
 
-_compile (Letrec n (Fn params t1 freeVars) t2) = do
+_compile (Letrec n (Fn params t1 freeVars) t2) opt = do
   _ <- addKnownVars n
   freeVars' <- return $ delete n freeVars
   fn <- nextFnLabel
   _ <- setCallRecordInfo n (fn, n, params, freeVars', True)
   continueLabel <- nextContinueLabel
-  c1 <- _compile t1
+  c1 <- _compile t1 opt
   getParamsCommands <- return $ [SC (GetCallRecordParam "callRecord" 0 n)]
   getParamsCommands' <- return $ getParamsCommands ++ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars' [1..])
   getParamsCommands'' <- return $ getParamsCommands' ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands')..] ))
   fnBody <- return $ [SL fn] ++ getParamsCommands'' ++ c1 ++ [ST (Return resp)]
-  c2 <- _compile t2
+  c2 <- _compile t2 opt
 
   freeVarsSetParams <- return $ (SC (SetCallRecordParamIL "callRecord" 0 fn)): (map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip freeVars' [1..]))
   
@@ -400,7 +402,7 @@ _compile (Letrec n (Fn params t1 freeVars) t2) = do
 
   return $ newCallRecordCommands ++ c2 ++ [ST (Goto continueLabel)] ++ fnBody ++ [(SL continueLabel)]
 
-_compile (Letrec _ _ _) = error "Letrec first term should be a function"
+_compile (Letrec _ _ _) _ = error "Letrec first term should be a function"
 
 
 listSetsFun :: [ListItem] -> String -> Int -> [Statement]

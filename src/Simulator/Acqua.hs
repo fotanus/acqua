@@ -29,8 +29,8 @@ instance Eq Acqua where
     a == a' && b == b' && c == c' && d == d' && e == e' && f == f'
 
 
-newAcqua :: Program -> Int -> Int -> String -> [String] -> Acqua
-newAcqua p n stepsToPropagate var params = Acqua p' q pus newInterconnection False statesDefault stepsToPropagate
+newAcqua :: Program -> Int -> Int -> Int -> String -> [String] -> Acqua
+newAcqua p opt n stepsToPropagate var params = Acqua p' q pus newInterconnection False (statesDefault opt) stepsToPropagate
   where
     specialProcessingUnit = specialPU params
     pus = specialProcessingUnit:(newProcessingUnits n)

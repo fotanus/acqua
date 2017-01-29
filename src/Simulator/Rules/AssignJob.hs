@@ -59,7 +59,10 @@ assignJob acqua =
 
           -- check if can reuse cache
           canUseCache = case (J.isMap job, srcCachePtr == callRecPtr, Map.lookup (addr trgCachePtr) crseg) of
-                              (True, True, Just (CallRecordV _)) -> True
+                              (True, True, Just (CallRecordV _)) -> case Map.lookup "opt" (acquaState acqua) of
+                                                                   Just (IntVal 0) -> False
+                                                                   Just (IntVal 2) -> False
+                                                                   _        ->  True
                               _                             -> False
 
           Just (CallRecordV cachecr) = Map.lookup (addr trgCachePtr) crseg

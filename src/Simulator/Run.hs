@@ -10,8 +10,8 @@ import Simulator.Rules.Base
 import Simulator.GarbageCollector
 import Simulator.ProcessingUnit
 
-run :: Program -> Int -> Int -> String -> [String] -> String
-run prog pus_n steps_to_propagate varName params = step (newAcqua prog pus_n steps_to_propagate varName params)
+run :: Program -> Int -> Int -> Int -> String -> [String] -> String
+run prog opt pus_n steps_to_propagate varName params = step (newAcqua prog opt pus_n steps_to_propagate varName params)
 
 applyRules :: [Rule] -> Acqua -> Acqua
 applyRules [] a = a

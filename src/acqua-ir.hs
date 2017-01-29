@@ -11,6 +11,6 @@ main = do
   let eitherAst = parse s
   case eitherAst of
     Right ast -> do
-      putStrLn (printProgram (compile ast))
+      putStrLn (printProgram (compile ast 0))
     Left errorMsg ->
       putStrLn errorMsg

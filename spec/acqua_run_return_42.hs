@@ -74,5 +74,5 @@ spec = do
 
 runFile file = do
   fileContents <- readFile file
-  output <- readProcess "./acqua-run" ["10", "0", "foovar", "0"] fileContents
+  output <- readProcess "./acqua-run" ["1", "10", "0", "foovar", "0"] fileContents
   return $ drop (length "response: ") (output =~ "response: ([0-9]+, )+" :: String)
