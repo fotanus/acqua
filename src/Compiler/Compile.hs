@@ -1,6 +1,6 @@
 module Compiler.Compile where
 
-import Data.List
+import Debug.Trace
 import Control.Monad.State
 
 import L1.Language as L1
@@ -26,46 +26,27 @@ compile t opt =
 _compile :: L1.Term -> Int -> State CompileStates [Statement]
 _compile (Num n) _ = return [SC (AssignI resp n)]
 _compile (Ident n) _ = do
-    c <- getCallRecordInfo n
-    return $ case c of
-               Nothing -> [SC (AssignV resp n)]
-               Just (fn,_,params,vars,False) -> [
-                           SC (NewCallRecord "callRecord" ((length vars)+(length params))),
-                           SC (SetCallRecordFn "callRecord" fn)
-                         ] ++ freeVarsSetParams ++ [
-                           SC (SetCallRecordMissingI "callRecord" (length params)),
-                           SC (SetCallRecordCountI "callRecord" ((length vars))),
-                           SC (AssignV resp "callRecord")
-                         ]
-                        where
-                          freeVarsSetParams = map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip vars [0..])
-               Just (fn,_,params,vars,True) -> [
-                           SC (NewCallRecord "callRecord" ((length vars)+(length params)+1)),
-                           SC (SetCallRecordFn "callRecord" fn),
-                           SC (SetCallRecordParamIL "callRecord" 0 fn)
-                         ] ++ freeVarsSetParams ++ [
-                           SC (SetCallRecordMissingI "callRecord" (length params)),
-                           SC (SetCallRecordCountI "callRecord" ((length vars)+1)),
-                           SC (AssignV resp "callRecord")
-                         ]
-                        where
-                          freeVarsSetParams = map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip vars [1..])
+  c1 <- getFromSymbolTable n
+  return c1
 
 _compile (Fn params t1 freeVars) opt = do
-  fn <- nextFnLabel
+  _ <- forM [0..((length params)-1)] $ \i ->
+    setSymbolTable (params!!i) [SC (AssignV "resp" (params!!i))]
+  fn <- traceShow freeVars nextFnLabel
   c1 <- _compile t1 opt
-  freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip freeVars [0..])
+  callRecordIdent <- nextIdentName
+  freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI callRecordIdent idx v)) (zip freeVars [0..])
   getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
   getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
   fnBody <- return $ [SL fn] ++ getParamsCommands' ++ c1 ++ [ST (Return resp)]
   continueLabel <- nextContinueLabel
   newCallRecordCommands <- return $ [
-                                   SC (NewCallRecord "callRecord" ((length freeVars)+(length params))),
-                                   SC (SetCallRecordFn "callRecord" fn)
+                                   SC (NewCallRecord callRecordIdent ((length freeVars)+(length params))),
+                                   SC (SetCallRecordFn callRecordIdent fn)
                                  ] ++ freeVarsSetParams ++ [
-                                   SC (SetCallRecordMissingI "callRecord" (length params)),
-                                   SC (SetCallRecordCountI "callRecord" (length freeVars)),
-                                   SC (AssignV resp "callRecord"),
+                                   SC (SetCallRecordMissingI callRecordIdent (length params)),
+                                   SC (SetCallRecordCountI callRecordIdent (length freeVars)),
+                                   SC (AssignV resp callRecordIdent),
                                    ST (Goto  continueLabel)
                                  ] ++ fnBody ++ [
                                   SL continueLabel
@@ -163,7 +144,10 @@ _compile (App t1 t2) opt = do
 _compile (L1.List elements) _ = do
   listIdent <- nextIdentName
   listSets <- return $ listSetsFun elements listIdent 0
-  return $ [ SC (NewList listIdent (length elements)) ] ++ listSets ++ [SC (AssignV resp listIdent)]
+  idents <- return $ listIdents elements
+  identCode <- mapM (\a-> (getFromSymbolTable a) ) idents
+  identCode' <- return $ (concat (map (\(a,b) -> a ++ [SC (AssignV b "resp")]) (zip identCode idents)))
+  return $ identCode' ++ [ SC (NewList listIdent (length elements)) ] ++ listSets ++ [SC (AssignV resp listIdent)]
 
 _compile (L1.Head t1) opt = do
   c1 <- _compile t1 opt
@@ -225,6 +209,9 @@ _compile (L1.Map t1 t2) opt = do
   thenLabel <- nextThenLabel
   thenLabel2 <- nextThenLabel
   thenLabel3 <- nextThenLabel
+  _ <- nextBackLabel
+  _ <- nextBackLabel
+  _ <- nextBackLabel
   dummyLabel <- nextDummyLabel
   dummyLabel2 <- nextDummyLabel
   dummyLabel3 <- nextDummyLabel
@@ -345,65 +332,91 @@ _compile (L1.If t1 t2 t3) opt = do
   return cs
 
 _compile (Let n (Fn params t1 freeVars) t2) opt = do
-  _ <- addKnownVars n
+  callRecordIdent <- nextIdentName
+  _ <- forM [0..((length params)-1)] $ \i ->
+    setSymbolTable (params!!i) [SC (AssignV "resp" (params!!i))]
+  freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI callRecordIdent idx v)) (zip freeVars [0..])
   fn <- nextFnLabel
+  newCallRecordStruct <- return $ [
+                                    SC (NewCallRecord callRecordIdent ((length freeVars)+(length params))),
+                                    SC (SetCallRecordFn callRecordIdent fn)
+                                  ] ++ freeVarsSetParams ++ [
+                                    SC (SetCallRecordMissingI callRecordIdent (length params)),
+                                    SC (SetCallRecordCountI callRecordIdent (length freeVars)),
+                                    SC (AssignV resp callRecordIdent)
+                                  ]
+  _ <- setSymbolTable n newCallRecordStruct
   c1 <- _compile t1 opt
-  freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip freeVars [0..])
   getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
   getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
   fnBody <- return $ [SL fn] ++ getParamsCommands' ++ c1 ++ [ST (Return resp)]
   continueLabel <- nextContinueLabel
-  newCallRecordCommands <- return $ [
-                                   SC (NewCallRecord "callRecord" ((length freeVars)+(length params))),
-                                   SC (SetCallRecordFn "callRecord" fn)
-                                 ] ++ freeVarsSetParams ++ [
-                                   SC (SetCallRecordMissingI "callRecord" (length params)),
-                                   SC (SetCallRecordCountI "callRecord" (length freeVars)),
-                                   SC (AssignV resp "callRecord"),
-                                   ST (Goto  continueLabel)
+  newCallRecordCommands <- return $  newCallRecordStruct ++ [
+                                  ST (Goto  continueLabel)
                                  ] ++ fnBody ++ [
                                   SL continueLabel
                                  ]
-  _ <- setCallRecordInfo n (fn, n, params, freeVars, False)
   c2 <- _compile t2 opt
-  cs <- return $  newCallRecordCommands ++ [SC (AssignV n resp)] ++ c2
-  return cs
+  cs <- return $ c2
+  return $ newCallRecordCommands ++ cs
+
+_compile (Let n (L1.List elements) t2) opt = do
+  listIdent <- nextIdentName
+  listSets <- return $ listSetsFun elements listIdent 0
+  idents <- return $ listIdents elements
+  identCode <- mapM (\a-> (getFromSymbolTable a) ) idents
+  identCode' <- return $ (concat (map (\(a,b) -> a ++ [SC (AssignV b "resp")]) (zip identCode idents)))
+  _ <- setSymbolTable n $ identCode' ++ [ SC (NewList listIdent (length elements)) ] ++ listSets ++ [SC (AssignV resp listIdent)]
+  c2 <- _compile t2 opt
+  return $ c2
+
+_compile (Let n (Num i) t2) opt = do
+  _ <- setSymbolTable n [SC (AssignI "resp" i)]
+  c2 <- _compile t2 opt
+  return $ c2
 
 _compile (Let n t1 t2) opt = do
-  _ <- addKnownVars n
   c1 <- _compile t1 opt
   c2 <- _compile t2 opt
-  cs <- return $  c1 ++ [SC (AssignV n resp)] ++ c2
+  cs <- return $ c1 ++ [SC (AssignV n "resp")] ++ c2
   return cs
 
+
 _compile (Letrec n (Fn params t1 freeVars) t2) opt = do
-  _ <- addKnownVars n
-  freeVars' <- return $ delete n freeVars
+  callRecordIdent <- nextIdentName
+  _ <- forM [0..((length params)-1)] $ \i ->
+    setSymbolTable (params!!i) [SC (AssignV "resp" (params!!i))]
+  freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI callRecordIdent idx v)) (zip freeVars [0..])
   fn <- nextFnLabel
-  _ <- setCallRecordInfo n (fn, n, params, freeVars', True)
-  continueLabel <- nextContinueLabel
+  newCallRecordStruct <- return $ [
+                                    SC (NewCallRecord callRecordIdent ((length freeVars)+(length params))),
+                                    SC (SetCallRecordFn callRecordIdent fn)
+                                  ] ++ freeVarsSetParams ++ [
+                                    SC (SetCallRecordMissingI callRecordIdent (length params)),
+                                    SC (SetCallRecordCountI callRecordIdent (length freeVars)),
+                                    SC (AssignV resp callRecordIdent)
+                                  ]
+  _ <- setSymbolTable n newCallRecordStruct
   c1 <- _compile t1 opt
-  getParamsCommands <- return $ [SC (GetCallRecordParam "callRecord" 0 n)]
-  getParamsCommands' <- return $ getParamsCommands ++ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars' [1..])
-  getParamsCommands'' <- return $ getParamsCommands' ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands')..] ))
-  fnBody <- return $ [SL fn] ++ getParamsCommands'' ++ c1 ++ [ST (Return resp)]
+
+  getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
+  getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
+  fnBody <- return $ [SL fn] ++ getParamsCommands' ++ c1 ++ [ST (Return resp)]
+  continueLabel <- nextContinueLabel
+
   c2 <- _compile t2 opt
-
-  freeVarsSetParams <- return $ (SC (SetCallRecordParamIL "callRecord" 0 fn)): (map (\(v,idx) -> SC (SetCallRecordParamI "callRecord" idx v)) (zip freeVars' [1..]))
-  
-  newCallRecordCommands <- return $ [
-                                   SC (NewCallRecord "callRecord" ((length freeVars)+(length params))),
-                                   SC (SetCallRecordFn "callRecord" fn)
-                                 ] ++ freeVarsSetParams ++ [
-                                   SC (SetCallRecordMissingI "callRecord" (length params)),
-                                   SC (SetCallRecordCountI "callRecord" (length freeVars)),
-                                   SC (AssignV n "callRecord")
-                                 ]
-
-  return $ newCallRecordCommands ++ c2 ++ [ST (Goto continueLabel)] ++ fnBody ++ [(SL continueLabel)]
+  cs <- return $ [ ST (Goto  continueLabel) ] ++ fnBody ++ [ SL continueLabel ] ++ c2
+  return $ cs
 
 _compile (Letrec _ _ _) _ = error "Letrec first term should be a function"
 
+
+listIdents :: [ListItem] -> [String]
+listIdents elements = concat $ map (\e-> case e of
+                                             ListNum _ -> []
+                                             ListIdent n -> [n]
+                                             RecList l -> listIdents l
+                                       ) elements
 
 listSetsFun :: [ListItem] -> String -> Int -> [Statement]
 listSetsFun elements prevListVar count =  concat $ map (\(e,idx) ->

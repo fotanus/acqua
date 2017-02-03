@@ -1,5 +1,6 @@
 module Compiler.Transformations.EliminateRedundantVars where
 
+import Logger
 import AcquaIR.Language as IR
 
 eliminateRedundantVars :: IR.Program -> IR.Program
@@ -16,7 +17,7 @@ _eliminateCallVars (bb:bbs) p =
       else case last (commands bb) of
          Call _ callRecord ->
              let
-                labelNum = drop (length "then") (label bb)
+                labelNum = traceShowId $ drop (length "then") (label bb)
                 back = lookupBB p ("back" ++ labelNum)
                 origBB = lookupBBWithIfForCall p (label bb)
              in if null (commands back)

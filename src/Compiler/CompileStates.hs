@@ -2,10 +2,9 @@ module Compiler.CompileStates where
 
 import Logger
 import AcquaIR.Language as IR
+import Compiler.CompileStatement
 import Control.Monad.State
 
-
-type CallRecordInfoT = (String,String,[String],[String],Bool)
 
 data CompileStates = CompileStates {
   thenLabelNum :: Int,
@@ -13,7 +12,7 @@ data CompileStates = CompileStates {
   dummyLabelNum :: Int,
   fnLabelNum :: Int,
   identNum :: Int,
-  callRecordInfo :: [(String,CallRecordInfoT)],
+  symbolTable :: [(String, [Statement])],
   fnLabelNames :: [(String,String)],
   knownVarsList :: [String],
   continueLabelNum :: Int
@@ -63,17 +62,19 @@ nextIdentName = do
   put (CompileStates thenN backN dummyN fnN (identN+1) closInfo fnLabels kvs continueN)
   return $ "var" ++ (show identN)
 
-setCallRecordInfo :: String -> CallRecordInfoT -> State CompileStates IR.Name
-setCallRecordInfo a b = do
-  CompileStates thenN backN dummyN fnN identN closInfo fnLabels kvs continueN <- get
-  closInfo' <- return $ (a,b) : (closInfo)
-  put (CompileStates thenN backN dummyN fnN identN closInfo' fnLabels kvs continueN)
-  return $ "var" ++ (show identN)
-
-getCallRecordInfo :: String -> State CompileStates (Maybe CallRecordInfoT)
-getCallRecordInfo a = do
+getFromSymbolTable :: String -> State CompileStates [Statement]
+getFromSymbolTable a = do
   s <- get
-  return $ lookup a (callRecordInfo s)
+  return $ case lookup a (symbolTable s) of
+                Just something -> something
+                Nothing -> [SC (AssignV "resp" a)]
+
+setSymbolTable :: String -> [Statement] -> State CompileStates String
+setSymbolTable a b = do
+  CompileStates thenN backN dummyN fnN identN symbols fnLabels kvs continueN <- get
+  symbols' <- return $ (a,b) : (symbols)
+  put (CompileStates thenN backN dummyN fnN identN symbols' fnLabels kvs continueN)
+  return $ "nothing"
 
 setFnLabelName :: String -> String -> State CompileStates IR.Name
 setFnLabelName a b = do
