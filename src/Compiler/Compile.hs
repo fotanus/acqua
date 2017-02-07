@@ -138,7 +138,7 @@ _compile (App t1 t2) opt = do
                   ] ++ bbThen ++ [
                     SL backLabel
                   ]
-  cs <- return $ c1 ++ [SC (AssignV callRecordIdent' resp)] ++ c2 ++ envs
+  cs <- return $ c1 ++ [SC (InnerCopy callRecordIdent' resp)] ++ c2 ++ envs
   return cs
 
 _compile (L1.List elements) _ = do

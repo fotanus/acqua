@@ -54,6 +54,8 @@ data Command
   | SetCallRecordParamI Name Int Name
   | SetCallRecordParamIL Name Int Name
   | GetCallRecordParam Name Int Name
+  | InnerCopy Name Name
+  | Delete Name
   -- pus
   | GetNPU Name
   deriving (Eq,Ord,Show,Read)
@@ -138,6 +140,8 @@ printCommand (SetCallRecordParam n1 n2 n3) = ident ++ (red "SetCallRecordParam "
 printCommand (SetCallRecordParamIL n1 n2 n3) = ident ++ "SetCallRecordParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
 printCommand (SetCallRecordParamI n1 n2 n3) = ident ++ "SetCallRecordParamIL " ++ n1 ++ " " ++ (show n2) ++ " " ++ n3 ++  "\n"
 printCommand (GetCallRecordParam n1 n2 n3) = ident ++ n3 ++ " = " ++ (cyan "GetCallRecordParam ") ++ n1 ++ " " ++ (show n2) ++ "\n"
+printCommand (Delete n1) = ident ++ "Delete "  ++ n1 ++ "\n"
+printCommand (InnerCopy n1 n2) = ident ++ n1 ++  " = " ++ "InnerCopy " ++ n2 ++ "\n"
 printCommand (NewList n1 i) = ident ++ n1 ++  " = " ++ "NewList " ++ (show i) ++ "\n"
 printCommand (NewListN n1 n2) = ident ++ n1 ++  " = " ++ "NewList " ++ n2 ++ "\n"
 printCommand (ListSet n1 i1 i2) = ident ++ "ListSet " ++ n1 ++ " " ++ (show i1) ++ " " ++ (show i2) ++ "\n"
