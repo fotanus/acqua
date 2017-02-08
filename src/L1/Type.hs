@@ -56,27 +56,27 @@ inferType n (Letrec _ e1 e2 _) nameTypes =
     else inferType n e1 nameTypes
 inferType n (Head e1 _) _ =
     case e1 of
-    (Ident n1 _)  | n == n1 ->  ListT 
+    (Ident n1 _)  | n == n1 ->  ListT
     _             ->  UnknownT
 inferType n (Tail e1 _) _ =
-    case e1 of 
+    case e1 of
     (Ident n1 _)  | n == n1 ->  ListT
     _             ->  UnknownT
 inferType n (Last e1 _) _ =
-    case e1 of 
+    case e1 of
     (Ident n1 _)  | n == n1 ->  ListT
     _             -> UnknownT
 inferType n (Length e1 _) _ =
-    case e1 of 
+    case e1 of
     (Ident n1 _)  | n == n1 ->  ListT
     _              -> UnknownT
 inferType n (Concat e1 e2 _) _ =
-    case (e1,e2) of 
+    case (e1,e2) of
     ((Ident n1 _),_)  | n == n1 ->  ListT
     (_,(Ident n1 _))  | n == n1 ->  ListT
     _               -> UnknownT
 inferType n (Concat3 e1 e2 e3 _) _ =
-    case (e1,e2,e3) of 
+    case (e1,e2,e3) of
     ((Ident n1 _),_,_) | n == n1 -> ListT
     (_,(Ident n1 _),_) | n == n1 -> ListT
     (_,_,(Ident n1 _)) | n == n1 -> ListT
@@ -213,3 +213,106 @@ typeCheck (Letrec n e1 e2 _) nameTypes =
     nameTypes' = (n,(typeCheck e1 tempNameTypes,e1,True)):nameTypes
   in
     typeCheck e2 nameTypes'
+
+
+-- Fill the types on a term AST.
+fillTypes :: Term -> IdentifierTypeTable -> Term
+fillTypes (Num n a) _ = setType (Num n a) IntT
+fillTypes (List e a) _ = setType (List e a) ListT
+fillTypes (Ident n a) nameTypes =
+  let t = case lookup n nameTypes of
+          Just (t',_,_) -> t'
+          Nothing -> UnknownT
+  in setType (Ident n a) t
+
+fillTypes (Head e1 a) nameTypes =
+  let e1' = fillTypes e1 nameTypes
+  in setType (Head e1' a) (typeCheck e1 nameTypes) -- check list type
+
+fillTypes (Last e1 a) nameTypes =
+  let e1' = fillTypes e1 nameTypes
+  in setType (Last e1' a) (typeCheck e1 nameTypes) -- check list type
+
+fillTypes (Tail e1 a) nameTypes =
+  let e1' = fillTypes e1 nameTypes
+  in setType (Tail e1' a) ListT -- check list type
+
+fillTypes (Length e1 a) nameTypes =
+  let e1' = fillTypes e1 nameTypes
+  in setType (Length e1' a) IntT -- check list type
+
+fillTypes (Concat e1 e2 a) nameTypes =
+  let
+     e1' = fillTypes e1 nameTypes
+     e2' = fillTypes e2 nameTypes
+  in setType (Concat e1' e2' a) ListT -- check list type
+
+fillTypes (Concat3 e1 e2 e3 a) nameTypes =
+  let
+     e1' = fillTypes e1 nameTypes
+     e2' = fillTypes e2 nameTypes
+     e3' = fillTypes e3 nameTypes
+  in setType (Concat3 e1' e2' e3' a) ListT -- check list type
+
+
+fillTypes (Slice e1 e2 e3 a) nameTypes =
+  let
+     e1' = fillTypes e1 nameTypes
+     e2' = fillTypes e2 nameTypes
+     e3' = fillTypes e3 nameTypes
+  in setType (Slice e1' e2' e3' a) ListT -- check list type
+
+
+fillTypes (Map e1 e2 a) nameTypes =
+  let
+     e1' = fillTypes e1 nameTypes
+     e2' = fillTypes e2 nameTypes
+  in setType (Map e1' e2' a) ListT -- checkListType
+
+fillTypes (Filter e1 e2 a) nameTypes =
+  let
+     e1' = fillTypes e1 nameTypes
+     e2' = fillTypes e2 nameTypes
+  in setType (Filter e1' e2' a) ListT -- checkListType
+
+fillTypes (Fn names e1 a) nameTypes =
+  let
+     paramTypes = map (\n-> inferType n e1 nameTypes) names
+     e1' = fillTypes e1 nameTypes
+  in setType (Fn names e1' a) (FnT paramTypes (typeCheck e1 nameTypes))
+
+fillTypes (App e1 e2 a) nameTypes =
+  let
+     e1' = fillTypes e1 nameTypes
+     e2' = fillTypes e2 nameTypes
+     FnT _ resultingType = typeCheck e1 nameTypes
+  in setType (App e1' e2' a) resultingType
+
+fillTypes (Op e1 opc e2 a) nameTypes =
+  let
+     e1' = fillTypes e1 nameTypes
+     e2' = fillTypes e2 nameTypes
+     FnT _ resultingType = typeCheck e1 nameTypes
+  in setType (Op e1' opc e2' a) IntT
+
+fillTypes (If e1 e2 e3 a) nameTypes =
+  let
+     e1' = fillTypes e1 nameTypes
+     e2' = fillTypes e2 nameTypes
+     e3' = fillTypes e3 nameTypes
+  in setType (If e1' e2' e3' a) (typeCheck e2 nameTypes)
+
+fillTypes (Let n e1 e2 a) nameTypes =
+  let
+     nameTypes' = (n,(typeCheck e1 nameTypes,e1,False)):nameTypes
+     e1' = fillTypes e1 nameTypes
+     e2' = fillTypes e2 nameTypes'
+  in setType (Let n e1' e2' a) (typeCheck e2 nameTypes)
+
+fillTypes (Letrec n e1 e2 a) nameTypes =
+  let
+    tempNameTypes = (n,(FnT [UnknownT] UnknownT,e1,True)):nameTypes
+    nameTypes' = (n,(typeCheck e1 tempNameTypes,e1,True)):nameTypes
+    e1' = fillTypes e1 nameTypes'
+    e2' = fillTypes e2 nameTypes'
+  in setType (Letrec n e1' e2' a) (typeCheck e2 nameTypes')

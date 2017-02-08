@@ -4,6 +4,7 @@ import Debug.Trace
 import Control.Monad.State
 
 import L1.Language as L1
+import L1.Type
 import AcquaIR.Language as IR
 
 import Compiler.CompileStates
@@ -19,7 +20,7 @@ compile :: L1.Term -> Int -> IR.Program
 compile t opt =
   addSplitMap.addWaits.eliminateRedundantVars.statementsToProgram $ statements
   where
-    c = evalState (_compile (fillFreeVars t) opt) defaultCompileStates
+    c = evalState (_compile (fillFreeVars (fillTypes t [])) opt) defaultCompileStates
     statements = [SL "main"] ++ c ++ [ST (Return resp)]
 
 
@@ -375,16 +376,11 @@ _compile (Let n (Num i _) t2 _) opt = do
   c2 <- _compile t2 opt
   return $ c2
 
-_compile (Let n t1 t2 _) opt = do
+_compile (Let n t1 t2 (typ,_)) opt = do
   c1 <- _compile t1 opt
-  -- this should be replaced by a type check
-  tableCmds <- return $ if traceShow n $ traceShow c1 $ ((length c1) < 2)
-                        then [SC (InnerCopy "resp" n)]
-                        else case (reverse c1) !! 1 of
-                             SC (SetCallRecordCountI _ _) -> [SC (InnerCopy "resp" n)]
-                             SC (ListSetN _ _ _)            -> [SC (InnerCopy "resp" n)]
-                             SC (ListSet _ _ _)             -> [SC (InnerCopy "resp" n)]
-                             _                              -> [SC (AssignV "resp" n)]
+  tableCmds <- return $ if typ == IntT
+                        then [SC (AssignV "resp" n)]
+                        else [SC (InnerCopy "resp" n)]
   _ <- setSymbolTable n tableCmds
   c2 <- _compile t2 opt
   cs <- return $ c1 ++ [SC (AssignV n "resp")] ++ c2

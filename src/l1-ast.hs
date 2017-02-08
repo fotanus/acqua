@@ -2,6 +2,7 @@ module Main where
 
 import Text.Show.Pretty
 import L1.Grammar
+import L1.Type
 
 -- prints the AST of a L1 program after being parsed
 main :: IO ()
@@ -10,6 +11,6 @@ main = do
   let eitherAst = parse s
   case eitherAst of
     Right ast -> do
-      putStrLn (ppShow ast)
+      putStrLn (ppShow (fillTypes ast []))
     Left errorMsg ->
       putStrLn errorMsg

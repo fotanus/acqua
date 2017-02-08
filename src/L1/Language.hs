@@ -38,6 +38,27 @@ type Annotations = (Type, [Name])
 defaultAnnotations :: Annotations
 defaultAnnotations = (UnknownT, [])
 
+setType :: Term -> Type -> Term
+setType (Op t1 op t2 (_,fv)) typ = (Op t1 op t2 (typ,fv))
+setType (Num n (_,fv)) typ = (Num n (typ,fv))
+setType (Ident n (_,fv)) typ = (Ident n (typ,fv))
+setType (App t1 t2 (_,fv)) typ = (App t1 t2 (typ,fv))
+setType (MultiApp t1 lt (_,fv)) typ = (MultiApp t1 lt (typ,fv))
+setType (Let n t1 t2 (_,fv)) typ = (Let n t1 t2 (typ,fv))
+setType (Letrec n t1 t2 (_,fv)) typ = (Letrec n t1 t2 (typ,fv))
+setType (If t1 t2 t3 (_,fv)) typ = (If t1 t2 t3 (typ,fv))
+setType (Fn arg t1 (_,fv)) typ = (Fn arg t1 (typ,fv))
+setType (List elms (_,fv)) typ = (List elms (typ,fv))
+setType (Head t1 (_,fv)) typ = (Head t1 (typ,fv))
+setType (Tail t1 (_,fv)) typ = (Tail t1 (typ,fv))
+setType (Last t1 (_,fv)) typ = (Last t1 (typ,fv))
+setType (Length t1 (_,fv)) typ = (Length t1 (typ,fv))
+setType (Concat t1 t2 (_,fv)) typ = (Concat t1 t2 (typ,fv))
+setType (Concat3 t1 t2 t3 (_,fv)) typ = (Concat3 t1 t2 t3 (typ,fv))
+setType (Map t1 t2 (_,fv)) typ = (Map t1 t2 (typ,fv))
+setType (Slice t1 t2 t3 (_,fv)) typ = (Slice t1 t2 t3 (typ,fv))
+setType (Filter t1 t2 (_,fv)) typ = (Filter t1 t2 (typ,fv))
+
 data Term
   = Op Term OpCode Term Annotations
   | Num Int Annotations
