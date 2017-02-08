@@ -9,7 +9,8 @@ import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
 import Simulator.Value
 import Simulator.CallRecordSeg as CallRecordSeg
-import Simulator.CallRecord
+import Simulator.CallRecord as CR
+import Simulator.List as L
 
 import Simulator.Rules.Base
 
@@ -33,10 +34,13 @@ stepInnerCopy (pu:pus) =
 
         -- copy callrec on crseg
         Just (PointerV pointer) = Map.lookup x2 cenv
-        Just (CallRecordV crCopy) = Map.lookup (addr pointer) crseg
+        Just valueBeingCopied  = traceShowId $ Map.lookup (addr pointer) crseg
         crsegPos = CallRecordSeg.nextFreePos crseg
-        crseg' = Map.insert crsegPos (CallRecordV crCopy) crseg
-        stallC = (Seq.length (params crCopy)) + 3
+        crseg' = Map.insert crsegPos valueBeingCopied crseg
+        stallC = case valueBeingCopied of
+                 CallRecordV crCopy -> (Seq.length (CR.params crCopy)) + 3
+                 ListV crCopy -> (length (L.params crCopy))
+                 _ -> error $ "InnerCoping something that is not a list or call record: " ++ (show valueBeingCopied)
 
         -- add pointer to new copy
         newPointer = Pointer (PU.puId pu) crsegPos
