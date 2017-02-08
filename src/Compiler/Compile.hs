@@ -24,12 +24,12 @@ compile t opt =
 
 
 _compile :: L1.Term -> Int -> State CompileStates [Statement]
-_compile (Num n) _ = return [SC (AssignI resp n)]
-_compile (Ident n) _ = do
+_compile (Num n _) _ = return [SC (AssignI resp n)]
+_compile (Ident n _) _ = do
   c1 <- getFromSymbolTable n
   return c1
 
-_compile (Fn params t1 freeVars) opt = do
+_compile (Fn params t1 (_,freeVars)) opt = do
   _ <- forM [0..((length params)-1)] $ \i ->
     setSymbolTable (params!!i) [SC (AssignV "resp" (params!!i))]
   fn <- traceShow freeVars nextFnLabel
@@ -54,7 +54,7 @@ _compile (Fn params t1 freeVars) opt = do
   return newCallRecordCommands
 
 
-_compile (MultiApp t1 t2) opt = do
+_compile (MultiApp t1 t2 _) opt = do
   c1 <- _compile t1 opt
   c2s <- mapM (\x -> _compile x opt) t2
   thenLabel <- nextThenLabel
@@ -103,7 +103,7 @@ _compile (MultiApp t1 t2) opt = do
   return cs
 
 
-_compile (App t1 t2) opt = do
+_compile (App t1 t2 _) opt = do
   c1 <- _compile t1 opt
   c2 <- _compile t2 opt
   thenLabel <- nextThenLabel
@@ -138,10 +138,10 @@ _compile (App t1 t2) opt = do
                   ] ++ bbThen ++ [
                     SL backLabel
                   ]
-  cs <- return $ c1 ++ [SC (InnerCopy callRecordIdent' resp)] ++ c2 ++ envs
+  cs <- return $ c1 ++ [SC (AssignV callRecordIdent' resp)] ++ c2 ++ envs
   return cs
 
-_compile (L1.List elements) _ = do
+_compile (L1.List elements _) _ = do
   listIdent <- nextIdentName
   listSets <- return $ listSetsFun elements listIdent 0
   idents <- return $ listIdents elements
@@ -149,19 +149,19 @@ _compile (L1.List elements) _ = do
   identCode' <- return $ (concat (map (\(a,b) -> a ++ [SC (AssignV b "resp")]) (zip identCode idents)))
   return $ identCode' ++ [ SC (NewList listIdent (length elements)) ] ++ listSets ++ [SC (AssignV resp listIdent)]
 
-_compile (L1.Head t1) opt = do
+_compile (L1.Head t1 _) opt = do
   c1 <- _compile t1 opt
   return $ c1 ++ [SC (IR.Head resp resp)]
 
-_compile (L1.Tail t1) opt = do
+_compile (L1.Tail t1 _) opt = do
   c1 <- _compile t1 opt
   return $ c1 ++ [SC (IR.Tail resp resp)]
 
-_compile (L1.Last t1) opt = do
+_compile (L1.Last t1 _) opt = do
   c1 <- _compile t1 opt
   return $ c1 ++ [SC (IR.Last resp resp)]
 
-_compile (L1.Concat t1 t2) opt = do
+_compile (L1.Concat t1 t2 _) opt = do
   c1 <- _compile t1 opt
   c2 <- _compile t2 opt
   t1Ident <- nextIdentName
@@ -172,7 +172,7 @@ _compile (L1.Concat t1 t2) opt = do
   cs <- return $ t1c ++ t2c ++ assigns ++ [SC (IR.Concat "resp" t1Ident t2Ident)]
   return cs
 
-_compile (L1.Concat3 t1 t2 t3) opt = do
+_compile (L1.Concat3 t1 t2 t3 _) opt = do
   c1 <- _compile t1 opt
   c2 <- _compile t2 opt
   c3 <- _compile t3 opt
@@ -186,7 +186,7 @@ _compile (L1.Concat3 t1 t2 t3) opt = do
   cs <- return $ t1c ++ t2c ++ t3c ++ assigns ++ [SC (IR.Concat3 "resp" t1Ident t2Ident t3Ident)]
   return cs
 
-_compile (L1.Slice t1 t2 t3) opt = do
+_compile (L1.Slice t1 t2 t3 _) opt = do
   c1 <- _compile t1 opt
   c2 <- _compile t2 opt
   c3 <- _compile t3 opt
@@ -199,7 +199,7 @@ _compile (L1.Slice t1 t2 t3) opt = do
   cs <- return $ t1c ++ t2c ++ t3c ++ [SC (IR.Slice "resp" t1Ident t2Ident t3Ident)]
   return cs
 
-_compile (L1.Map t1 t2) opt = do
+_compile (L1.Map t1 t2 _) opt = do
   c1 <- _compile t1 opt
   c2 <- _compile t2 opt
   t1Ident <- nextIdentName
@@ -292,7 +292,7 @@ _compile (L1.Map t1 t2) opt = do
                  else t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident), SC Wait] 
   return cs
 
-_compile (L1.Filter t1 t2) opt = do
+_compile (L1.Filter t1 t2 _) opt = do
   c1 <- _compile t1 opt
   c2 <- _compile t2 opt
   t1Ident <- nextIdentName
@@ -303,11 +303,11 @@ _compile (L1.Filter t1 t2) opt = do
   cs <- return $ t1c ++ t2c ++ [SC (IR.Map t3Ident t1Ident t2Ident), SC Wait, SC (IR.Filter "resp" t3Ident t2Ident)]
   return cs
 
-_compile (L1.Length t1) opt = do
+_compile (L1.Length t1 _) opt = do
   c1 <- _compile t1 opt
   return $ c1 ++ [SC (IR.Length resp resp)]
 
-_compile (L1.Op t1 op t2) opt = do
+_compile (L1.Op t1 op t2 _) opt = do
   c1 <- _compile t1 opt
   c2 <- _compile t2 opt
   t1Ident <- nextIdentName
@@ -317,7 +317,7 @@ _compile (L1.Op t1 op t2) opt = do
   cs <- return $ t1c ++ t2c ++ [SC (IR.Op "resp" t1Ident (setOp op) t2Ident)]
   return cs
 
-_compile (L1.If t1 t2 t3) opt = do
+_compile (L1.If t1 t2 t3 _) opt = do
   c1 <- _compile t1 opt
   c2 <- _compile t2 opt
   c3 <- _compile t3 opt
@@ -331,7 +331,7 @@ _compile (L1.If t1 t2 t3) opt = do
   cs <- return $ t1c ++ t3c ++ [ST (Goto continueLabel)] ++ bbThen ++ [(SL continueLabel)]
   return cs
 
-_compile (Let n (Fn params t1 freeVars) t2) opt = do
+_compile (Let n (Fn params t1 (_,freeVars)) t2 _) opt = do
   callRecordIdent <- nextIdentName
   _ <- forM [0..((length params)-1)] $ \i ->
     setSymbolTable (params!!i) [SC (AssignV "resp" (params!!i))]
@@ -360,7 +360,7 @@ _compile (Let n (Fn params t1 freeVars) t2) opt = do
   cs <- return $ c2
   return $ newCallRecordCommands ++ cs
 
-_compile (Let n (L1.List elements) t2) opt = do
+_compile (Let n (L1.List elements _) t2 _) opt = do
   listIdent <- nextIdentName
   listSets <- return $ listSetsFun elements listIdent 0
   idents <- return $ listIdents elements
@@ -370,14 +370,15 @@ _compile (Let n (L1.List elements) t2) opt = do
   c2 <- _compile t2 opt
   return $ c2
 
-_compile (Let n (Num i) t2) opt = do
+_compile (Let n (Num i _) t2 _) opt = do
   _ <- setSymbolTable n [SC (AssignI "resp" i)]
   c2 <- _compile t2 opt
   return $ c2
 
-_compile (Let n t1 t2) opt = do
+_compile (Let n t1 t2 _) opt = do
   c1 <- _compile t1 opt
-  tableCmds <- return $ if (length c1) < 2 
+  -- this should be replaced by a type check
+  tableCmds <- return $ if traceShow n $ traceShow c1 $ ((length c1) < 2)
                         then [SC (InnerCopy "resp" n)]
                         else case (reverse c1) !! 1 of
                              SC (SetCallRecordCountI _ _) -> [SC (InnerCopy "resp" n)]
@@ -390,7 +391,7 @@ _compile (Let n t1 t2) opt = do
   return cs
 
 
-_compile (Letrec n (Fn params t1 freeVars) t2) opt = do
+_compile (Letrec n (Fn params t1 (_,freeVars)) t2 _) opt = do
   callRecordIdent <- nextIdentName
   _ <- forM [0..((length params)-1)] $ \i ->
     setSymbolTable (params!!i) [SC (AssignV "resp" (params!!i))]
@@ -416,7 +417,7 @@ _compile (Letrec n (Fn params t1 freeVars) t2) opt = do
   cs <- return $ [ ST (Goto  continueLabel) ] ++ fnBody ++ [ SL continueLabel ] ++ c2
   return $ cs
 
-_compile (Letrec _ _ _) _ = error "Letrec first term should be a function"
+_compile (Letrec _ _ _ _) _ = error "Letrec first term should be a function"
 
 
 listIdents :: [ListItem] -> [String]

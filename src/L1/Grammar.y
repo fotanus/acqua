@@ -67,52 +67,52 @@ import L1.Language
 %%
 Exp :
     -- Let and letrec
-    let var '=' Exp in Exp end           { Let $2 $4 $6 }
-    | letrec var '=' Exp in Exp end      { Letrec $2 $4 $6 }
+    let var '=' Exp in Exp end           { Let $2 $4 $6 defaultAnnotations }
+    | letrec var '=' Exp in Exp end      { Letrec $2 $4 $6 defaultAnnotations }
 
     -- Constructions
-    | if Exp then Exp else Exp       { If $2 $4 $6 }
+    | if Exp then Exp else Exp       { If $2 $4 $6 defaultAnnotations }
 
     -- Math
-    | Exp '+' Exp                        { Op $1 Add $3 }
-    | Exp '-' Exp                        { Op $1 Sub $3 }
-    | Exp '*' Exp                        { Op $1 Mult $3 }
-    | Exp '/' Exp                        { Op $1 Div $3 }
-    | Exp '=' Exp                       { Op $1 Equal $3 }
-    | Exp '!=' Exp                       { Op $1 NotEqual $3 }
-    | Exp '>=' Exp                       { Op $1 GreaterEqual $3 }
-    | Exp '<=' Exp                       { Op $1 LesserEqual $3 }
-    | Exp 'mod' Exp                      { Op $1 LesserEqual $3 }
-    | Exp '>' Exp                        { Op $1 Greater $3 }
-    | Exp '<' Exp                        { Op $1 Lesser $3 }
-    | Exp 'or' Exp                       { Op $1 Or $3 }
-    | Exp 'and' Exp                      { Op $1 And $3 }
+    | Exp '+' Exp                        { Op $1 Add $3 defaultAnnotations }
+    | Exp '-' Exp                        { Op $1 Sub $3 defaultAnnotations }
+    | Exp '*' Exp                        { Op $1 Mult $3 defaultAnnotations }
+    | Exp '/' Exp                        { Op $1 Div $3 defaultAnnotations }
+    | Exp '=' Exp                       { Op $1 Equal $3 defaultAnnotations }
+    | Exp '!=' Exp                       { Op $1 NotEqual $3 defaultAnnotations }
+    | Exp '>=' Exp                       { Op $1 GreaterEqual $3 defaultAnnotations }
+    | Exp '<=' Exp                       { Op $1 LesserEqual $3 defaultAnnotations }
+    | Exp 'mod' Exp                      { Op $1 LesserEqual $3 defaultAnnotations }
+    | Exp '>' Exp                        { Op $1 Greater $3 defaultAnnotations }
+    | Exp '<' Exp                        { Op $1 Lesser $3 defaultAnnotations }
+    | Exp 'or' Exp                       { Op $1 Or $3 defaultAnnotations }
+    | Exp 'and' Exp                      { Op $1 And $3 defaultAnnotations }
 
     -- Literals
-    | var %prec NOT_APP                  { Ident $1 }
-    | fn vars '=>' Exp                   { Fn $2 $4 [] }
-    | num                                { Num $1 }
-    | '-' num %prec NEGATIVE             { Num (-$2) }
+    | var %prec NOT_APP                  { Ident $1 defaultAnnotations }
+    | fn vars '=>' Exp                   { Fn $2 $4 defaultAnnotations }
+    | num                                { Num $1 defaultAnnotations }
+    | '-' num %prec NEGATIVE             { Num (-$2) defaultAnnotations }
     | '(' Exp ')'                        { $2 }
 
     -- Lists
-    | '[' ']'                            { List [] }
-    | '[' nums ']'                       { List $2 }
-    | head Exp                           { Head $2 }
-    | tail Exp                           { Tail $2 }
-    | last Exp                           { Last $2 }
-    | length Exp                         { Length $2 }
-    | concat '(' Exp ',' Exp ')'         { Concat $3 $5 }
-    | concat3 '(' Exp ',' Exp ',' Exp ')'         { Concat3 $3 $5 $7 }
-    | map '(' Exp ',' Exp ')'            { Map $3 $5 }
-    | slice '(' Exp ',' Exp ',' Exp ')'  { Slice $3 $5 $7 }
-    | filter '(' Exp ',' Exp ')'         { Filter $3 $5 }
+    | '[' ']'                            { List [] defaultAnnotations }
+    | '[' nums ']'                       { List $2 defaultAnnotations }
+    | head Exp                           { Head $2 defaultAnnotations }
+    | tail Exp                           { Tail $2 defaultAnnotations }
+    | last Exp                           { Last $2 defaultAnnotations }
+    | length Exp                         { Length $2 defaultAnnotations }
+    | concat '(' Exp ',' Exp ')'         { Concat $3 $5 defaultAnnotations }
+    | concat3 '(' Exp ',' Exp ',' Exp ')'         { Concat3 $3 $5 $7 defaultAnnotations }
+    | map '(' Exp ',' Exp ')'            { Map $3 $5 defaultAnnotations }
+    | slice '(' Exp ',' Exp ',' Exp ')'  { Slice $3 $5 $7 defaultAnnotations }
+    | filter '(' Exp ',' Exp ')'         { Filter $3 $5 defaultAnnotations }
 
     -- Application
-    | var Exp   %prec APP                          { App (Ident $1) $2 }
-    | '(' Exp ')' Exp %prec APP                    { App $2 $4 }
-    | Exp '(' Exp ')' %prec APP                    { App $1 $3 }
-    | Exp '(' Exp ',' Exps ')' %prec APP           { MultiApp $1 ([$3] ++ $5) }
+    | var Exp   %prec APP                          { App (Ident $1 defaultAnnotations) $2 defaultAnnotations }
+    | '(' Exp ')' Exp %prec APP                    { App $2 $4 defaultAnnotations }
+    | Exp '(' Exp ')' %prec APP                    { App $1 $3 defaultAnnotations }
+    | Exp '(' Exp ',' Exps ')' %prec APP           { MultiApp $1 ([$3] ++ $5) defaultAnnotations }
 
 Exps : Exp { [$1] }
      | Exp ',' Exps { [$1] ++ $3 }

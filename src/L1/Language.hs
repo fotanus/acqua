@@ -2,6 +2,15 @@ module L1.Language where
 
 type Name = String
 
+-- There are three types: Integer, function and Unknown. Unknown is a type used when we don't have enough information on the
+-- program to determine the type, and might be used as a placeholder while determining the type of a program.
+data Type
+  = IntT
+  | FnT [Type] Type
+  | ListT
+  | UnknownT
+  deriving (Eq,Ord,Show,Read)
+
 data OpCode
   = And
   | Or
@@ -24,24 +33,29 @@ data ListItem
   | RecList [ListItem]
   deriving (Eq,Ord,Show,Read)
 
+type Annotations = (Type, [Name])
+
+defaultAnnotations :: Annotations
+defaultAnnotations = (UnknownT, [])
+
 data Term
-  = Op Term OpCode Term
-  | Num Int
-  | Ident Name
-  | App Term Term
-  | MultiApp Term [Term]
-  | Let Name Term Term
-  | Letrec Name Term Term
-  | If Term Term Term
-  | Fn [Name] Term [Name]
-  | List [ListItem]
-  | Head Term
-  | Tail Term
-  | Last Term
-  | Length Term
-  | Concat Term Term
-  | Concat3 Term Term Term
-  | Map Term Term
-  | Slice Term Term Term
-  | Filter Term Term
+  = Op Term OpCode Term Annotations
+  | Num Int Annotations
+  | Ident Name Annotations
+  | App Term Term Annotations
+  | MultiApp Term [Term] Annotations
+  | Let Name Term Term Annotations
+  | Letrec Name Term Term Annotations
+  | If Term Term Term Annotations
+  | Fn [Name] Term Annotations
+  | List [ListItem] Annotations
+  | Head Term Annotations
+  | Tail Term Annotations
+  | Last Term Annotations
+  | Length Term Annotations
+  | Concat Term Term Annotations
+  | Concat3 Term Term Term Annotations
+  | Map Term Term Annotations
+  | Slice Term Term Term Annotations
+  | Filter Term Term Annotations
   deriving (Eq,Ord,Show,Read)

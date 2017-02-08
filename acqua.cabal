@@ -53,8 +53,9 @@ test-suite parser-spec
   type: exitcode-stdio-1.0
   hs-source-dirs: spec, src
   other-modules: L1.Tokens, L1.Grammar
+  build-tools: alex, happy
   main-is: parser_spec.hs
-  build-depends: base == 4.*, hspec, array
+  build-depends: base == 4.*, containers, pretty-show, mtl, split, hspec, array
 
 test-suite acqua-run-return-42-spec
   type: exitcode-stdio-1.0
