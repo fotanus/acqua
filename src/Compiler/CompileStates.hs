@@ -19,7 +19,7 @@ data CompileStates = CompileStates {
   }
 
 defaultCompileStates :: CompileStates
-defaultCompileStates = (CompileStates 0 0 0 0 0 [] [] [] 0)
+defaultCompileStates = (CompileStates 0 0 0 0 0 [("x", [SC (AssignV "resp" "x")])] [] [] 0)
 
 nextContinueLabel :: State CompileStates Label
 nextContinueLabel = do
@@ -67,7 +67,7 @@ getFromSymbolTable a = do
   s <- get
   return $ case lookup a (symbolTable s) of
                 Just something -> something
-                Nothing -> [SC (AssignV "resp" a)]
+                Nothing -> []
 
 setSymbolTable :: String -> [Statement] -> State CompileStates String
 setSymbolTable a b = do

@@ -377,6 +377,14 @@ _compile (Let n (Num i) t2) opt = do
 
 _compile (Let n t1 t2) opt = do
   c1 <- _compile t1 opt
+  tableCmds <- return $ if (length c1) < 2 
+                        then [SC (InnerCopy "resp" n)]
+                        else case (reverse c1) !! 1 of
+                             SC (SetCallRecordCountI _ _) -> [SC (InnerCopy "resp" n)]
+                             SC (ListSetN _ _ _)            -> [SC (InnerCopy "resp" n)]
+                             SC (ListSet _ _ _)             -> [SC (InnerCopy "resp" n)]
+                             _                              -> [SC (AssignV "resp" n)]
+  _ <- setSymbolTable n tableCmds
   c2 <- _compile t2 opt
   cs <- return $ c1 ++ [SC (AssignV n "resp")] ++ c2
   return cs
