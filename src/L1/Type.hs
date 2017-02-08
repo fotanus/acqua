@@ -1,15 +1,7 @@
 module L1.Type where
 
+import Logger
 import L1.Language as L1
-
--- There are three types: Integer, function and Unknown. Unknown is a type used when we don't have enough information on the
--- program to determine the type, and might be used as a placeholder while determining the type of a program.
-data Type
-  = IntT
-  | FnT [Type] Type
-  | ListT
-  | UnknownT
-  deriving (Eq,Ord,Show,Read)
 
 -- This table lists identifiers and some data about its type. It holds the pre-calculated type for this identifier
 -- the base term which was used to calculate this identifier type, and if it is recursive or not. The base term is saved
@@ -81,6 +73,10 @@ inferType n (Concat e1 e2) _ =
     if (e1 == (Ident n)) || (e2 == (Ident n))
     then ListT
     else UnknownT
+inferType n (Concat3 e1 e2 e3) _ =
+    if (e1 == (Ident n)) || (e2 == (Ident n)) || (e3 == (Ident n))
+    then ListT
+    else UnknownT
 inferType n (Map e1 e2) nameTypes =
     if e1 == (Ident n)
     then FnT [(typeCheck e2 nameTypes)] UnknownT
@@ -131,6 +127,13 @@ typeCheck (Concat e1 e2) nameTypes =
     then ListT
     else error "Concating something that is not a list"
 
+typeCheck (Concat3 e1 e2 e3) nameTypes =
+  if (isTypeOrUnknown (typeCheck e1 nameTypes) ListT) &&
+     (isTypeOrUnknown (typeCheck e2 nameTypes) ListT) &&
+     (isTypeOrUnknown (typeCheck e2 nameTypes) ListT)
+    then ListT
+    else error "Concating something that is not a list"
+
 typeCheck (Slice e1 e2 e3) nameTypes =
   if (isTypeOrUnknown (typeCheck e1 nameTypes) ListT) && (isTypeOrUnknown (typeCheck e2 nameTypes) IntT)  && (isTypeOrUnknown (typeCheck e3 nameTypes) IntT)
     then ListT
@@ -142,19 +145,19 @@ typeCheck (Map e1 e2) nameTypes =
            Fn _ _ _ -> ListT
            Ident n -> case lookup n nameTypes of
                       Just _  -> ListT
-                      Nothing -> error $ "Mapping undefined identifier"
-           _       -> error $ "Can't map " ++ (show e1) ++ " to " ++ (show e2)
-      else error $ "Can only map to a list"
+                      Nothing -> error $ "Type error: Mapping undefined identifier"
+           _       -> error $ "Type error: Can't map " ++ (show e1) ++ " to " ++ (show e2)
+      else error $ "Type error: Can only map to a list"
 
 typeCheck (Filter e1 e2) nameTypes =
-    if typeCheck e2 nameTypes == ListT
+    if isTypeOrUnknown (typeCheck e2 nameTypes) ListT
     then case e1 of
            Fn _ _ _ -> ListT
            Ident n -> case lookup n nameTypes of
                       Just _  -> ListT
-                      Nothing -> error $ "Mapping undefined identifier"
-           _       -> error $ "Can't filter " ++ (show e2) ++ " with function " ++ (show e1)
-      else error $ "Can only filter a list"
+                      Nothing -> error $ "Type error: Mapping undefined identifier"
+           _       -> error $ "Type error: Can't filter " ++ (show e2) ++ " with function " ++ (show e1)
+    else error $ "Type error: Can only filter a list " ++ (show e2)
 
 typeCheck (Ident n) nameTypes = case lookup n nameTypes of
                                      Just (t,_,_) -> t
@@ -172,15 +175,14 @@ typeCheck (App e1 e2) nameTypes =
                               else case e of
                                    Fn names _ _ -> typeCheck e ((map (\nam-> (nam, (e2type, e2, rec))) names) ++ nameTypes)
                                    _        -> typeCheck e nameTypes
-            _              -> error "Applying undefined identifier"
+            _              -> error $ "Type error: Applying undefined identifier " ++ (show n) ++ " " ++ (show e2)
         Fn names _ _  -> typeCheck e1 ((map (\n-> (n,(e2type, e2, False))) names) ++ nameTypes)
         App _ _ -> typeCheck e1 nameTypes
-        _       -> error $ "Can't apply " ++ (show e1) ++ "to " ++ (show e2)
+        _       -> error $ "Type error: Can't apply " ++ (show e1) ++ "to " ++ (show e2)
   in
     if isTypeOrUnknown e2type (head t1)
     then if null (tail t1) then t2 else FnT (tail t1) t2
-    else error $ "Argument " ++ (show e2) ++ " type " ++ (show (typeCheck e2 nameTypes)) ++ " does not match type " ++ (show t1)
-
+    else error $ "Type error: Argument " ++ (show e2) ++ " type " ++ (show (typeCheck e2 nameTypes)) ++ " does not match type " ++ (show t1)
 
 typeCheck (Op e1 _ e2) nameTypes =
     if isTypeOrUnknown (typeCheck e1 nameTypes) IntT
@@ -198,7 +200,7 @@ typeCheck (If e1 e2 e3) nameTypes =
 
 typeCheck (Let n e1 e2) nameTypes =
   let
-    nameTypes' = (n,(typeCheck e1 nameTypes, e1,False)):nameTypes
+    nameTypes' = traceShowId $ (n,(typeCheck e1 nameTypes, e1,False)):nameTypes
   in
     typeCheck e2 nameTypes'
 
