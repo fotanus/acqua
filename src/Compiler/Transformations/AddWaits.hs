@@ -80,6 +80,9 @@ addWaitCommands p ((lab,name):basicblocks) =
         AssignL n _           ->  if varName == n
                                   then Wait:c:cs
                                   else c:(insertWait cs varName)
+        InnerCopy n1 n2       ->  if varName == n1 || varName == n2
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
         AssignV n1 n2         ->  if varName == n1 || varName == n2
                                   then Wait:c:cs
                                   else c:(insertWait cs varName)

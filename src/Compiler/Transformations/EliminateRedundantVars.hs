@@ -53,6 +53,8 @@ eliminateVarsOnCmds [] = []
 eliminateVarsOnCmds (c:cs) = case (c,cs) of
                                   ((AssignV "resp" n1),(AssignV n2 "resp"):cs') ->
                                     (AssignV n2 n1):(eliminateVarsOnCmds cs')
+                                  ((InnerCopy "resp" n1),(InnerCopy n2 "resp"):cs') ->
+                                    (InnerCopy n2 n1):(eliminateVarsOnCmds cs')
                                   ((AssignI "resp" n1),(AssignV n2 "resp"):cs') ->
                                     (AssignI n2 n1):(eliminateVarsOnCmds cs')
                                   ((AssignL "resp" n1),(AssignV n2 "resp"):cs') ->
