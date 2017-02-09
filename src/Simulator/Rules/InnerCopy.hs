@@ -22,7 +22,7 @@ stepInnerCopy :: [ProcessingUnit] -> [ProcessingUnit]
 stepInnerCopy [] = []
 stepInnerCopy (pu:pus) =
   case (PU.commands pu, PU.canExecuteCmds pu) of
-    ((InnerCopy x1 x2):cs,True) -> trace ((show (PU.puId pu)) ++  ": innerCopy" ) (pu':pus')
+    ((InnerCopy x1 x2):cs,True) -> trace ((show (PU.puId pu)) ++  ": " ++ x1 ++ " = innerCopy " ++ x2 ) (pu':pus')
       where
         pus' = stepInnerCopy pus
 

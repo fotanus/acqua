@@ -1,8 +1,13 @@
-let fun = fn x => (x*x) + (2*x) - 1848 in
+let fun = fn x => (x*x) + (2*x) - 1846 in
 let dfun = fn x => 2*x + 2 in
 let x0 = 40 in
 let newtonrapson = fn x => x - ((fun x)/(dfun x)) in
-(newtonrapson (newtonrapson (newtonrapson (newtonrapson (newtonrapson x0))))) - 1
+letrec apply_n = fn func => fn arg => fn n => if n <= 0
+                                   then arg
+                                   else (((apply_n func) (func arg)) (n-1))
+                                in
+(((apply_n newtonrapson) x0) 4)
+end
 end
 end
 end

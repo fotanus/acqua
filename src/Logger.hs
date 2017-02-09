@@ -21,12 +21,12 @@ trace msg ret = if doTrace
 
 traceShow :: Show a => a -> b -> b
 traceShow msg ret = if doTrace
-                then T.traceShow msg ret
+                then T.trace (P.ppShow msg) ret
                 else ret
 
 traceShowId :: Show a => a -> a
 traceShowId ret = if doTrace
-                then T.traceShowId ret
+                then T.trace (P.ppShow ret) ret
                 else ret
 
 traceAcqua :: Acqua -> a -> a

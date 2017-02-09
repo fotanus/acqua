@@ -1,6 +1,6 @@
 module Compiler.Compile where
 
-import Debug.Trace
+import Logger
 import Control.Monad.State
 
 import L1.Language as L1
@@ -30,10 +30,14 @@ _compile (Ident n _) _ = do
   c1 <- getFromSymbolTable n
   return c1
 
-_compile (Fn params t1 (_,freeVars)) opt = do
+_compile (Fn params t1 (typ,freeVars)) opt = do
   _ <- forM [0..((length params)-1)] $ \i ->
-    setSymbolTable (params!!i) [SC (AssignV "resp" (params!!i))]
-  fn <- traceShow freeVars nextFnLabel
+    setSymbolTable (params!!i) $ case typ of
+                                 FnT paramTypes _ -> if (paramTypes!!i) == IntT || (params!!i) == "arg"
+                                                     then [SC (AssignV "resp" (params!!i))]
+                                                     else [SC (AssignV (params!!i) (params!!i)), SC (InnerCopy "resp" (params!!i))]
+                                 _                -> error $ "Applying function that don't have type FnT: " ++ (show typ)
+  fn <- nextFnLabel
   c1 <- _compile t1 opt
   callRecordIdent <- nextIdentName
   freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI callRecordIdent idx v)) (zip freeVars [0..])
@@ -288,9 +292,9 @@ _compile (L1.Map t1 t2 _) opt = do
       -- continue execution
       SL dummyLabel3
     ]
-  cs <- return $ if opt == 0 || opt == 1
-                 then t1c ++ t2c ++ mapCode
-                 else t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident), SC Wait] 
+  cs <- return $ t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident), SC Wait]  -- if opt == 0 || opt == 1
+                 -- then t1c ++ t2c ++ mapCode
+                 -- else t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident), SC Wait] 
   return cs
 
 _compile (L1.Filter t1 t2 _) opt = do
@@ -332,10 +336,14 @@ _compile (L1.If t1 t2 t3 _) opt = do
   cs <- return $ t1c ++ t3c ++ [ST (Goto continueLabel)] ++ bbThen ++ [(SL continueLabel)]
   return cs
 
-_compile (Let n (Fn params t1 (_,freeVars)) t2 _) opt = do
+_compile (Let n (Fn params t1 (typ,freeVars)) t2 _) opt = do
   callRecordIdent <- nextIdentName
   _ <- forM [0..((length params)-1)] $ \i ->
-    setSymbolTable (params!!i) [SC (AssignV "resp" (params!!i))]
+    setSymbolTable (params!!i) $ case typ of
+                                 FnT paramTypes _ -> if (paramTypes!!i) == IntT
+                                                     then [SC (AssignV "resp" (params!!i))]
+                                                     else [SC (AssignV (params!!i) (params!!i)), SC (InnerCopy "resp" (params!!i))]
+                                 _                -> error $ "Applying function that don't have type FnT: " ++ (show typ)
   freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI callRecordIdent idx v)) (zip freeVars [0..])
   fn <- nextFnLabel
   newCallRecordStruct <- return $ [
@@ -352,7 +360,7 @@ _compile (Let n (Fn params t1 (_,freeVars)) t2 _) opt = do
   getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
   fnBody <- return $ [SL fn] ++ getParamsCommands' ++ c1 ++ [ST (Return resp)]
   continueLabel <- nextContinueLabel
-  newCallRecordCommands <- return $  newCallRecordStruct ++ [
+  newCallRecordCommands <- return $  [
                                   ST (Goto  continueLabel)
                                  ] ++ fnBody ++ [
                                   SL continueLabel
@@ -376,21 +384,25 @@ _compile (Let n (Num i _) t2 _) opt = do
   c2 <- _compile t2 opt
   return $ c2
 
-_compile (Let n t1 t2 (typ,_)) opt = do
+_compile (Let n t1 t2 _) opt = do
   c1 <- _compile t1 opt
-  tableCmds <- return $ if typ == IntT
+  tableCmds <- return $ if (getType t1) == IntT
                         then [SC (AssignV "resp" n)]
-                        else [SC (InnerCopy "resp" n)]
+                        else [SC (AssignV n n), SC (InnerCopy "resp" n)]
   _ <- setSymbolTable n tableCmds
   c2 <- _compile t2 opt
   cs <- return $ c1 ++ [SC (AssignV n "resp")] ++ c2
   return cs
 
 
-_compile (Letrec n (Fn params t1 (_,freeVars)) t2 _) opt = do
+_compile (Letrec n (Fn params t1 (typ,freeVars)) t2 _) opt = do
   callRecordIdent <- nextIdentName
   _ <- forM [0..((length params)-1)] $ \i ->
-    setSymbolTable (params!!i) [SC (AssignV "resp" (params!!i))]
+    setSymbolTable (params!!i) $ case typ of
+                                 FnT paramTypes _ -> if (paramTypes!!i) == IntT
+                                                     then [SC (AssignV "resp" (params!!i))]
+                                                     else [SC (AssignV (params!!i) (params!!i)), SC (InnerCopy "resp" (params!!i))]
+                                 _                -> error $ "Applying function that don't have type FnT: " ++ (show typ)
   freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI callRecordIdent idx v)) (zip freeVars [0..])
   fn <- nextFnLabel
   newCallRecordStruct <- return $ [

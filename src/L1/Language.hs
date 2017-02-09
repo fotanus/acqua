@@ -9,6 +9,7 @@ data Type
   | FnT [Type] Type
   | ListT
   | UnknownT
+  | QUT Name
   deriving (Eq,Ord,Show,Read)
 
 data OpCode
@@ -58,6 +59,27 @@ setType (Concat3 t1 t2 t3 (_,fv)) typ = (Concat3 t1 t2 t3 (typ,fv))
 setType (Map t1 t2 (_,fv)) typ = (Map t1 t2 (typ,fv))
 setType (Slice t1 t2 t3 (_,fv)) typ = (Slice t1 t2 t3 (typ,fv))
 setType (Filter t1 t2 (_,fv)) typ = (Filter t1 t2 (typ,fv))
+
+getType :: Term -> Type
+getType (Op _ _ _ (typ,_)) = typ
+getType (Num _ (typ,_)) = typ
+getType (Ident _ (typ,_)) = typ
+getType (App _ _ (typ,_)) = typ
+getType (MultiApp _ _ (typ,_)) = typ
+getType (Let _ _ _ (typ,_)) = typ
+getType (Letrec _ _ _ (typ,_)) = typ
+getType (If _ _ _ (typ,_)) = typ
+getType (Fn _ _ (typ,_)) = typ
+getType (List _ (typ,_)) = typ
+getType (Head _ (typ,_)) = typ
+getType (Tail _ (typ,_)) = typ
+getType (Last _ (typ,_)) = typ
+getType (Length _ (typ,_)) = typ
+getType (Concat _ _ (typ,_)) = typ
+getType (Concat3 _ _ _ (typ,_)) = typ
+getType (Map _ _ (typ,_)) = typ
+getType (Slice _ _ _ (typ,_)) = typ
+getType (Filter _ _ (typ,_)) =  typ
 
 data Term
   = Op Term OpCode Term Annotations
