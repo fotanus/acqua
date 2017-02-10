@@ -34,7 +34,7 @@ stepInnerCopy (pu:pus) =
 
         -- copy callrec on crseg
         Just (PointerV pointer) = Map.lookup x2 cenv
-        Just valueBeingCopied  = traceShowId $ Map.lookup (addr pointer) crseg
+        Just valueBeingCopied  = Map.lookup (addr pointer) crseg
         crsegPos = CallRecordSeg.nextFreePos crseg
         crseg' = Map.insert crsegPos valueBeingCopied crseg
         stallC = case valueBeingCopied of

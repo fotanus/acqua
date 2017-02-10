@@ -9,6 +9,17 @@ eliminateRedundantVars p = eliminateCallVars $ eliminateVarsOnBB p
 eliminateCallVars :: IR.Program -> IR.Program
 eliminateCallVars p = _eliminateCallVars p p
 
+
+removeDeletes :: [Command] -> [Command]
+removeDeletes [] = []
+removeDeletes ((Delete _):cmds) = removeDeletes cmds
+removeDeletes (c:cmds) = c:cmds
+
+deleteCommands :: [Command] -> [Command]
+deleteCommands [] = []
+deleteCommands ((Delete x):cmds) = (Delete x):(removeDeletes cmds)
+deleteCommands (c:cmds) = []
+
 _eliminateCallVars :: IR.Program -> IR.Program -> IR.Program
 _eliminateCallVars [] p = p
 _eliminateCallVars (bb:bbs) p =
@@ -20,21 +31,21 @@ _eliminateCallVars (bb:bbs) p =
                 labelNum = traceShowId $ drop (length "then") (label bb)
                 back = lookupBB p ("back" ++ labelNum)
                 origBB = lookupBBWithIfForCall p (label bb)
-             in if null (commands back)
+             in if null (removeDeletes (commands back))
                 then _eliminateCallVars bbs p
-                else case head (commands back) of
+                else case head (removeDeletes (commands back)) of
                      AssignV var _   -> _eliminateCallVars bbs p'
                                         where
                                            p' = updateBB newBack $ updateBB newCall $ updateBB newOrig p
                                            newCall = bb { commands = (head (commands bb)):[Call var callRecord] }
-                                           newBack = back { commands = tail (commands back) }
+                                           newBack = back { commands = (deleteCommands (commands back)) ++ (tail (removeDeletes (commands back))) }
                                            newOrig = origBB { commands = ((commands origBB) ++ [AssignV var origClosName]) }
                                            SetCallRecordParam origClosName _ _ = (reverse (commands origBB))!!1
                      InnerCopy var _ -> _eliminateCallVars bbs p'
                                         where
                                            p' = updateBB newBack $ updateBB newCall $ updateBB newOrig p
                                            newCall = bb { commands = (head (commands bb)):[Call var callRecord] }
-                                           newBack = back { commands = tail (commands back) }
+                                           newBack = back { commands = (deleteCommands (commands back)) ++ (tail (removeDeletes (commands back))) }
                                            newOrig = origBB { commands = ((commands origBB) ++ [AssignV var origClosName]) }
                                            SetCallRecordParam origClosName _ _ = (reverse (commands origBB))!!1
                      _               -> error $ "first command on call block must be assignv " ++ (show (commands back))

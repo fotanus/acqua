@@ -31,6 +31,7 @@ _compile (Ident n _) _ = do
   return c1
 
 _compile (Fn params t1 (typ,freeVars)) opt = do
+  FnT paramTypes _ <- return typ
   _ <- forM [0..((length params)-1)] $ \i ->
     setSymbolTable (params!!i) $ case typ of
                                  FnT paramTypes _ -> if (paramTypes!!i) == IntT || (params!!i) == "arg"
@@ -43,7 +44,10 @@ _compile (Fn params t1 (typ,freeVars)) opt = do
   freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI callRecordIdent idx v)) (zip freeVars [0..])
   getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
   getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
-  fnBody <- return $ [SL fn] ++ getParamsCommands' ++ c1 ++ [ST (Return resp)]
+  refParamsIdxs <- return $ filter (\i -> not((paramTypes!!i) == IntT)) [0..((length paramTypes)-1)]
+  outerCopyCmds <- return $ map (\a-> SC (OuterCopy a a)) $ map (\i->params!!i) refParamsIdxs
+  deleteCmds <- return $ map (\a-> SC (Delete a )) (map (\i->params!!i) refParamsIdxs)
+  fnBody <- return $ [SL fn] ++ getParamsCommands' ++ outerCopyCmds ++ c1 ++ deleteCmds ++ [ST (Return resp)]
   continueLabel <- nextContinueLabel
   newCallRecordCommands <- return $ [
                                    SC (NewCallRecord callRecordIdent ((length freeVars)+(length params))),
@@ -338,12 +342,12 @@ _compile (L1.If t1 t2 t3 _) opt = do
 
 _compile (Let n (Fn params t1 (typ,freeVars)) t2 _) opt = do
   callRecordIdent <- nextIdentName
+  FnT paramTypes _ <- return typ
   _ <- forM [0..((length params)-1)] $ \i ->
-    setSymbolTable (params!!i) $ case typ of
-                                 FnT paramTypes _ -> if (paramTypes!!i) == IntT
-                                                     then [SC (AssignV "resp" (params!!i))]
-                                                     else [SC (AssignV (params!!i) (params!!i)), SC (InnerCopy "resp" (params!!i))]
-                                 _                -> error $ "Applying function that don't have type FnT: " ++ (show typ)
+    setSymbolTable (params!!i) $
+                                 if (paramTypes!!i) == IntT
+                                 then [SC (AssignV "resp" (params!!i))]
+                                 else [SC (AssignV (params!!i) (params!!i)), SC (InnerCopy "resp" (params!!i))]
   freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI callRecordIdent idx v)) (zip freeVars [0..])
   fn <- nextFnLabel
   newCallRecordStruct <- return $ [
@@ -358,7 +362,10 @@ _compile (Let n (Fn params t1 (typ,freeVars)) t2 _) opt = do
   c1 <- _compile t1 opt
   getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
   getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
-  fnBody <- return $ [SL fn] ++ getParamsCommands' ++ c1 ++ [ST (Return resp)]
+  refParamsIdxs <- return $ filter (\i -> not((paramTypes!!i) == IntT)) [0..((length paramTypes)-1)]
+  outerCopyCmds <- return $ map (\a-> SC (OuterCopy a a)) (map (\i->params!!i) refParamsIdxs)
+  deleteCmds <- return $ map (\a-> SC (Delete a )) (map (\i->params!!i) refParamsIdxs)
+  fnBody <- return $ [SL fn] ++ getParamsCommands' ++ outerCopyCmds ++ c1 ++ deleteCmds ++ [ST (Return resp)]
   continueLabel <- nextContinueLabel
   newCallRecordCommands <- return $  [
                                   ST (Goto  continueLabel)
