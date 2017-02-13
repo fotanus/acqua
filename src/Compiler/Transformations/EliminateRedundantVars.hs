@@ -26,7 +26,7 @@ _eliminateCallVars (bb:bbs) p =
     if null (commands bb)
       then _eliminateCallVars bbs p
       else case last (commands bb) of
-         Call _ callRecord ->
+         Call _ callRecord retFn ->
              let
                 labelNum = traceShowId $ drop (length "then") (label bb)
                 back = lookupBB p ("back" ++ labelNum)
@@ -37,14 +37,14 @@ _eliminateCallVars (bb:bbs) p =
                      AssignV var _   -> _eliminateCallVars bbs p'
                                         where
                                            p' = updateBB newBack $ updateBB newCall $ updateBB newOrig p
-                                           newCall = bb { commands = (head (commands bb)):[Call var callRecord] }
+                                           newCall = bb { commands = (head (commands bb)):[Call var callRecord retFn] }
                                            newBack = back { commands = (deleteCommands (commands back)) ++ (tail (removeDeletes (commands back))) }
                                            newOrig = origBB { commands = ((commands origBB) ++ [AssignV var origClosName]) }
                                            SetCallRecordParam origClosName _ _ = (reverse (commands origBB))!!1
                      InnerCopy var _ -> _eliminateCallVars bbs p'
                                         where
                                            p' = updateBB newBack $ updateBB newCall $ updateBB newOrig p
-                                           newCall = bb { commands = (head (commands bb)):[Call var callRecord] }
+                                           newCall = bb { commands = (head (commands bb)):[Call var callRecord retFn] }
                                            newBack = back { commands = (deleteCommands (commands back)) ++ (tail (removeDeletes (commands back))) }
                                            newOrig = origBB { commands = ((commands origBB) ++ [AssignV var origClosName]) }
                                            SetCallRecordParam origClosName _ _ = (reverse (commands origBB))!!1

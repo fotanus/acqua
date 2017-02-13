@@ -26,21 +26,7 @@ assignV acqua =
             val = getVal pu v
             puAfterAssign = (setVal pu x val) { PU.commands = cs, locked = True }
             (pus',i'') = (stepAssignV pus i')
-            (pu',i') = case val of
-                PointerV pt | (V.puId pt) == (PU.puId pu) -> (puAfterAssign,i)
-                            | otherwise -> case (sourcePtr == pt, Map.lookup (addr cachePtr) crseg) of
-                                             _ -> traceShow ("AssignV from other PU, starting to copy " ++ (show pt)) (pu'',i''')
-                              where
-                                (sourcePtr, cachePtr) = callRecordCache pu
-                                crseg = callRecordSeg pu
-                                crsegPos = CallRecordSeg.nextFreePos crseg
-                                pointer = Pointer (PU.puId pu) crsegPos
-                                clos = emptyCallRecord { functionName = "assignCopyCR" }
-                                crseg' = Map.insert crsegPos (CallRecordV clos) crseg
-                                pu'' = (setVal (setVal pu x (PointerV pointer)) v (PointerV pointer)) { PU.commands = cs, callRecordSeg = crseg', enabled = False, locked = True}
-                                m = MsgReqPointer (PU.puId pu) pointer (V.puId pt) pt
-                                i''' = (ConstMsgReqPointer m (msgStepsToPropagate acqua)) : i
-                _ -> (puAfterAssign,i)
+            (pu',i') = (puAfterAssign,i)
         _ ->
          let
            (pus',i') = stepAssignV pus i

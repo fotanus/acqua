@@ -73,6 +73,10 @@ _compile (MultiApp t1 t2 _) opt = do
   callRecordIdent' <- nextIdentName
   nparams <- nextIdentName
   currentCount <- nextIdentName
+  retsFn <- case (getType t1) of
+            FnT _ (FnT _ _) -> return True
+            FnT _ _         -> return False
+            _               -> error $ "Applying something that is not an FnT"
   addParams <- return $ concat $ map (\c-> c ++ [
                                          SC (AssignV "param" "resp"),
                                          SC (IR.Op currentCount currentCount IR.Add "one"),
@@ -83,7 +87,7 @@ _compile (MultiApp t1 t2 _) opt = do
   bbThen <- return $ [
                        SL thenLabel,
                        SC (AssignV callRecordIdent callRecordIdent'),
-                       SC (Call "resp" callRecordIdent),
+                       SC (Call "resp" callRecordIdent retsFn),
                        ST (Goto backLabel)
                      ]
   envs <- return $ [
@@ -120,10 +124,14 @@ _compile (App t1 t2 _) opt = do
   dummyLabel <- nextDummyLabel
   callRecordIdent <- nextIdentName
   callRecordIdent' <- nextIdentName
+  retsFn <- case (getType t1) of
+            FnT _ (FnT _ _) -> return True
+            FnT _ _         -> return False
+            _               -> error $ "Applying something that is not an FnT"
   bbThen <- return $ [
                        SL thenLabel,
                        SC (AssignV callRecordIdent callRecordIdent'),
-                       SC (Call "resp" callRecordIdent),
+                       SC (Call "resp" callRecordIdent retsFn),
                        ST (Goto backLabel)
                      ]
   envs <- return $ [

@@ -16,7 +16,7 @@ data BasicBlock = BB {
   } deriving (Eq,Ord,Show,Read)
 
 data Command
-  = Call Name Name
+  = Call Name Name Bool
   | CallL Name Name Name
   | Wait
   | Op Name Name OpCode Name
@@ -121,7 +121,7 @@ printCommands :: [Command] -> String
 printCommands cs = foldr (++) "" (map printCommand cs)
 
 printCommand :: Command -> String
-printCommand (Call name1 name2) = ident ++ (blue (name1 ++ " = Call " ++ name2)) ++ "\n"
+printCommand (Call name1 name2 _) = ident ++ (blue (name1 ++ " = Call " ++ name2)) ++ "\n"
 printCommand (CallL name1 idx name2) = ident ++ (blue (name1 ++ "[" ++ idx ++ "] = Call " ++ name2)) ++ "\n"
 printCommand (Op res name1 op name2) = ident ++ res ++ " = " ++ name1 ++ " " ++ (printOpCode op) ++ " " ++ name2 ++ "\n"
 printCommand (AssignI name n) = ident ++ name ++ " = " ++ (show n) ++ "\n"

@@ -23,7 +23,7 @@ stepCall :: [ProcessingUnit] -> [ProcessingUnit]
 stepCall [] = []
 stepCall (pu:pus) =
   case (PU.commands pu, PU.canExecuteCmds pu) of
-    ((Call x1 x2):cs,True) -> trace ((show (PU.puId pu)) ++  ": call" ) (pu':pus')
+    ((Call x1 x2 _):cs,True) -> trace ((show (PU.puId pu)) ++  ": call" ) (pu':pus')
       where
         pus' = stepCall pus
 
