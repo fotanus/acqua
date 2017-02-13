@@ -44,7 +44,7 @@ _compile (Fn params t1 (typ,freeVars)) opt = do
   freeVarsSetParams <- return $ map (\(v,idx) -> SC (SetCallRecordParamI callRecordIdent idx v)) (zip freeVars [0..])
   getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
   getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
-  refParamsIdxs <- return $ filter (\i -> not((paramTypes!!i) == IntT)) [0..((length paramTypes)-1)]
+  refParamsIdxs <- return $ filter (\i -> (paramTypes!!i) /= IntT && ((params!!i) /= "arg")) [0..((length paramTypes)-1)]
   outerCopyCmds <- return $ map (\a-> SC (OuterCopy a a)) $ map (\i->params!!i) refParamsIdxs
   deleteCmds <- return $ map (\a-> SC (Delete a )) (map (\i->params!!i) refParamsIdxs)
   fnBody <- return $ [SL fn] ++ getParamsCommands' ++ outerCopyCmds ++ c1 ++ deleteCmds ++ [ST (Return resp)]
@@ -296,9 +296,9 @@ _compile (L1.Map t1 t2 _) opt = do
       -- continue execution
       SL dummyLabel3
     ]
-  cs <- return $ t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident), SC Wait]  -- if opt == 0 || opt == 1
-                 -- then t1c ++ t2c ++ mapCode
-                 -- else t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident), SC Wait] 
+  cs <- return $ if opt == 0 || opt == 1
+                 then t1c ++ t2c ++ mapCode
+                 else t1c ++ t2c ++ [SC (IR.Map "resp" t1Ident t2Ident), SC Wait] 
   return cs
 
 _compile (L1.Filter t1 t2 _) opt = do
@@ -362,8 +362,8 @@ _compile (Let n (Fn params t1 (typ,freeVars)) t2 _) opt = do
   c1 <- _compile t1 opt
   getParamsCommands <- return $ map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip freeVars [0..])
   getParamsCommands' <- return $ getParamsCommands ++ (map (\p-> SC (GetCallRecordParam "callRecord" (snd p) (fst p))) (zip params [(length getParamsCommands)..] ))
-  refParamsIdxs <- return $ filter (\i -> not((paramTypes!!i) == IntT)) [0..((length paramTypes)-1)]
-  outerCopyCmds <- return $ map (\a-> SC (OuterCopy a a)) (map (\i->params!!i) refParamsIdxs)
+  refParamsIdxs <- return $ filter (\i -> (paramTypes!!i) /= IntT && ((params!!i) /= "arg")) [0..((length paramTypes)-1)]
+  outerCopyCmds <- return $ map (\a-> SC (OuterCopy a a)) $ map (\i->params!!i) refParamsIdxs
   deleteCmds <- return $ map (\a-> SC (Delete a )) (map (\i->params!!i) refParamsIdxs)
   fnBody <- return $ [SL fn] ++ getParamsCommands' ++ outerCopyCmds ++ c1 ++ deleteCmds ++ [ST (Return resp)]
   continueLabel <- nextContinueLabel

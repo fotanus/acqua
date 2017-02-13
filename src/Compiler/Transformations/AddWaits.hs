@@ -62,7 +62,10 @@ addWaitCommands p ((lab,name):basicblocks) =
     addWaitCommand bb n =
         bb { commands = commands' }
       where
-        commands' = if null (commands bb)
+        -- needs cleanup
+        removeDeletes [] = []
+        removeDeletes (c:cs) = case c of Delete _ -> removeDeletes cs; _ -> c:(removeDeletes cs)
+        commands' = if null (removeDeletes (commands bb))
                     then case (terminator bb) of
                       Return _ -> [Wait]
                       _        -> []
@@ -78,6 +81,9 @@ addWaitCommands p ((lab,name):basicblocks) =
                                   then Wait:c:cs
                                   else c:(insertWait cs varName)
         AssignL n _           ->  if varName == n
+                                  then Wait:c:cs
+                                  else c:(insertWait cs varName)
+        OuterCopy n1 n2       ->  if varName == n1 || varName == n2
                                   then Wait:c:cs
                                   else c:(insertWait cs varName)
         InnerCopy n1 n2       ->  if varName == n1 || varName == n2

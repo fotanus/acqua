@@ -35,7 +35,7 @@ updateMetaPointer acqua  =
           crseg = callRecordSeg pu
 
           Just (CallRecordV callRec) = Map.lookup (addr pointer) crseg
-          callRec' = if (functionName callRec) == "assignCopyCR"
+          callRec' = if (functionName callRec) == "assignCopyCR" || (functionName callRec) == "OuterCopyCR"
                      then emptyCallRecord { params = (Sequence.replicate (count+missing) (NumberV 0)) }
                      else callRec
           callRec'' = callRec' { functionName = fnN, CallRecord.paramCount = count, CallRecord.paramMissing = missing, isMap = im , timeout = if im then maxTimeout else maxTimeout + 1 }
