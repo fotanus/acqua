@@ -36,7 +36,13 @@ newAcqua p opt n stepsToPropagate var params = Acqua p' q pus newInterconnection
     pus = specialProcessingUnit:(newProcessingUnits n)
     q = newQueueForMap specialProcessingUnit (length params)
     p' = ((addGetVar (head p)):(tail p))
-    addGetVar bb = bb { IR.commands = ((GetCallRecordParam "callRecord" 0 var):(IR.commands bb)) }
+    extraCmds = if isList params
+                then [GetCallRecordParam "callRecord" 0 var, OuterCopy var var]
+                else [GetCallRecordParam "callRecord" 0 var]
+    addGetVar bb = bb { IR.commands = extraCmds ++ (IR.commands bb) }
+    isList pa = case head (head pa) of
+              '[' -> True
+              _   -> False
 
 unlockAndUnstallAll :: Acqua -> Acqua
 unlockAndUnstallAll acqua = acqua { processingUnits = (map (unlock.decrementStallCycles) (processingUnits acqua)) }

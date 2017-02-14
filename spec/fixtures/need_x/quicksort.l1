@@ -13,10 +13,7 @@ letrec quicksort =
         end
       else
         if (length list) > 0
-          then
-            let x = head list in
-              [x]
-             end
+          then [1]
           else []
 in
   quicksort x

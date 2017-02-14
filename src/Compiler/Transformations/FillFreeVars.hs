@@ -34,9 +34,9 @@ _fillFreeVars _ t = t
 
 -- Given a term from L1, look for all variable names that occur inside it, except the ones in the black list.
 -- The blacklist is there to avoid adding variables that are actually parameters for the inside functions.
-findFreeVars :: Term -> [Name] -> [Name]
+findFreeVars :: Term -> [Name] -> [(Name,Type)]
 findFreeVars (Num _ _) _ = []
-findFreeVars (Ident n _) bl = if n `elem` bl then [] else [n]
+findFreeVars (Ident n (typ,_)) bl = if n `elem` bl then [] else [(n,typ)]
 findFreeVars (If t1 t2 t3 _) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl) ++ (findFreeVars t3 bl)
 findFreeVars (Op t1 _ t2 _) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
 findFreeVars (App t1 t2 _) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
@@ -53,4 +53,4 @@ findFreeVars (Concat3 t1 t2 t3 _) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 
 findFreeVars (Slice t1 t2 t3 _) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl) ++ (findFreeVars t3 bl)
 findFreeVars (Map t1 t2 _) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
 findFreeVars (Filter t1 t2 _) bl = (findFreeVars t1 bl) ++ (findFreeVars t2 bl)
-findFreeVars (List items _) bl = foldr (\e prev-> case e of ListIdent n -> if n `elem` bl then prev else prev++[n]; _ -> prev) [] items
+findFreeVars (List items _) bl = foldr (\e prev-> case e of ListIdent n -> if n `elem` bl then prev else prev++[(n,IntT)]; _ -> prev) [] items

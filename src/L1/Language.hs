@@ -34,7 +34,7 @@ data ListItem
   | RecList [ListItem]
   deriving (Eq,Ord,Show,Read)
 
-type Annotations = (Type, [Name])
+type Annotations = (Type, [(Name,Type)])
 
 defaultAnnotations :: Annotations
 defaultAnnotations = (UnknownT, [])
