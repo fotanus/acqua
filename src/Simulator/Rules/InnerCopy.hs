@@ -27,7 +27,6 @@ stepInnerCopy (pu:pus) =
         pus' = stepInnerCopy pus
 
         ce = PU.currentEnv pu
-        pId = PU.puId pu
         envs = PU.environments pu
         crseg = PU.callRecordSeg pu
         Just cenv = Map.lookup ce envs
@@ -39,8 +38,8 @@ stepInnerCopy (pu:pus) =
         crseg' = Map.insert crsegPos valueBeingCopied crseg
         stallC = case valueBeingCopied of
                  CallRecordV crCopy -> (Seq.length (CR.params crCopy)) + 3
-                 ListV crCopy -> (length (L.params crCopy))
-                 _ -> error $ "InnerCoping something that is not a list or call record: " ++ (show valueBeingCopied)
+                 ListV crCopy       -> (length (L.params crCopy))
+                 _                  -> error $ "InnerCoping something that is not a list or call record: " ++ (show valueBeingCopied)
 
         -- add pointer to new copy
         newPointer = Pointer (PU.puId pu) crsegPos

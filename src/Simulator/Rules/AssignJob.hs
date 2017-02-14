@@ -70,7 +70,8 @@ assignJob acqua =
           -- prepare callrecord to be used
           newCallRecord = if canUseCache
                           then let
-                                  v = case source of 
+                                  v = case source of
+                                      CallSource _ -> error $ "cant use cache for call source"
                                       MapSource _ v' -> v'
                                       SMapSource _ pointr n -> v'
                                                 where

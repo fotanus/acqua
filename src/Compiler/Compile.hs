@@ -1,6 +1,5 @@
 module Compiler.Compile where
 
-import Logger
 import Control.Monad.State
 
 import L1.Language as L1

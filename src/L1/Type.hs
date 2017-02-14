@@ -1,9 +1,6 @@
 module L1.Type where
 
-import Data.List
-import qualified Text.Show.Pretty as P
-
-import Logger
+import Data.List as List
 import L1.Language as L1
 
 -- This table lists identifiers and some data about its type. It holds the pre-calculated type for this identifier
@@ -20,7 +17,7 @@ isTypeOrUnknown (FnT t11 t12) (FnT t21 t22) = foldr (&&) True
 isTypeOrUnknown t1 t2 = case (t1,t2) of
                         ((QUT _),_) -> True
                         (_,(QUT _)) -> True
-                        (t1,t2) -> t1 == t2 || t1 == UnknownT || t2 == UnknownT
+                        (t1',t2') -> t1' == t2' || t1' == UnknownT || t2' == UnknownT
 
 isTypeOrQUnknown :: Type -> Type -> Bool
 isTypeOrQUnknown  (FnT t11 t12) (FnT t21 t22) = foldr (&&) True
@@ -30,9 +27,6 @@ isTypeOrQUnknown t1 t2 = case (t1,t2) of
                         ((QUT _),_) -> True
                         (_,(QUT _)) -> True
                         _ -> False
-
-defineUnknown :: Type -> Type -> Type
-defineUnknown UnknownT t2 = t2
 
 hasUnknown :: Type -> Bool
 hasUnknown UnknownT = True
@@ -57,8 +51,8 @@ matchType t1 t2 = if isTypeOrUnknown t1 t2 then [] else error $ "type mismatch "
 betterQualifiedType :: Type -> Type -> Type
 betterQualifiedType UnknownT t2 = t2
 betterQualifiedType t1 UnknownT = t1
-betterQualifiedType (QUT x) t2 = t2
-betterQualifiedType t1 (QUT x) = t1
+betterQualifiedType (QUT _) t2 = t2
+betterQualifiedType t1 (QUT _) = t1
 betterQualifiedType t1 _  = t1
 
 
@@ -93,13 +87,12 @@ inferType n (Op e1 _ e3 _) nameTypes =
 
 inferType n (Fn names e1 _) nameTypes =
   let
-    paramNameTypes = map (\n->(n,((inferType n e1 nameTypes), (Ident n defaultAnnotations), False))) names
+    paramNameTypes = map (\n'->(n',((inferType n' e1 nameTypes), (Ident n' defaultAnnotations), False))) names
     nameTypes' = (paramNameTypes++nameTypes)
   in
     if n `elem` names
     then UnknownT
     else inferType n e1 nameTypes'
-
 
 inferType n (App e1 e2 _) nameTypes =
     case (e1,e2) of
@@ -109,6 +102,18 @@ inferType n (App e1 e2 _) nameTypes =
                                           _        -> QUT n
     _         -> if inferType n e1 nameTypes == UnknownT
                  then inferType n e2 nameTypes
+                 else inferType n e1 nameTypes
+
+inferType n (MultiApp e1 e2 _) nameTypes =
+ let
+    types = map (\e-> inferType n e nameTypes) e2
+ in
+    case (e1,e2) of
+    ((Ident n1 _),_)  | n == n1 ->  FnT types (QUT ("return_"++n))
+    _         -> if inferType n e1 nameTypes == UnknownT
+                 then case List.find (\t-> t /= UnknownT) types of
+                      Just t -> t
+                      _      -> UnknownT
                  else inferType n e1 nameTypes
 
 inferType n (If e1 e2 e3 _) nameTypes =
@@ -250,7 +255,9 @@ typeCheck (Fn names e1 _) nameTypes =
   in
     FnT paramTypes resultTypes
 
-
+typeCheck (MultiApp e1 (e2:[]) _) nametypes  = typeCheck (App e1 e2 defaultAnnotations) nametypes
+typeCheck (MultiApp e1 (e2:e2s) _) nametypes = typeCheck (MultiApp (App e1 e2 defaultAnnotations) e2s defaultAnnotations) nametypes
+typeCheck (MultiApp _ _ _) _ = error $ "type error: Invalid multi application"
 
 typeCheck (App e1 e2 _) nameTypes =
   let
@@ -370,6 +377,12 @@ fillTypes (Fn names e1 a) nameTypes =
      paramTypes = map (\n-> (n, ((inferType n e1 nameTypes), e1, False))) names
      e1' = fillTypes e1 (paramTypes ++ nameTypes)
   in setType (Fn names e1' a) (typeCheck (Fn names e1 a) (paramTypes++nameTypes))
+
+fillTypes (MultiApp e1 e2 a) nameTypes =
+  let
+     e1' = fillTypes e1 nameTypes
+     e2' = map (\e-> fillTypes e nameTypes) e2
+  in setType (MultiApp e1' e2' a) (typeCheck (MultiApp e1 e2 a) nameTypes)
 
 fillTypes (App e1 e2 a) nameTypes =
   let

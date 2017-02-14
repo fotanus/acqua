@@ -39,15 +39,15 @@ blocksToWait prog = traceShowId $ map extractLabelAndVar (blocksWithCall prog)
 -- blocks
 addWaitCommands :: IR.Program -> [(Label,Name,Bool)] -> IR.Program
 addWaitCommands p []          = p
-addWaitCommands p ((lab,name,retsFn):basicblocks) =
+addWaitCommands p ((lab,name,rFn):basicblocks) =
     addWaitCommands p' bbs'
   where
     hasWait [] = False
     hasWait (c:cs) = if c == Wait then True else hasWait cs
 
-    p' = addWaitOnBlock lab p name retsFn
+    p' = addWaitOnBlock lab p name rFn
     bbs' = if p == p' && not (hasWait (commands (lookupBB p' lab)))
-           then (checkForExtraBlocks lab p name retsFn) ++ basicblocks
+           then (checkForExtraBlocks lab p name rFn) ++ basicblocks
            else basicblocks
 
 
@@ -73,7 +73,7 @@ addWaitCommands p ((lab,name,retsFn):basicblocks) =
 
 
     -- insert a wait command on the command list if applicable
-    insertWait [] _ retsFn           = []
+    insertWait [] _ _                = []
     insertWait (c:cs) varName retsFn =
       let
         insertCommands = if retsFn
@@ -135,7 +135,7 @@ addWaitCommands p ((lab,name,retsFn):basicblocks) =
     -- and checks the basic block terminator to define what other basic blocks the program
     -- can reach from this one. It then creates a pair (Label,Name) to be evaluated and find
     -- the correct place to add the label
-    checkForExtraBlocks _ [] _ retsFn       = error "Basic block not Found"
+    checkForExtraBlocks _ [] _ _            = error "Basic block not Found"
     checkForExtraBlocks l (bb:bbs) n retsFn = if (label bb) == l
                                               then case (terminator bb) of
                                                    Return _ -> []

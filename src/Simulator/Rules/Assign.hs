@@ -1,37 +1,26 @@
 module Simulator.Rules.Assign where
 
-import qualified Data.Map as Map
 import Logger
 
 import AcquaIR.Language as IR
 import Simulator.Acqua
 import Simulator.ProcessingUnit as PU
-import Simulator.Interconnection
 import Simulator.Value as V
-import Simulator.CallRecordSeg as CallRecordSeg
-import Simulator.CallRecord
 
 import Simulator.Rules.Base
-
 assignV:: Rule
 assignV acqua =
-  let (pus',ic') = stepAssignV (processingUnits acqua) (interconnection acqua)
-  in acqua { processingUnits = pus', interconnection = ic' }
+    acqua { processingUnits = map stepAssignV (processingUnits acqua) }
   where
-    stepAssignV [] i = ([],i)
-    stepAssignV (pu:pus) i =
-      case (PU.commands pu,PU.canExecuteCmds pu) of
-        (((AssignV x v):cs),True) -> trace ((show (PU.puId pu)) ++ ": AssignV " ++ (show x) ++ " " ++ (show v)) ((pu':pus'),i'')
+    stepAssignV pu =
+      case PU.commands pu of
+        ((AssignV x v):cs) -> if PU.canExecuteCmds pu
+                              then trace ((show (PU.puId pu)) ++ ": AssignV" ++ (show x) ++ " " ++ (show v)) pu'
+                              else pu
           where
             val = getVal pu v
-            puAfterAssign = (setVal pu x val) { PU.commands = cs, locked = True }
-            (pus',i'') = (stepAssignV pus i')
-            (pu',i') = (puAfterAssign,i)
-        _ ->
-         let
-           (pus',i') = stepAssignV pus i
-         in
-          ((pu:pus'),i')
+            pu' = (setVal pu x val) { PU.commands = cs, locked = True}
+        _ -> pu
 
 assignL:: Rule
 assignL acqua =

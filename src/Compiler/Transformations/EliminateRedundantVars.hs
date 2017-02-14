@@ -1,6 +1,5 @@
 module Compiler.Transformations.EliminateRedundantVars where
 
-import Logger
 import AcquaIR.Language as IR
 
 eliminateRedundantVars :: IR.Program -> IR.Program
@@ -16,9 +15,8 @@ removeDeletes ((Delete _):cmds) = removeDeletes cmds
 removeDeletes (c:cmds) = c:cmds
 
 deleteCommands :: [Command] -> [Command]
-deleteCommands [] = []
 deleteCommands ((Delete x):cmds) = (Delete x):(removeDeletes cmds)
-deleteCommands (c:cmds) = []
+deleteCommands _ = []
 
 _eliminateCallVars :: IR.Program -> IR.Program -> IR.Program
 _eliminateCallVars [] p = p

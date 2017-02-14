@@ -2,7 +2,6 @@ module Simulator.GarbageCollector where
 
 import qualified Data.Map as Map
 
-import Logger
 import Simulator.Acqua
 import Simulator.ProcessingUnit
 import Simulator.CallRecord
