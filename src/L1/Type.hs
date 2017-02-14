@@ -50,7 +50,7 @@ matchType (QUT x) t2 = [((QUT x), t2)]
 matchType UnknownT _ = []
 matchType (FnT t11 t12) (FnT t21 t22) = (concat (map (\(t',t'')-> matchType t' t'' ) (zip t11 t21))) ++ (matchType t12 t22)
 matchType IntT UnknownT = [] -- this is a hack to allow running the simulator with entry x
-matchType t1 t2 = if t1 == t2 then [] else error $ "type mismatch " ++ (show t1) ++ ", and " ++ (show t2)
+matchType t1 t2 = if isTypeOrUnknown t1 t2 then [] else error $ "type mismatch " ++ (show t1) ++ ", and " ++ (show t2)
 
 
 -- from two types, which one is better?

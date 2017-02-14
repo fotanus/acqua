@@ -80,6 +80,7 @@ _compile (MultiApp t1 t2 _) opt = do
   currentCount <- nextIdentName
   retsFn <- case (getType t1) of
             FnT _ (FnT _ _) -> return True
+            FnT _ ListT     -> return True
             FnT _ _         -> return False
             _               -> error $ "Applying something that is not an FnT"
   addParams <- return $ concat $ map (\c-> c ++ [
@@ -131,6 +132,7 @@ _compile (App t1 t2 _) opt = do
   callRecordIdent' <- nextIdentName
   retsFn <- case (getType t1) of
             FnT _ (FnT _ _) -> return True
+            FnT _ ListT     -> return True
             FnT _ _         -> return False
             _               -> error $ "Applying something that is not an FnT"
   bbThen <- return $ [

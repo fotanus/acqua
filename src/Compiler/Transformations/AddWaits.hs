@@ -24,7 +24,7 @@ blocksWithCall (bb:basicblocks) =
 -- have the same structure: A call followed by a goto. The next block always have as the first
 -- command one assign from resp (result from call) to the variable name which we need to wait.
 blocksToWait :: IR.Program -> [(Label,Name,Bool)]
-blocksToWait prog = map extractLabelAndVar (blocksWithCall prog)
+blocksToWait prog = traceShowId $ map extractLabelAndVar (blocksWithCall prog)
   where
     extractLabelAndVar bb =
         (l,v,retsFn)
@@ -81,7 +81,7 @@ addWaitCommands p ((lab,name,retsFn):basicblocks) =
                          else [Wait]
       in
         case c of
-        Wait                  ->  c:cs
+        Wait                  ->  c:(tail insertCommands)++cs
         AssignI n _           ->  if varName == n
                                   then insertCommands++[c]++cs
                                   else c:(insertWait cs varName retsFn)

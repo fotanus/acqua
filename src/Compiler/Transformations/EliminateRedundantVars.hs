@@ -28,7 +28,7 @@ _eliminateCallVars (bb:bbs) p =
       else case last (commands bb) of
          Call _ callRecord retFn ->
              let
-                labelNum = traceShowId $ drop (length "then") (label bb)
+                labelNum = drop (length "then") (label bb)
                 back = lookupBB p ("back" ++ labelNum)
                 origBB = lookupBBWithIfForCall p (label bb)
              in if null (removeDeletes (commands back))
