@@ -489,8 +489,7 @@ addSplitMap p =
       GetCallRecordParam "callRecord" 0 "fn",
       GetCallRecordParam "callRecord" 1 "list",
       GetCallRecordParam "callRecord" 2 "size",
-      AssignV "fn" "fn",
-      -- AssignV "list" "list",
+      OuterCopy "fn" "fn",
       IR.SMap "resp" "fn" "list" "size",
       Wait
       ]
