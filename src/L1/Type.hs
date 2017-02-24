@@ -266,7 +266,7 @@ typeCheck (App e1 e2 _) nameTypes =
                         FnT t1 t2 -> (t1, t2)
                         UnknownT -> ([UnknownT], UnknownT)
                         QUT _ -> ([UnknownT], UnknownT)
-                        _ -> error $ "what is this? " ++ (show (typeCheck e1 nameTypes)) ++ "\n" ++ (show e1)
+                        _ -> ([UnknownT], UnknownT)
 
     retType = if (length e1type1) == 1
               then e1type2
@@ -274,7 +274,7 @@ typeCheck (App e1 e2 _) nameTypes =
   in
     if isTypeOrUnknown e2type (head e1type1)
     then if e1type1 == [UnknownT]
-         then subUnknown retType (head e1type1) e2type
+         then retType -- subUnknown retType (head e1type1) e2type
          else let
                 newVars = matchType (head e1type1) e2type
                 sbst [] t1 = t1
@@ -294,7 +294,7 @@ typeCheck (If e1 e2 e3 _) nameTypes =
     if isTypeOrUnknown (typeCheck e1 nameTypes) IntT
     then if isTypeOrUnknown (typeCheck e2 nameTypes) (typeCheck e3 nameTypes)
          then typeCheck e2 nameTypes
-         else error "Two branches of if don't have the same type"
+         else error $ "Two branches of if don't have the same type\n" ++ (show (typeCheck e2 nameTypes)) ++ "\n" ++ (show (typeCheck e3 nameTypes))
     else error "expression on if is not int"
 
 typeCheck (Let n e1 e2 _) nameTypes =
