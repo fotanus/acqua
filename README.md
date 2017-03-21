@@ -32,10 +32,4 @@ To typecheck an L1 program
 ./l1-typecheck < program.l1
 ```
 
-To run a L1 application in the simulator
-
-```
-./acqua-run 10 0 x 3 < program.l1
-```
-
-Where `10` is the number of processing units used in the simulation, `0` is the number of steps to exchange a message (used to simulate hierarchical crossbar), `x` is the variable name and `3` is the parameter value. To apply a map add more number as parameters.
+To run a L1 application in the simulator use `./acqua-run` and send the program in the standard input. Check the options by running it without arguments to configure the architecture number of processing units and other options
